@@ -6,39 +6,50 @@
   <title>Servis Bilgi & FS Asistanı</title>
   <style>
     :root {
-      --bg: #0f1115;
-      --panel: #171a21;
-      --panel-2: #1f242e;
-      --text: #eef1f6;
-      --muted: #9aa3b2;
-      --accent: #3b82f6;
-      --accent-hover: #2563eb;
-      --danger: #ef4444;
-      --danger-bg: rgba(239, 68, 68, 0.14);
-      --warn: #f59e0b;
-      --warn-bg: rgba(245, 158, 11, 0.14);
-      --ok: #22c55e;
-      --ok-bg: rgba(34, 197, 94, 0.14);
-      --border: #2b3240;
-      --radius: 12px;
+      --bg: #08070d;
+      --panel: #110f1a;
+      --panel-2: #191626;
+      --text: #f5f3ff;
+      --muted: #b3abc9;
+      --neon-purple: #9d4edd;
+      --neon-purple-bright: #c77dff;
+      --neon-cyan: #00f0ff;
+      --neon-magenta: #ff2a85;
+      --danger: #ff3b5c;
+      --danger-bg: rgba(255, 59, 92, 0.14);
+      --warn: #ffb703;
+      --warn-bg: rgba(255, 183, 3, 0.15);
+      --ok: #00f5a0;
+      --ok-bg: rgba(0, 245, 160, 0.14);
+      --border: rgba(157, 78, 221, 0.35);
+      --radius: 14px;
     }
+
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
+      min-height: 100vh;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      background: var(--bg);
+      background:
+        radial-gradient(circle at 20% 25%, rgba(157, 78, 221, 0.18), transparent 45%),
+        radial-gradient(circle at 80% 75%, rgba(0, 240, 255, 0.13), transparent 45%),
+        var(--bg);
       color: var(--text);
       line-height: 1.5;
     }
+
     header {
       position: sticky;
       top: 0;
-      z-index: 20;
-      background: rgba(15, 17, 21, 0.94);
-      backdrop-filter: blur(8px);
+      z-index: 25;
+      background: rgba(8, 7, 13, 0.88);
+      backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
+      box-shadow: 0 4px 24px rgba(157, 78, 221, 0.14);
       padding: 12px 16px;
     }
+
     .header-inner {
       max-width: 980px;
       margin: 0 auto;
@@ -46,67 +57,201 @@
       align-items: center;
       justify-content: space-between;
       gap: 10px;
+      flex-wrap: wrap;
     }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
     .user-pill {
-      font-size: 0.88rem;
-      color: #93c5fd;
-      background: rgba(59, 130, 246, 0.16);
-      border: 1px solid rgba(59, 130, 246, 0.4);
-      padding: 6px 12px;
+      font-size: 0.9rem;
+      color: #ffffff;
+      background: linear-gradient(135deg, rgba(157, 78, 221, 0.32), rgba(0, 240, 255, 0.16));
+      border: 1px solid var(--neon-purple-bright);
+      box-shadow: 0 0 14px rgba(157, 78, 221, 0.45);
+      padding: 6px 14px;
       border-radius: 999px;
       font-weight: 700;
     }
+
+    .records-top-btn {
+      background: rgba(0, 240, 255, 0.12);
+      color: var(--neon-cyan);
+      border: 1px solid var(--neon-cyan);
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.28);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .records-top-btn:hover {
+      background: rgba(0, 240, 255, 0.22);
+      box-shadow: 0 0 18px rgba(0, 240, 255, 0.5);
+    }
+
     .notif-btn {
       background: var(--danger-bg);
-      color: #fca5a5;
+      color: #ff9eb0;
       border: 1px solid var(--danger);
+      box-shadow: 0 0 14px rgba(255, 59, 92, 0.35);
       padding: 6px 12px;
       border-radius: 999px;
       font-size: 0.82rem;
       font-weight: 700;
       cursor: pointer;
     }
+
     .notif-btn.ok {
       background: var(--panel-2);
       color: var(--muted);
       border-color: var(--border);
+      box-shadow: none;
       font-weight: 600;
     }
+
     main {
       max-width: 980px;
-      margin: 18px auto;
-      padding: 0 16px 140px;
+      margin: 0 auto;
+      padding: 20px 16px 60px;
     }
+
+    .center-stage {
+      min-height: calc(100vh - 110px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+    }
+
+    .square-pair {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(145px, 195px));
+      gap: 20px;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .neon-square-btn {
+      aspect-ratio: 1 / 1;
+      width: 100%;
+      background: linear-gradient(160deg, rgba(157, 78, 221, 0.16), rgba(17, 15, 26, 0.95));
+      color: var(--text);
+      border: 1.5px solid var(--neon-purple-bright);
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-size: 1.08rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      box-shadow:
+        0 0 18px rgba(157, 78, 221, 0.42),
+        inset 0 0 16px rgba(157, 78, 221, 0.16);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .neon-square-btn:hover {
+      transform: translateY(-3px) scale(1.02);
+      border-color: var(--neon-cyan);
+      box-shadow:
+        0 0 24px rgba(0, 240, 255, 0.45),
+        0 0 32px rgba(157, 78, 221, 0.4),
+        inset 0 0 18px rgba(0, 240, 255, 0.14);
+    }
+
+    .neon-square-btn.upload-sq {
+      border-color: var(--neon-cyan);
+      background: linear-gradient(160deg, rgba(0, 240, 255, 0.14), rgba(17, 15, 26, 0.95));
+      box-shadow:
+        0 0 18px rgba(0, 240, 255, 0.34),
+        inset 0 0 16px rgba(0, 240, 255, 0.14);
+    }
+
+    .neon-square-btn.upload-sq:hover {
+      border-color: var(--neon-purple-bright);
+    }
+
+    .upload-menu-box {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      background: var(--panel);
+      border: 1px solid var(--neon-cyan);
+      box-shadow: 0 0 24px rgba(0, 240, 255, 0.25);
+      padding: 12px;
+      border-radius: 16px;
+    }
+
+    .upload-choice-btn {
+      background: var(--panel-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .upload-choice-btn:hover {
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
+    }
+
     .gate-wrap {
       max-width: 520px;
       margin: 48px auto;
       padding: 0 16px;
     }
+
     .gate-card {
       background: var(--panel);
-      border: 1px solid var(--border);
+      border: 1px solid var(--neon-purple-bright);
+      box-shadow: 0 0 26px rgba(157, 78, 221, 0.28);
       border-radius: var(--radius);
       padding: 22px;
     }
+
     .gate-title {
       font-size: 1.15rem;
       margin: 0 0 8px;
-      color: #fca5a5;
+      color: var(--neon-cyan);
     }
+
     .card {
       background: var(--panel);
       border: 1px solid var(--border);
+      box-shadow: 0 0 22px rgba(157, 78, 221, 0.15);
       border-radius: var(--radius);
       padding: 16px;
       margin-bottom: 16px;
     }
-    .card h2 { font-size: 1rem; margin: 0 0 12px; }
+
+    .card h2 {
+      font-size: 1.02rem;
+      margin: 0 0 12px;
+      color: var(--neon-cyan);
+    }
+
     label {
       display: block;
       font-size: 0.85rem;
       color: var(--muted);
       margin-bottom: 6px;
     }
+
     input, select, textarea {
       width: 100%;
       background: var(--panel-2);
@@ -117,61 +262,95 @@
       font-size: 0.95rem;
       font-family: inherit;
     }
-    textarea { min-height: 100px; resize: vertical; }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.25);
+    }
+
+    textarea { min-height: 110px; resize: vertical; }
+
     .row {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 12px;
       margin-bottom: 12px;
     }
+
     button {
-      background: var(--accent);
+      background: linear-gradient(135deg, #7b2cbf, #9d4edd);
       color: #fff;
-      border: none;
+      border: 1px solid rgba(199, 125, 255, 0.5);
       border-radius: 8px;
       padding: 10px 14px;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
       font-size: 0.9rem;
     }
-    button:hover { background: var(--accent-hover); }
+
+    button:hover {
+      box-shadow: 0 0 16px rgba(157, 78, 221, 0.5);
+    }
+
     button.secondary {
       background: var(--panel-2);
       color: var(--text);
       border: 1px solid var(--border);
+      box-shadow: none;
     }
-    button.secondary:hover { background: #262d3a; }
-    button.danger { background: var(--danger); color: #fff; }
-    button.warn { background: #d97706; color: #fff; }
+
+    button.secondary:hover {
+      border-color: var(--neon-cyan);
+    }
+
+    button.danger {
+      background: var(--danger);
+      border-color: #ff758f;
+      color: #fff;
+    }
+
+    button.warn {
+      background: #d97706;
+      border-color: #fbbf24;
+      color: #fff;
+    }
+
     button.mic-btn {
-      background: var(--panel-2);
-      color: var(--text);
-      border: 1px solid var(--border);
+      background: rgba(0, 240, 255, 0.12);
+      color: var(--neon-cyan);
+      border: 1px solid var(--neon-cyan);
       display: inline-flex;
       align-items: center;
       gap: 6px;
     }
+
     button.mic-btn.recording {
       background: var(--danger-bg);
-      color: #fca5a5;
+      color: #ff9eb0;
       border-color: var(--danger);
+      box-shadow: 0 0 16px rgba(255, 59, 92, 0.5);
     }
+
     .fs-alert {
       background: var(--danger-bg);
       border: 1px solid var(--danger);
-      color: #fca5a5;
+      color: #ff9eb0;
       padding: 16px;
       border-radius: var(--radius);
       font-weight: 700;
       font-size: 1.05rem;
     }
+
     .summary-box {
-      background: rgba(34, 197, 94, 0.1);
-      border: 1px solid rgba(34, 197, 94, 0.4);
+      background: rgba(0, 245, 160, 0.08);
+      border: 1px solid rgba(0, 245, 160, 0.45);
+      box-shadow: 0 0 18px rgba(0, 245, 160, 0.14);
       border-radius: var(--radius);
       padding: 14px;
       margin-top: 12px;
     }
+
     .record-item {
       background: var(--panel-2);
       border: 1px solid var(--border);
@@ -179,6 +358,7 @@
       padding: 12px;
       margin-bottom: 10px;
     }
+
     .record-meta {
       display: flex;
       flex-wrap: wrap;
@@ -188,29 +368,35 @@
       color: var(--muted);
       margin-bottom: 6px;
     }
+
     .badge {
-      background: rgba(59, 130, 246, 0.18);
-      color: #93c5fd;
+      background: rgba(0, 240, 255, 0.15);
+      color: var(--neon-cyan);
       padding: 2px 8px;
       border-radius: 999px;
       font-weight: 600;
     }
+
     .badge.user {
-      background: rgba(168, 85, 247, 0.18);
-      color: #d8b4fe;
+      background: rgba(157, 78, 221, 0.25);
+      color: var(--neon-purple-bright);
     }
+
     .badge.err {
       background: var(--danger-bg);
-      color: #fca5a5;
+      color: #ff9eb0;
     }
+
     .badge.ok {
       background: var(--ok-bg);
-      color: #86efac;
+      color: var(--ok);
     }
+
     .badge.work {
       background: var(--warn-bg);
-      color: #fcd34d;
+      color: var(--warn);
     }
+
     .queue-header {
       display: flex;
       justify-content: space-between;
@@ -219,6 +405,7 @@
       flex-wrap: wrap;
       margin-bottom: 10px;
     }
+
     .queue-item {
       background: var(--panel-2);
       border: 1px solid var(--border);
@@ -226,6 +413,7 @@
       padding: 10px 12px;
       margin-bottom: 8px;
     }
+
     .queue-top {
       display: flex;
       justify-content: space-between;
@@ -234,75 +422,18 @@
       flex-wrap: wrap;
       font-size: 0.88rem;
     }
+
     .queue-sub {
       font-size: 0.8rem;
       color: var(--muted);
       margin-top: 4px;
       word-break: break-word;
     }
+
     .status-msg { font-size: 0.85rem; color: var(--muted); margin-top: 8px; }
-    .error-msg { font-size: 0.85rem; color: #fca5a5; margin-top: 8px; }
+    .error-msg { font-size: 0.85rem; color: #ff9eb0; margin-top: 8px; }
     .hidden { display: none !important; }
     .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
-
-    .bottom-right-dock {
-      position: fixed;
-      right: 16px;
-      bottom: 18px;
-      z-index: 35;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 10px;
-    }
-    .dock-btn-row {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-    .dock-action-btn {
-      background: var(--accent);
-      color: #fff;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 999px;
-      padding: 12px 18px;
-      font-size: 0.95rem;
-      font-weight: 700;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-      cursor: pointer;
-    }
-    .dock-action-btn.upload {
-      background: #1d4ed8;
-    }
-    .dock-action-btn:hover {
-      background: var(--accent-hover);
-    }
-    .upload-pop-menu {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 8px;
-      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.6);
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      min-width: 210px;
-    }
-    .upload-pop-btn {
-      width: 100%;
-      text-align: left;
-      background: var(--panel-2);
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px 12px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .upload-pop-btn:hover {
-      background: #272f3d;
-    }
 
     .toast-stack {
       position: fixed;
@@ -314,38 +445,44 @@
       gap: 8px;
       max-width: 340px;
     }
+
     .toast-box {
       background: var(--panel);
       border: 1px solid var(--danger);
       border-left: 4px solid var(--danger);
       border-radius: 10px;
       padding: 12px 14px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.45);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.55);
       cursor: pointer;
     }
-    .toast-title { font-weight: 700; color: #fca5a5; font-size: 0.92rem; }
+
+    .toast-title { font-weight: 700; color: #ff9eb0; font-size: 0.92rem; }
     .toast-sub { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
 
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.65);
+      background: rgba(4, 3, 8, 0.78);
+      backdrop-filter: blur(5px);
       z-index: 50;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 16px;
     }
+
     .modal-card {
       background: var(--panel);
-      border: 1px solid var(--border);
+      border: 1px solid var(--neon-purple-bright);
+      box-shadow: 0 0 30px rgba(157, 78, 221, 0.32);
       border-radius: var(--radius);
-      max-width: 560px;
+      max-width: 680px;
       width: 100%;
       max-height: 88vh;
       overflow-y: auto;
       padding: 18px;
     }
+
     .preview-img {
       max-width: 100%;
       max-height: 260px;
@@ -359,17 +496,33 @@
 <body>
   <header>
     <div class="header-inner">
-      <span id="currentUserBadge" class="user-pill hidden">Kullanıcı: -</span>
+      <div class="header-left">
+        <span id="currentUserBadge" class="user-pill hidden">Kullanıcı: -</span>
+        <button id="recordsBtn" type="button" class="records-top-btn hidden">Kayıtlar</button>
+      </div>
       <button id="notifToggleBtn" type="button" class="notif-btn ok hidden">Bildirimler (0)</button>
     </div>
   </header>
 
   <div id="toastStack" class="toast-stack"></div>
 
+  <div id="recordsModal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px;">
+        <h2 style="margin:0; color:var(--neon-cyan);">Yüklenen Kayıtlar</h2>
+        <button id="closeRecordsModalBtn" type="button" class="secondary">Kapat</button>
+      </div>
+      <div style="margin-bottom:12px;">
+        <input id="recordsModalSearch" type="text" placeholder="Kayıtlarda kelime, parça kodu veya kişi ara..." />
+      </div>
+      <div id="recordsModalList"></div>
+    </div>
+  </div>
+
   <div id="failedModal" class="modal-backdrop hidden">
     <div class="modal-card">
       <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
-        <h2 style="margin:0;">Tamamlanamayan İşlemler</h2>
+        <h2 style="margin:0; color:var(--neon-cyan);">Tamamlanamayan İşlemler</h2>
         <button id="closeModalBtn" type="button" class="secondary">Kapat</button>
       </div>
       <div class="actions" style="margin-bottom:12px;">
@@ -382,21 +535,8 @@
   <div id="textEntryModal" class="modal-backdrop hidden">
     <div class="modal-card">
       <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px;">
-        <h2 style="margin:0;">Metin Yaz ve Kaydet</h2>
+        <h2 style="margin:0; color:var(--neon-cyan);">Metin Yaz ve Kaydet</h2>
         <button id="closeTextModalBtn" type="button" class="secondary">Kapat</button>
-      </div>
-      <div class="row">
-        <div>
-          <label for="manualCategory">Kategori</label>
-          <select id="manualCategory">
-            <option value="Parça Kodları">Parça Kodları</option>
-            <option value="Süreçler">Süreçler</option>
-          </select>
-        </div>
-        <div>
-          <label for="manualGroup">Model / Alt Grup</label>
-          <input id="manualGroup" type="text" placeholder="Örn: V15, Geneli..." />
-        </div>
       </div>
       <label for="manualTitle">Başlık</label>
       <input id="manualTitle" type="text" placeholder="Kısa başlık girin..." style="margin-bottom:12px;" />
@@ -426,27 +566,43 @@
   </div>
 
   <main id="appMain" class="hidden">
-    <div id="askFormCard" class="card hidden">
-      <h2>Soru Sor</h2>
-      <div class="row">
-        <div>
-          <label for="askCategory">Kategori Filtresi (İsteğe Bağlı)</label>
-          <select id="askCategory">
-            <option value="">Tüm Kategoriler</option>
-            <option value="Parça Kodları">Parça Kodları</option>
-            <option value="Süreçler">Süreçler</option>
-          </select>
-        </div>
-        <div>
-          <label for="askGroup">Model / Alt Grup (İsteğe Bağlı, örn. V15)</label>
-          <input id="askGroup" type="text" placeholder="Örn: V15, V11, V16..." />
-        </div>
+    <div id="centerHomeStage" class="center-stage">
+      <div class="square-pair">
+        <button id="squareAskBtn" type="button" class="neon-square-btn">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <span>Soru sor</span>
+        </button>
+
+        <button id="squareUploadBtn" type="button" class="neon-square-btn upload-sq">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          <span>Bilgi yükle</span>
+        </button>
       </div>
-      <label for="questionInput">Soru / Model / Parça Kodu</label>
-      <textarea id="questionInput" placeholder="Soruyu, cihaz modelini veya parça kodunu yazın ya da mikrofona konuşun..."></textarea>
+
+      <div id="uploadOptionsBox" class="upload-menu-box hidden">
+        <button id="optTakePhotoBtn" type="button" class="upload-choice-btn">📷 Fotoğraf Çek</button>
+        <button id="optUploadPhotoBtn" type="button" class="upload-choice-btn">🖼️ Fotoğraf Yükle</button>
+        <button id="optWriteTextBtn" type="button" class="upload-choice-btn">✍️ Metin Yaz</button>
+      </div>
+    </div>
+
+    <div id="askWindowCard" class="card hidden">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px;">
+        <h2 style="margin:0;">Soru Sor</h2>
+        <button id="backHomeFromAskBtn" type="button" class="secondary">Kutucuklara Dön</button>
+      </div>
+      <label for="questionInput">Sorunuzu yazın veya sesli konuşun</label>
+      <textarea id="questionInput" placeholder="Soruyu buraya yazın veya mikrofona konuşun..."></textarea>
       <div class="actions">
         <button id="askMicBtn" type="button" class="mic-btn">🎤 Sesli Konuş</button>
-        <button id="askBtn" type="button">Kayıtlarda Ara ve Yanıtla</button>
+        <button id="askBtn" type="button">Soruyu Gönder</button>
         <button id="clearAskBtn" type="button" class="secondary">Temizle</button>
       </div>
       <div id="askStatus" class="status-msg"></div>
@@ -454,10 +610,11 @@
 
     <div id="answerArea"></div>
 
-    <div id="uploadPanelCard" class="card hidden">
+    <div id="uploadQueueCard" class="card hidden">
       <div class="queue-header">
-        <h2 style="margin:0;">Yükleme Sırası <span id="queueCountBadge" class="badge">0</span></h2>
+        <h2 style="margin:0;">Yükleme Durumu <span id="queueCountBadge" class="badge">0</span></h2>
         <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button id="backHomeFromUploadBtn" type="button" class="secondary">Kutucuklara Dön</button>
           <button id="clearFinishedQueueBtn" type="button" class="secondary">Tamamlananları Temizle</button>
           <button id="bulkDeleteFailedBtn" type="button" class="danger">İşleme Alınamayanları Toplu Sil</button>
         </div>
@@ -471,18 +628,6 @@
     <input id="cameraCaptureInput" type="file" accept="image/*" capture="environment" class="hidden" />
     <input id="photoFileInput" type="file" accept="image/*" multiple class="hidden" />
   </main>
-
-  <div id="bottomRightDock" class="bottom-right-dock hidden">
-    <div id="uploadPopMenu" class="upload-pop-menu hidden">
-      <button id="popTakePhotoBtn" type="button" class="upload-pop-btn">📷 Fotoğraf Çek</button>
-      <button id="popUploadPhotoBtn" type="button" class="upload-pop-btn">🖼️ Fotoğraf Yükle</button>
-      <button id="popWriteTextBtn" type="button" class="upload-pop-btn">✍️ Metin Yaz</button>
-    </div>
-    <div class="dock-btn-row">
-      <button id="dockAskBtn" type="button" class="dock-action-btn">Soru sor</button>
-      <button id="dockUploadBtn" type="button" class="dock-action-btn upload">Bilgi Yükle</button>
-    </div>
-  </div>
 
   <script>
     const GEMINI_FALLBACK_MODELS = [
@@ -544,15 +689,15 @@
       const gate = document.getElementById("authGate");
       const main = document.getElementById("appMain");
       const userBadge = document.getElementById("currentUserBadge");
+      const recordsBtn = document.getElementById("recordsBtn");
       const notifBtn = document.getElementById("notifToggleBtn");
-      const dock = document.getElementById("bottomRightDock");
 
       if (currentSession && currentSession.apiKey && currentSession.user) {
         gate.classList.add("hidden");
         main.classList.remove("hidden");
         userBadge.classList.remove("hidden");
+        recordsBtn.classList.remove("hidden");
         notifBtn.classList.remove("hidden");
-        dock.classList.remove("hidden");
         userBadge.textContent = `Kullanıcı: ${currentSession.user}`;
         updateNotifButton();
         syncFromCloud();
@@ -560,9 +705,10 @@
         gate.classList.remove("hidden");
         main.classList.add("hidden");
         userBadge.classList.add("hidden");
+        recordsBtn.classList.add("hidden");
         notifBtn.classList.add("hidden");
-        dock.classList.add("hidden");
         closeFailedModal();
+        closeRecordsModal();
       }
     }
 
@@ -594,47 +740,38 @@
       }
     });
 
-    const dockAskBtn = document.getElementById("dockAskBtn");
-    const dockUploadBtn = document.getElementById("dockUploadBtn");
-    const uploadPopMenu = document.getElementById("uploadPopMenu");
-    const askFormCard = document.getElementById("askFormCard");
-    const uploadPanelCard = document.getElementById("uploadPanelCard");
+    const centerHomeStage = document.getElementById("centerHomeStage");
+    const uploadOptionsBox = document.getElementById("uploadOptionsBox");
+    const askWindowCard = document.getElementById("askWindowCard");
+    const uploadQueueCard = document.getElementById("uploadQueueCard");
+    const answerArea = document.getElementById("answerArea");
     const cameraCaptureInput = document.getElementById("cameraCaptureInput");
     const photoFileInput = document.getElementById("photoFileInput");
 
-    dockAskBtn.addEventListener("click", () => {
-      uploadPopMenu.classList.add("hidden");
-      askFormCard.classList.remove("hidden");
+    document.getElementById("squareAskBtn").addEventListener("click", () => {
+      centerHomeStage.classList.add("hidden");
+      uploadQueueCard.classList.add("hidden");
+      askWindowCard.classList.remove("hidden");
       document.getElementById("questionInput").focus();
-      askFormCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
     });
 
-    dockUploadBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      uploadPopMenu.classList.toggle("hidden");
+    document.getElementById("squareUploadBtn").addEventListener("click", () => {
+      uploadOptionsBox.classList.toggle("hidden");
     });
 
-    document.addEventListener("click", (e) => {
-      if (!uploadPopMenu.classList.contains("hidden") && !e.target.closest("#bottomRightDock")) {
-        uploadPopMenu.classList.add("hidden");
-      }
-    });
-
-    document.getElementById("popTakePhotoBtn").addEventListener("click", () => {
-      uploadPopMenu.classList.add("hidden");
-      uploadPanelCard.classList.remove("hidden");
+    document.getElementById("optTakePhotoBtn").addEventListener("click", () => {
+      uploadOptionsBox.classList.add("hidden");
       cameraCaptureInput.click();
     });
 
-    document.getElementById("popUploadPhotoBtn").addEventListener("click", () => {
-      uploadPopMenu.classList.add("hidden");
-      uploadPanelCard.classList.remove("hidden");
+    document.getElementById("optUploadPhotoBtn").addEventListener("click", () => {
+      uploadOptionsBox.classList.add("hidden");
       photoFileInput.click();
     });
 
     const textEntryModal = document.getElementById("textEntryModal");
-    document.getElementById("popWriteTextBtn").addEventListener("click", () => {
-      uploadPopMenu.classList.add("hidden");
+    document.getElementById("optWriteTextBtn").addEventListener("click", () => {
+      uploadOptionsBox.classList.add("hidden");
       document.getElementById("manualStatus").textContent = "";
       textEntryModal.classList.remove("hidden");
       document.getElementById("manualTitle").focus();
@@ -644,11 +781,24 @@
       textEntryModal.classList.add("hidden");
     });
 
+    document.getElementById("backHomeFromAskBtn").addEventListener("click", () => {
+      askWindowCard.classList.add("hidden");
+      answerArea.innerHTML = "";
+      centerHomeStage.classList.remove("hidden");
+    });
+
+    document.getElementById("backHomeFromUploadBtn").addEventListener("click", () => {
+      uploadQueueCard.classList.add("hidden");
+      centerHomeStage.classList.remove("hidden");
+    });
+
     cameraCaptureInput.addEventListener("change", async (e) => {
       const files = e.target.files ? Array.from(e.target.files) : [];
       cameraCaptureInput.value = "";
       if (!files.length) return;
-      uploadPanelCard.classList.remove("hidden");
+      centerHomeStage.classList.add("hidden");
+      askWindowCard.classList.add("hidden");
+      uploadQueueCard.classList.remove("hidden");
       await runImageBatch(files);
     });
 
@@ -656,9 +806,77 @@
       const files = e.target.files ? Array.from(e.target.files) : [];
       photoFileInput.value = "";
       if (!files.length) return;
-      uploadPanelCard.classList.remove("hidden");
+      centerHomeStage.classList.add("hidden");
+      askWindowCard.classList.add("hidden");
+      uploadQueueCard.classList.remove("hidden");
       await runImageBatch(files);
     });
+
+    const recordsModal = document.getElementById("recordsModal");
+    const recordsModalSearch = document.getElementById("recordsModalSearch");
+
+    document.getElementById("recordsBtn").addEventListener("click", async () => {
+      await syncFromCloud();
+      recordsModalSearch.value = "";
+      renderRecordsModalList();
+      recordsModal.classList.remove("hidden");
+    });
+
+    document.getElementById("closeRecordsModalBtn").addEventListener("click", closeRecordsModal);
+    recordsModalSearch.addEventListener("input", renderRecordsModalList);
+
+    function closeRecordsModal() {
+      recordsModal.classList.add("hidden");
+    }
+
+    function renderRecordsModalList() {
+      const q = (recordsModalSearch?.value || "").trim().toLowerCase();
+      const listEl = document.getElementById("recordsModalList");
+      if (!listEl) return;
+
+      const filtered = state.records.filter(raw => {
+        const r = normalizeRecord(raw);
+        if (!q) return true;
+        return (
+          r.title.toLowerCase().includes(q) ||
+          r.content.toLowerCase().includes(q) ||
+          r.group.toLowerCase().includes(q) ||
+          r.category.toLowerCase().includes(q) ||
+          (r.uploadedBy || "").toLowerCase().includes(q)
+        );
+      });
+
+      if (!filtered.length) {
+        listEl.innerHTML = `<p style="color:var(--muted); margin:0;">Henüz kayıt bulunmuyor.</p>`;
+        return;
+      }
+
+      listEl.innerHTML = filtered.map(raw => {
+        const r = normalizeRecord(raw);
+        return `
+          <div class="record-item">
+            <div class="record-meta">
+              <span class="badge">${escapeHtml(r.category)}</span>
+              <span class="badge">${escapeHtml(r.group)}</span>
+              <span class="badge user">Yükleyen Kişi: ${escapeHtml(r.uploadedBy)}</span>
+              <span>Yükleme Zamanı: ${formatDateTr(r.uploadedAt)}</span>
+            </div>
+            <strong>${escapeHtml(r.title)}</strong>
+            <pre style="white-space:pre-wrap; font-family:inherit; margin:8px 0 0;">${escapeHtml(r.content)}</pre>
+            <div class="actions">
+              <button type="button" class="danger" onclick="deleteRecordFromModal('${r.id}')">Sil</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    window.deleteRecordFromModal = async function(id) {
+      state.records = state.records.filter(r => r.id !== id);
+      saveLocalState(state);
+      try { await sbDeleteRecord(id); } catch {}
+      renderRecordsModalList();
+    };
 
     function startVoiceInput(targetTextarea, buttonEl, statusEl) {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -715,8 +933,6 @@
     });
 
     document.getElementById("saveManualBtn").addEventListener("click", async () => {
-      const category = normalizeCategory(document.getElementById("manualCategory").value);
-      const group = (document.getElementById("manualGroup").value || "Geneli").trim() || "Geneli";
       const title = (document.getElementById("manualTitle").value || "Manuel Bilgi Kaydı").trim();
       const content = document.getElementById("manualContent").value.trim();
       const statusEl = document.getElementById("manualStatus");
@@ -730,8 +946,8 @@
       const uploader = currentSession?.user || "Bilinmiyor";
       const newRec = {
         id: "rec_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
-        category,
-        group,
+        category: "Süreçler",
+        group: "Geneli",
         title,
         content,
         uploadedBy: uploader,
@@ -740,7 +956,6 @@
       };
 
       await commitRecord(newRec);
-      document.getElementById("manualGroup").value = "";
       document.getElementById("manualTitle").value = "";
       document.getElementById("manualContent").value = "";
       statusEl.textContent = `Kaydedildi — Yükleyen Kişi: ${uploader} (${formatDateTr(nowIso)})`;
@@ -945,7 +1160,7 @@
             <span>${escapeHtml(j.fileName || "Görsel")}</span>
             <span>${formatDateTr(j.createdAt)}</span>
           </div>
-          <div style="font-size:0.88rem; color:#fca5a5; margin-top:6px;">
+          <div style="font-size:0.88rem; color:#ff9eb0; margin-top:6px;">
             <strong>Neden:</strong> ${escapeHtml(j.reason)}
           </div>
           ${j.imageDataUrl ? `<img class="preview-img" src="${j.imageDataUrl}" alt="Yüklenen görsel" />` : ""}
@@ -994,7 +1209,8 @@
       failedJobs = failedJobs.filter(j => j.id !== id);
       saveFailedJobs(failedJobs);
       closeFailedModal();
-      uploadPanelCard.classList.remove("hidden");
+      centerHomeStage.classList.add("hidden");
+      uploadQueueCard.classList.remove("hidden");
       const qId = addQueueItem(job.fileName || "Görsel");
       await processImagePayload(job.fileName, job.mimeType, job.base64, job.imageDataUrl, qId);
     };
@@ -1380,33 +1596,24 @@ Ardından yalnızca şu JSON formatında yanıt ver (başka açıklama yazma):
     document.getElementById("askBtn").addEventListener("click", async () => {
       await syncFromCloud();
       const question = document.getElementById("questionInput").value.trim();
-      const catFilter = document.getElementById("askCategory").value;
-      const grpFilter = document.getElementById("askGroup").value.trim().toLowerCase();
       const statusEl = document.getElementById("askStatus");
       const areaEl = document.getElementById("answerArea");
 
       if (!question) {
-        statusEl.textContent = "Lütfen bir soru, model veya parça kodu girin.";
+        statusEl.textContent = "Lütfen bir soru yazın veya sesli konuşun.";
         return;
       }
 
-      const pool = state.records.filter(r => {
-        const recCat = normalizeCategory(r.category);
-        if (catFilter && recCat !== catFilter) return false;
-        if (grpFilter && !r.group.toLowerCase().includes(grpFilter)) return false;
-        return true;
-      });
-
-      if (!pool.length) {
+      if (!state.records.length) {
         areaEl.innerHTML = `<div class="fs-alert">FS desteği alınması gerekir</div>`;
-        statusEl.textContent = "Seçili filtrelerde kayıt bulunamadı.";
+        statusEl.textContent = "Kayıtlı bilgi bulunamadı.";
         return;
       }
 
       statusEl.textContent = "Kayıtlı bilgiler kontrol ediliyor...";
       areaEl.innerHTML = "";
 
-      const contextText = pool.map((raw, idx) => {
+      const contextText = state.records.map((raw, idx) => {
         const r = normalizeRecord(raw);
         return `[KAYIT #${idx + 1} | Kategori: ${r.category} | Grup: ${r.group} | Yükleyen Kişi: ${r.uploadedBy} | Yükleme Zamanı: ${formatDateTr(r.uploadedAt)} | Başlık: ${r.title}]\n${r.content}`;
       }).join("\n\n---\n\n");
@@ -1422,7 +1629,7 @@ FS desteği alınması gerekir
 
       try {
         const reply = await callGemini([
-          { text: `KAYITLAR:\n${contextText}\n\nSORU / ARAMA:\n${question}` }
+          { text: `KAYITLAR:\n${contextText}\n\nSORU:\n${question}` }
         ], sysRule);
 
         const clean = reply.trim();
@@ -1452,6 +1659,7 @@ FS desteği alınması gerekir
     }
 
     closeFailedModal();
+    closeRecordsModal();
     renderUploadQueue();
     applyAuthState();
   </script>
