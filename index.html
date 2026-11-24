@@ -792,7 +792,7 @@
 
     let currentSession = loadSession();
     let uploadQueue = [];
-    let attachedQuestionPhoto = null; // { fileName, mimeType, base64, dataUrl }
+    let attachedQuestionPhoto = null;
 
     let selectedMainCat = null;
     let selectedPartSub = null;
@@ -1939,17 +1939,14 @@ Ardından yalnızca şu JSON formatında yanıt ver (başka açıklama yazma):
 
       const sysRule = `Sen bir servis ve teknik destek kayıt eşleştirme asistanısın.
 KESİN KURALLAR:
-1. Yalnızca sana aşağıda verilen KAYITLAR içindeki bilgilere dayan. Genel dünyadaki bilginden veya uydurma bir tahminden ASLA yanıt üretme; sadece KAYITLAR içindeki seçeneklere dayan.
+1. Yalnızca sana aşağıda verilen KAYITLAR içindeki bilgilere dayan. Kendi genel dünyadaki bilginden veya KAYITLARDA hiç geçmeyen bir şeyden ASLA yanıt üretme.
 2. Görsel verilmişse görseldeki metni, parça kodunu, hata kodunu veya soruyu dikkate al.
-3. KAYITLAR içinde konuyla ilgili hiçbir seçenek/bilgi yoksa, başka hiçbir şey yazmadan TAM OLARAK şu ifadeyi döndür:
+3. KAYITLAR içinde konuyla ilgili hiçbir kayıt yoksa (ne doğrudan ne de ihtimal olarak eşleşen tek bir kayıt bile bulunmuyorsa), başka hiçbir şey yazmadan TAM OLARAK şu ifadeyi döndür:
 FS Desteği alınmalı
-4. KAYITLAR içinde net/güçlü eşleşme varsa:
+4. KAYITLAR içinde ilgili kayıt varsa:
 - İlgili kayıt başlıklarını, yükleyen kişiyi, yükleme tarih/saatini ve kayıttaki bilgileri açıkla.
-- En sonda yalnızca bu kayıtlara dayanan kısa "Yapılması gereken" özeti yaz.
-5. KAYITLAR içinde doğrudan tam eşleşme olmayıp yalnızca düşük ihtimalli bir seçenek varsa (örneğin %15-%45 arası ihtimal):
-- Uydurma bilgi üretmeden, kayıtlardaki o seçeneği seç ve TAM OLARAK şu yapıyla sun:
-Tahmin: (%XX ihtimal) — [İlgili Kayıt Başlığı / Yükleyen Kişi / Tarih-Saat]
-[Kayıttaki ilgili bilgi ve kısa özet]`;
+- Eğer eşleşme kısmi/dolaylı veya düşük ihtimalli ise yanıtın en başına veya ilgili kısmına "Tahmin: (%XX ihtimal)" notunu ekleyerek kayıttaki bilgiyi paylaş.
+- En sonda yalnızca bu kayıtlara dayanan kısa "Yapılması gereken" özeti yaz.`;
 
       const parts = [];
       if (attachedQuestionPhoto && attachedQuestionPhoto.base64) {
@@ -1973,7 +1970,7 @@ Tahmin: (%XX ihtimal) — [İlgili Kayıt Başlığı / Yükleyen Kişi / Tarih-
         } else if (/^Tahmin:/i.test(clean) || clean.includes("Tahmin:")) {
           areaEl.innerHTML = `
             <div class="card">
-              <h2>Düşük İhtimalli Eşleşme</h2>
+              <h2>İhtimalli Eşleşme</h2>
               <div class="guess-box">
                 <pre style="white-space:pre-wrap; font-family:inherit; margin:0; color:#fde68a;">${escapeHtml(clean)}</pre>
               </div>
