@@ -18,6 +18,7 @@
       --warn: #f59e0b;
       --warn-bg: rgba(245, 158, 11, 0.14);
       --ok: #22c55e;
+      --ok-bg: rgba(34, 197, 94, 0.14);
       --border: #2b3240;
       --radius: 12px;
     }
@@ -199,6 +200,43 @@
       background: var(--danger-bg);
       color: #fca5a5;
     }
+    .badge.ok {
+      background: var(--ok-bg);
+      color: #86efac;
+    }
+    .badge.work {
+      background: var(--warn-bg);
+      color: #fcd34d;
+    }
+    .queue-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .queue-item {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+    }
+    .queue-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 0.88rem;
+    }
+    .queue-sub {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 4px;
+      word-break: break-word;
+    }
     .status-msg { font-size: 0.85rem; color: var(--muted); margin-top: 8px; }
     .hidden { display: none !important; }
     .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
@@ -333,6 +371,16 @@
         </div>
         <div id="uploadStatus" class="status-msg"></div>
       </div>
+
+      <div class="card">
+        <div class="queue-header">
+          <h2 style="margin:0;">Yükleme Sırası <span id="queueCountBadge" class="badge">0</span></h2>
+          <button id="clearFinishedQueueBtn" type="button" class="secondary">Tamamlananları Temizle</button>
+        </div>
+        <div id="uploadQueueList">
+          <p style="color:var(--muted); margin:0; font-size:0.88rem;">Henüz sıraya alınmış görsel yok.</p>
+        </div>
+      </div>
     </section>
 
     <section id="tab-gruplar" class="tab-panel hidden">
@@ -404,6 +452,70 @@
 
     const STORAGE_KEY = "servis_asistani_v1";
     const FAILED_STORAGE_KEY = "servis_asistani_failed_v1";
+
+    let uploadQueue = [];
+
+    function renderUploadQueue() {
+      const listEl = document.getElementById("uploadQueueList");
+      const badgeEl = document.getElementById("queueCountBadge");
+      if (!listEl || !badgeEl) return;
+
+      badgeEl.textContent = String(uploadQueue.length);
+
+      if (!uploadQueue.length) {
+        listEl.innerHTML = `<p style="color:var(--muted); margin:0; font-size:0.88rem;">Henüz sıraya alınmış görsel yok.</p>`;
+        return;
+      }
+
+      listEl.innerHTML = uploadQueue.map(item => {
+        let badgeClass = "";
+        let badgeLabel = "Sırada";
+        if (item.status === "processing") {
+          badgeClass = "work";
+          badgeLabel = "İşleniyor";
+        } else if (item.status === "done") {
+          badgeClass = "ok";
+          badgeLabel = "Kaydedildi";
+        } else if (item.status === "error") {
+          badgeClass = "err";
+          badgeLabel = "Hata";
+        }
+        return `
+          <div class="queue-item">
+            <div class="queue-top">
+              <strong>${escapeHtml(item.fileName)}</strong>
+              <span class="badge ${badgeClass}">${badgeLabel}</span>
+            </div>
+            <div class="queue-sub">${escapeHtml(item.detail || "")}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function addQueueItem(fileName) {
+      const id = "q_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6);
+      uploadQueue.push({
+        id,
+        fileName,
+        status: "queued",
+        detail: "Sırada bekliyor..."
+      });
+      renderUploadQueue();
+      return id;
+    }
+
+    function updateQueueItem(id, status, detail) {
+      const item = uploadQueue.find(x => x.id === id);
+      if (!item) return;
+      item.status = status;
+      item.detail = detail;
+      renderUploadQueue();
+    }
+
+    document.getElementById("clearFinishedQueueBtn").addEventListener("click", () => {
+      uploadQueue = uploadQueue.filter(item => item.status === "queued" || item.status === "processing");
+      renderUploadQueue();
+    });
 
     function normalizeCategory(cat) {
       if (cat === "Parça Kodları") return "Parça Kodları";
@@ -567,7 +679,8 @@
       failedJobs = failedJobs.filter(j => j.id !== id);
       saveFailedJobs(failedJobs);
       closeFailedModal();
-      await processImagePayload(job.fileName, job.mimeType, job.base64, job.imageDataUrl);
+      const qId = addQueueItem(job.fileName || "Görsel");
+      await processImagePayload(job.fileName, job.mimeType, job.base64, job.imageDataUrl, qId);
     };
 
     async function bulkDeleteUnprocessed() {
@@ -745,24 +858,26 @@
 
       const models = Array.isArray(GEMINI_FALLBACK_MODELS) && GEMINI_FALLBACK_MODELS.length
         ? GEMINI_FALLBACK_MODELS
-        : ["gemini-3.5-flash-lite", "gemini-3.8-flash"];
+        : ["gemini-3.5-flash-lite", "gemini-3.8-flash", "gemini-3.5-flash"];
 
       const errors = [];
       for (let i = 0; i < models.length; i++) {
         const modelName = models[i];
-        try {
-          return await trySingleModel(apiKey, modelName, parts, systemInstruction);
-        } catch (err) {
-          const isHighDemand = /high demand|overloaded|429|503/i.test(err.message);
-          if (isHighDemand) {
-            await sleep(1500);
-            try {
-              return await trySingleModel(apiKey, modelName, parts, systemInstruction);
-            } catch (retryErr) {
-              errors.push(`${modelName}: ${retryErr.message}`);
+        let attempt = 0;
+        const maxRetries = 3;
+
+        while (attempt <= maxRetries) {
+          try {
+            return await trySingleModel(apiKey, modelName, parts, systemInstruction);
+          } catch (err) {
+            const isHighDemand = /high demand|overloaded|429|503|unavailable/i.test(err.message);
+            if (isHighDemand && attempt < maxRetries) {
+              attempt++;
+              await sleep(1500 * attempt);
+              continue;
             }
-          } else {
             errors.push(`${modelName}: ${err.message}`);
+            break;
           }
         }
       }
@@ -799,7 +914,8 @@
       } catch {}
     }
 
-    async function processImagePayload(fileName, mimeType, base64, dataUrl) {
+    async function processImagePayload(fileName, mimeType, base64, dataUrl, queueId = null) {
+      if (queueId) updateQueueItem(queueId, "processing", "OCR ve kategori ayrıştırma yapılıyor...");
       try {
         const prompt = `Bu görseldeki tüm metni eksiksiz yazıya dök. Parça kodlarını, model adlarını ve soru-cevap yapısını koru.
 Kategoriyi yalnızca şu iki seçenekten birine göre belirle: "Parça Kodları" veya "Süreçler".
@@ -827,8 +943,14 @@ Ardından yalnızca şu JSON formatında yanıt ver (başka açıklama yazma):
         };
 
         await commitRecord(newRec);
+        if (queueId) {
+          updateQueueItem(queueId, "done", `${parsed.category} / ${parsed.group} — "${parsed.title}" kaydedildi.`);
+        }
       } catch (err) {
         recordFailure(fileName, mimeType, base64, dataUrl, err.message);
+        if (queueId) {
+          updateQueueItem(queueId, "error", err.message);
+        }
       }
     }
 
@@ -842,18 +964,35 @@ Ardından yalnızca şu JSON formatında yanıt ver (başka açıklama yazma):
         return;
       }
 
-      statusEl.textContent = "Gönderildi, otomatik işlenip kaydediliyor...";
+      uploadQueue = uploadQueue.filter(item => item.status === "queued" || item.status === "processing");
+      const batchItems = files.map(f => ({
+        file: f,
+        queueId: addQueueItem(f.name)
+      }));
+
+      statusEl.textContent = `${batchItems.length} görsel sıraya alındı, işleniyor...`;
       fileInput.value = "";
 
-      for (const file of files) {
-        const { dataUrl, base64 } = await readFileAsDataUrlAndBase64(file);
-        await processImagePayload(file.name, file.type || "image/jpeg", base64, dataUrl);
+      for (const entry of batchItems) {
+        const { dataUrl, base64 } = await readFileAsDataUrlAndBase64(entry.file);
+        await processImagePayload(
+          entry.file.name,
+          entry.file.type || "image/jpeg",
+          base64,
+          dataUrl,
+          entry.queueId
+        );
       }
 
-      if (failedJobs.length === 0) {
+      const batchErrors = batchItems.filter(b => {
+        const q = uploadQueue.find(x => x.id === b.queueId);
+        return q && q.status === "error";
+      }).length;
+
+      if (batchErrors === 0) {
         statusEl.textContent = "Tüm görseller otomatik olarak kaydedildi.";
       } else {
-        statusEl.textContent = "Bazı görseller kaydedilemedi; sağ üstteki bildirime tıklayabilirsiniz.";
+        statusEl.textContent = `${batchErrors} görsel tamamlanamadı; Yükleme Sırası ve sağ üstteki bildirimden kontrol edebilirsiniz.`;
       }
     });
 
@@ -1008,6 +1147,7 @@ FS desteği alınması gerekir
 
     closeFailedModal();
     updateNotifButton();
+    renderUploadQueue();
     syncFromCloud();
   </script>
 </body>
