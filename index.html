@@ -596,7 +596,6 @@
       display: block;
     }
 
-    /* Yeni eklenen alanlar için stil ekleri */
     .ext-panel-box {
       background: var(--panel-2);
       border: 1px solid var(--border);
@@ -651,6 +650,346 @@
       background: rgba(0, 245, 160, 0.12);
       color: var(--ok);
     }
+
+    /* Vardiya ve Mola Modülü Stilleri */
+    @keyframes vardiyaBlinkRed {
+      0%, 100% {
+        background: rgba(255, 59, 92, 0.24);
+        border-color: #ff3b5c;
+        box-shadow: 0 0 22px rgba(255, 59, 92, 0.75);
+        color: #ffd6de;
+      }
+      50% {
+        background: rgba(120, 10, 30, 0.45);
+        border-color: #ff8fa3;
+        box-shadow: 0 0 8px rgba(255, 59, 92, 0.3);
+        color: #ffffff;
+      }
+    }
+
+    #vardiyaAnaBar {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-top: 14px;
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .vardiya-top-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+    }
+
+    #vardiyaMolaBaslatBtn {
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.18), rgba(157, 78, 221, 0.22));
+      color: var(--neon-cyan);
+      border: 1.5px solid var(--neon-cyan);
+      box-shadow: 0 0 16px rgba(0, 240, 255, 0.32);
+      border-radius: 12px;
+      padding: 10px 16px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    #vardiyaPlanBtn {
+      background: var(--panel-2);
+      color: var(--text);
+      border: 1px solid var(--neon-purple-bright);
+      border-radius: 12px;
+      padding: 10px 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    #vardiyaMolaSecimBox {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      background: var(--panel);
+      border: 1px solid var(--neon-cyan);
+      border-radius: 12px;
+      padding: 10px 12px;
+      box-shadow: 0 0 18px rgba(0, 240, 255, 0.22);
+    }
+
+    #vardiyaEkipMolaRozet {
+      position: fixed;
+      top: 58px;
+      right: 14px;
+      z-index: 42;
+      background: rgba(17, 15, 26, 0.94);
+      border: 1px solid var(--neon-purple-bright);
+      box-shadow: 0 0 14px rgba(157, 78, 221, 0.35);
+      border-radius: 999px;
+      padding: 5px 12px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--neon-cyan);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .vardiya-ekip-satir {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .vardiya-ekip-satir.expired {
+      animation: vardiyaBlinkRed 0.9s infinite;
+    }
+
+    #vardiyaFloatingWidget {
+      position: fixed;
+      right: 14px;
+      bottom: 18px;
+      z-index: 45;
+      background: var(--panel);
+      border: 1.5px solid var(--neon-cyan);
+      box-shadow: 0 0 18px rgba(0, 240, 255, 0.35);
+      border-radius: 14px;
+      padding: 10px 14px;
+      cursor: pointer;
+      min-width: 148px;
+      user-select: none;
+    }
+
+    #vardiyaFloatingWidget.expired {
+      animation: vardiyaBlinkRed 0.9s infinite;
+    }
+
+    .vardiya-fw-label {
+      font-size: 0.74rem;
+      color: var(--muted);
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .vardiya-fw-time {
+      font-size: 1.25rem;
+      font-weight: 900;
+      color: var(--neon-cyan);
+      font-variant-numeric: tabular-nums;
+      margin-top: 2px;
+    }
+
+    #vardiyaFloatingWidget.expired .vardiya-fw-time {
+      color: #ffffff;
+    }
+
+    .vardiya-fw-over {
+      font-size: 0.78rem;
+      font-weight: 800;
+      margin-top: 2px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    #vardiyaSayacModalBackdrop,
+    #vardiyaEkipMolaModalBackdrop,
+    #vardiyaPlanModalBackdrop,
+    #sonBilgiDetayBackdrop,
+    #kirpmaModalBackdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(4, 3, 8, 0.84);
+      backdrop-filter: blur(5px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    #vardiyaPlanModalBackdrop { z-index: 60; }
+    #vardiyaSayacModalBackdrop, #vardiyaEkipMolaModalBackdrop { z-index: 65; }
+    #sonBilgiDetayBackdrop { z-index: 70; }
+    #kirpmaModalBackdrop { z-index: 80; }
+
+    #vardiyaSayacModalCard {
+      background: var(--panel);
+      border: 1.5px solid var(--neon-cyan);
+      border-radius: 16px;
+      padding: 20px;
+      max-width: 390px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 0 28px rgba(0, 240, 255, 0.3);
+    }
+
+    #vardiyaSayacModalCard.expired {
+      animation: vardiyaBlinkRed 0.9s infinite;
+    }
+
+    .vardiya-big-clock {
+      font-size: 2.5rem;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      margin: 10px 0 6px;
+      color: var(--neon-cyan);
+    }
+
+    #vardiyaSayacModalCard.expired .vardiya-big-clock {
+      color: #ffffff;
+    }
+
+    .vardiya-plan-card {
+      background: var(--panel);
+      border: 1px solid var(--neon-purple-bright);
+      border-radius: 16px;
+      padding: 18px;
+      max-width: 760px;
+      width: 100%;
+      max-height: 88vh;
+      overflow-y: auto;
+      box-shadow: 0 0 28px rgba(157, 78, 221, 0.35);
+    }
+
+    .vardiya-day-row {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .vardiya-day-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .vardiya-mini-inputs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(125px, 1fr));
+      gap: 8px;
+    }
+
+    .vardiya-mini-inputs input,
+    .vardiya-mini-inputs select {
+      padding: 7px 9px;
+      font-size: 0.84rem;
+    }
+
+    /* Son Bilgi Kartı Stilleri */
+    #sonBilgiUstKart {
+      width: 100%;
+      max-width: 440px;
+      background: linear-gradient(155deg, rgba(17, 15, 26, 0.96), rgba(25, 22, 38, 0.94));
+      border: 1.5px solid var(--neon-cyan);
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.22), inset 0 0 14px rgba(157, 78, 221, 0.14);
+      border-radius: 16px;
+      padding: 12px 15px;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+      user-select: none;
+    }
+
+    #sonBilgiUstKart:hover {
+      transform: translateY(-2px);
+      border-color: var(--neon-purple-bright);
+    }
+
+    .son-bilgi-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+      font-size: 0.76rem;
+    }
+
+    .son-bilgi-etiket {
+      color: var(--neon-cyan);
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .son-bilgi-ipucu {
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .son-bilgi-baslik {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin: 0 0 8px;
+      word-break: break-word;
+    }
+
+    .son-bilgi-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    #sonBilgiDetayCard,
+    #kirpmaModalCard {
+      background: var(--panel);
+      border: 1.5px solid var(--neon-cyan);
+      box-shadow: 0 0 30px rgba(0, 240, 255, 0.28);
+      border-radius: 16px;
+      max-width: 720px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 18px;
+    }
+
+    #kirpmaSahneWrap {
+      position: relative;
+      width: 100%;
+      background: #06050a;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      touch-action: none;
+      user-select: none;
+    }
+
+    #kirpmaCanvas {
+      display: block;
+      max-width: 100%;
+      max-height: 62vh;
+      cursor: crosshair;
+    }
+
+    .kirpma-bilgi-satir {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
   </style>
 </head>
 <body>
@@ -665,6 +1004,148 @@
   </header>
 
   <div id="toastStack" class="toast-stack"></div>
+
+  <div id="vardiyaEkipMolaRozet" class="hidden" title="Moladaki kişilerin kalan süresini görmek için tıklayın">
+    ☕ Molada: -
+  </div>
+
+  <div id="vardiyaEkipMolaModalBackdrop" class="hidden">
+    <div class="vardiya-plan-card" style="max-width:440px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px;">
+        <strong style="color:var(--neon-cyan); font-size:0.98rem;">Aktif Molalar & Kalan Süreler</strong>
+        <button id="vardiyaEkipMolaKapatBtn" type="button" class="secondary" style="padding:6px 10px; font-size:0.8rem;">Kapat</button>
+      </div>
+      <div id="vardiyaEkipMolaListe"></div>
+    </div>
+  </div>
+
+  <div id="vardiyaFloatingWidget" class="hidden" title="Büyütmek için tıklayın">
+    <div class="vardiya-fw-label">
+      <span id="vardiyaFwTur">Mola</span>
+      <span id="vardiyaFwDurum">Kalan</span>
+    </div>
+    <div id="vardiyaFwSaat" class="vardiya-fw-time">10:00</div>
+    <div id="vardiyaFwEkstra" class="vardiya-fw-over hidden">Süre doldu • Geçen: +00:00</div>
+  </div>
+
+  <div id="vardiyaSayacModalBackdrop" class="hidden">
+    <div id="vardiyaSayacModalCard">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+        <strong id="vardiyaModalTurLabel" style="color:var(--neon-cyan);">Mola Sayacı</strong>
+        <button id="vardiyaModalKucultBtn" type="button" class="secondary" style="padding:5px 10px; font-size:0.8rem;">Küçült</button>
+      </div>
+      <div id="vardiyaModalSaat" class="vardiya-big-clock">10:00</div>
+      <div id="vardiyaModalDurumMetin" class="status-msg" style="margin-top:0; font-weight:700;">Mola devam ediyor...</div>
+      <div id="vardiyaModalGecenMetin" class="hidden" style="margin-top:8px; font-size:0.95rem; font-weight:800;">Geçen süre: +00:00</div>
+      <div style="margin-top:16px;">
+        <button id="vardiyaErkenBitirBtn" type="button" class="danger" style="width:100%;">Erken Bitir</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="vardiyaPlanModalBackdrop" class="hidden">
+    <div class="vardiya-plan-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px;">
+        <h2 style="margin:0; color:var(--neon-cyan);">Aylık Vardiya & Mola Planı (Paylaşımlı)</h2>
+        <button id="vardiyaPlanKapatBtn" type="button" class="secondary">Kapat</button>
+      </div>
+
+      <div class="row" style="margin-bottom:10px;">
+        <div>
+          <label for="vardiyaAyInput">Ay (YYYY-MM)</label>
+          <input id="vardiyaAyInput" type="month" />
+        </div>
+        <div>
+          <label for="vardiyaKisiFiltre">Kişi / Görünüm</label>
+          <select id="vardiyaKisiFiltre">
+            <option value="ALL">Tüm Ekip (Son Eklenenler)</option>
+            <option value="Arda">Arda</option>
+            <option value="Görkem">Görkem</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="vardiya-day-row" style="border-color:var(--neon-cyan);">
+        <strong style="color:var(--neon-cyan); font-size:0.9rem;">Günlük Vardiya & Mola Saati Ekle / Güncelle</strong>
+        <div class="vardiya-mini-inputs">
+          <div>
+            <label for="vardiyaTarihInput">Tarih</label>
+            <input id="vardiyaTarihInput" type="date" />
+          </div>
+          <div>
+            <label for="vardiyaSaatDilimiSelect">Vardiya</label>
+            <select id="vardiyaSaatDilimiSelect">
+              <option value="09:00 / 19:00">09:00 / 19:00</option>
+              <option value="11:00 / 21:00">11:00 / 21:00</option>
+            </select>
+          </div>
+          <div>
+            <label for="vardiyaYemekSaatInput">Yemek (50 dk)</label>
+            <input id="vardiyaYemekSaatInput" type="time" />
+          </div>
+          <div>
+            <label for="vardiyaMola1Input">10dk Mola 1</label>
+            <input id="vardiyaMola1Input" type="time" />
+          </div>
+          <div>
+            <label for="vardiyaMola2Input">10dk Mola 2</label>
+            <input id="vardiyaMola2Input" type="time" />
+          </div>
+          <div>
+            <label for="vardiyaMola3Input">10dk Mola 3</label>
+            <input id="vardiyaMola3Input" type="time" />
+          </div>
+          <div>
+            <label for="vardiyaMola4Input">10dk Mola 4</label>
+            <input id="vardiyaMola4Input" type="time" />
+          </div>
+        </div>
+        <div class="actions" style="margin-top:8px;">
+          <button id="vardiyaKaydetBtn" type="button">Vardiyayı Kaydet & Paylaş</button>
+          <button id="vardiyaYenileBtn" type="button" class="secondary">Buluttan Yenile</button>
+        </div>
+        <div id="vardiyaDurumMesaj" class="status-msg"></div>
+      </div>
+
+      <div id="vardiyaListeAlani"></div>
+    </div>
+  </div>
+
+  <div id="sonBilgiDetayBackdrop" class="hidden">
+    <div id="sonBilgiDetayCard">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px;">
+        <strong style="color:var(--neon-cyan); font-size:1rem;">Son Eklenen Bilgi Detayı</strong>
+        <button id="sonBilgiDetayKapatBtn" type="button" class="secondary" style="padding:6px 12px; font-size:0.82rem;">Kapat</button>
+      </div>
+      <div id="sonBilgiDetayIcerik"></div>
+    </div>
+  </div>
+
+  <div id="kirpmaModalBackdrop" class="hidden">
+    <div id="kirpmaModalCard">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px;">
+        <div>
+          <strong style="color:var(--neon-cyan); font-size:1rem;">Fotoğrafı Kırp (Sadece Soru Alanı)</strong>
+          <div id="kirpmaSiraBilgi" style="font-size:0.78rem; color:var(--muted);"></div>
+        </div>
+        <button id="kirpmaIptalBtn" type="button" class="secondary" style="padding:6px 12px; font-size:0.82rem;">İptal</button>
+      </div>
+
+      <div id="kirpmaSahneWrap">
+        <canvas id="kirpmaCanvas"></canvas>
+      </div>
+
+      <div class="kirpma-bilgi-satir">
+        <span>Parmağınız veya farenizle soru kısmının etrafında alan çizin.</span>
+        <button id="kirpmaTumAlanBtn" type="button" class="secondary" style="padding:5px 10px; font-size:0.78rem;">Tüm Alanı Seç</button>
+      </div>
+
+      <div class="actions" style="margin-top:12px;">
+        <button id="kirpmaOnaylaBtn" type="button" class="ok-btn">✂️ Kırp ve Devam Et</button>
+        <button id="kirpmaKirpmadanBtn" type="button" class="cyan-outline">Kırpmadan Yükle</button>
+      </div>
+    </div>
+  </div>
 
   <div id="recordsModal" class="modal-backdrop hidden">
     <div class="modal-card">
@@ -681,7 +1162,6 @@
         </div>
         <button id="extPickMakaleBtn" type="button" class="cat-choice-btn" style="width:100%; margin-bottom:14px; border-color:var(--ok);">Makale</button>
 
-        <!-- Makale'ye tıklandığında açılan kategori listesi ve kategori oluşturma -->
         <div id="extMakaleCatListView" class="ext-panel-box hidden">
           <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:8px;">
             <strong style="color:var(--neon-cyan); font-size:0.92rem;">Makale Kategorileri</strong>
@@ -755,7 +1235,6 @@
     </div>
   </div>
 
-  <!-- Bilgi Yükle -> Fotoğraf seçildikten sonra 2 seçenek + Makale Kategori / Opsiyonel Alt Kategori akışı -->
   <div id="extUploadFlowModal" class="modal-backdrop hidden">
     <div class="modal-card">
       <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px;">
@@ -1159,32 +1638,61 @@
       if (f) await handleQuestionPhotoSelection(f);
     });
 
-    cameraCaptureInput.addEventListener("change", async (e) => {
+    function routeSelectedUploadFiles(files) {
+      if (!files.length) return;
+      if (window.kirpmaAkisiniBaslat) {
+        window.kirpmaAkisiniBaslat(files, async (kirpilmisDosyalar) => {
+          if (typeof extOpenUploadTargetFlow === "function") {
+            extOpenUploadTargetFlow(kirpilmisDosyalar);
+            return;
+          }
+          centerHomeStage.classList.add("hidden");
+          askWindowCard.classList.add("hidden");
+          uploadQueueCard.classList.remove("hidden");
+          await runImageBatch(kirpilmisDosyalar);
+        });
+        return;
+      }
+      if (typeof extOpenUploadTargetFlow === "function") {
+        extOpenUploadTargetFlow(files);
+        return;
+      }
+      centerHomeStage.classList.add("hidden");
+      askWindowCard.classList.add("hidden");
+      uploadQueueCard.classList.remove("hidden");
+      runImageBatch(files);
+    }
+
+    cameraCaptureInput.addEventListener("change", (e) => {
       const files = e.target.files ? Array.from(e.target.files) : [];
       cameraCaptureInput.value = "";
       if (!files.length) return;
-      if (typeof extOpenUploadTargetFlow === "function") {
-        extOpenUploadTargetFlow(files);
+      if (extPendingUpload) {
+        const ov = extPendingUpload;
+        extPendingUpload = null;
+        centerHomeStage.classList.add("hidden");
+        askWindowCard.classList.add("hidden");
+        uploadQueueCard.classList.remove("hidden");
+        runImageBatch(files, ov);
         return;
       }
-      centerHomeStage.classList.add("hidden");
-      askWindowCard.classList.add("hidden");
-      uploadQueueCard.classList.remove("hidden");
-      await runImageBatch(files);
+      routeSelectedUploadFiles(files);
     });
 
-    photoFileInput.addEventListener("change", async (e) => {
+    photoFileInput.addEventListener("change", (e) => {
       const files = e.target.files ? Array.from(e.target.files) : [];
       photoFileInput.value = "";
       if (!files.length) return;
-      if (typeof extOpenUploadTargetFlow === "function") {
-        extOpenUploadTargetFlow(files);
+      if (extPendingUpload) {
+        const ov = extPendingUpload;
+        extPendingUpload = null;
+        centerHomeStage.classList.add("hidden");
+        askWindowCard.classList.add("hidden");
+        uploadQueueCard.classList.remove("hidden");
+        runImageBatch(files, ov);
         return;
       }
-      centerHomeStage.classList.add("hidden");
-      askWindowCard.classList.add("hidden");
-      uploadQueueCard.classList.remove("hidden");
-      await runImageBatch(files);
+      routeSelectedUploadFiles(files);
     });
 
     const recordsModal = document.getElementById("recordsModal");
@@ -1437,6 +1945,7 @@
       saveLocalState(state);
       try { await sbDeleteRecord(id); } catch {}
       renderRecordsModalList();
+      sonBilgiKartiniYerlestirVeGuncelle();
     };
 
     document.getElementById("saveManualBtn").addEventListener("click", async () => {
@@ -1743,6 +2252,7 @@
 
       document.getElementById("uploadStatus").textContent = "İşleme alınamayan tüm kayıtlar ve bildirimler silindi.";
       closeFailedModal();
+      sonBilgiKartiniYerlestirVeGuncelle();
     }
 
     document.getElementById("modalBulkDeleteBtn").addEventListener("click", bulkDeleteUnprocessed);
@@ -1844,6 +2354,7 @@
           };
         });
         saveLocalState(state);
+        sonBilgiKartiniYerlestirVeGuncelle();
       } catch {}
     }
 
@@ -2009,6 +2520,7 @@
       const normalizedRec = normalizeRecord(newRec);
       state.records.unshift(normalizedRec);
       saveLocalState(state);
+      sonBilgiKartiniYerlestirVeGuncelle();
       try {
         await sbUpsertRecords([normalizedRec]);
       } catch {}
@@ -2018,7 +2530,7 @@
       const kbText = approxKb ? ` (~${approxKb} KB sıkıştırıldı)` : "";
       if (queueId) updateQueueItem(queueId, "processing", `OCR ve kategori ayrıştırma yapılıyor${kbText}...`);
       try {
-        const prompt = `Bu görseldeki tüm metni eksiksiz yazıya dök. Parça kodlarını, model adlarını ve soru-cevap yapısını koru.
+        const prompt = `Bu görseldeki seçili soru/metin alanını eksiksiz yazıya dök. Parça kodlarını, model adlarını ve soru-cevap yapısını koru.
 Görselde yer alan tik işareti (✓), çarpı (✕), uyarı ikonu veya cihaz/yedek parça görsellerini mutlaka algıla ve hangi satırın/parçanın yanında bulunduğunu metin içinde "[Görsel İşaret: ...]" şeklinde açıkça yaz.
 Kategoriyi şu seçeneklerden uygun olana göre belirle: "Parça Kodları", "Süreçler" veya mevcut özel kategoriler.
 Ardından yalnızca şu JSON formatında yanıt ver (başka açıklama yazma):
@@ -2304,7 +2816,7 @@ Kayıttaki "Yapılması gereken" adımlar.`;
         .replace(/"/g, "&quot;");
     }
 
-    /* ==================== EKLENEN ÖZELLİKLERİN JS KODU ==================== */
+    /* ==================== KATEGORİ & MAKALE AKIŞI ==================== */
     const EXT_CAT_STORAGE_KEY = "servis_asistani_ext_cats_v1";
     let extCatTree = extLoadCatTree();
     let extPendingUpload = null;
@@ -2453,7 +2965,6 @@ Kayıttaki "Yapılması gereken" adımlar.`;
       renderRecordsModalList();
     });
 
-    /* Bilgi Yükle -> Fotoğraf Seçildikten Sonra 2 Seçenek + Makale Kategori & Opsiyonel Alt Kategori Akışı */
     const extUploadFlowModal = document.getElementById("extUploadFlowModal");
 
     function extShowUploadStep(step) {
@@ -2598,30 +3109,6 @@ Kayıttaki "Yapılması gereken" adımlar.`;
       photoFileInput.click();
     });
 
-    cameraCaptureInput.addEventListener("change", async (e) => {
-      if (!extPendingUpload) return;
-      const files = e.target.files ? Array.from(e.target.files) : [];
-      if (!files.length) { extPendingUpload = null; return; }
-      const ov = extPendingUpload;
-      extPendingUpload = null;
-      centerHomeStage.classList.add("hidden");
-      askWindowCard.classList.add("hidden");
-      uploadQueueCard.classList.remove("hidden");
-      await runImageBatch(files, ov);
-    }, true);
-
-    photoFileInput.addEventListener("change", async (e) => {
-      if (!extPendingUpload) return;
-      const files = e.target.files ? Array.from(e.target.files) : [];
-      if (!files.length) { extPendingUpload = null; return; }
-      const ov = extPendingUpload;
-      extPendingUpload = null;
-      centerHomeStage.classList.add("hidden");
-      askWindowCard.classList.add("hidden");
-      uploadQueueCard.classList.remove("hidden");
-      await runImageBatch(files, ov);
-    }, true);
-
     document.getElementById("extPageResearchBtn").addEventListener("click", async () => {
       if (!selectedMainCat) return;
       const out = document.getElementById("extPageResearchOutput");
@@ -2647,9 +3134,898 @@ Kayıttaki "Yapılması gereken" adımlar.`;
       }
     });
 
-    extSyncSelectOptions();
-    /* ==================================================================== */
+    /* ==================== FOTOĞRAF KIRPMA MODÜLÜ ==================== */
+    (function () {
+      const backdrop = document.getElementById("kirpmaModalBackdrop");
+      const canvas = document.getElementById("kirpmaCanvas");
+      const ctx = canvas.getContext("2d");
+      const siraBilgi = document.getElementById("kirpmaSiraBilgi");
 
+      let bekleyenKuyruk = [];
+      let islenmisDosyalar = [];
+      let aktifCallback = null;
+      let aktifImg = null;
+
+      let secim = { x: 0, y: 0, w: 0, h: 0 };
+      let surukleniyor = false;
+      let baslangicNokta = { x: 0, y: 0 };
+
+      function dosyayiResmeCevir(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onerror = reject;
+          reader.onload = () => {
+            const img = new Image();
+            img.onerror = reject;
+            img.onload = () => resolve(img);
+            img.src = String(reader.result || "");
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      function sahneyiHazirla(img) {
+        aktifImg = img;
+        const maxW = Math.min(670, window.innerWidth - 56);
+        const maxH = Math.min(460, Math.floor(window.innerHeight * 0.6));
+        const natW = img.naturalWidth || img.width || 800;
+        const natH = img.naturalHeight || img.height || 600;
+
+        const oran = Math.min(maxW / natW, maxH / natH, 1);
+        canvas.width = Math.max(120, Math.round(natW * oran));
+        canvas.height = Math.max(120, Math.round(natH * oran));
+
+        const padX = Math.round(canvas.width * 0.12);
+        const padY = Math.round(canvas.height * 0.12);
+        secim = {
+          x: padX,
+          y: padY,
+          w: Math.max(40, canvas.width - padX * 2),
+          h: Math.max(40, canvas.height - padY * 2)
+        };
+        sahneyiCiz();
+      }
+
+      function sahneyiCiz() {
+        if (!aktifImg) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(aktifImg, 0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = "rgba(4, 3, 8, 0.58)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        const x = Math.max(0, Math.min(secim.x, canvas.width));
+        const y = Math.max(0, Math.min(secim.y, canvas.height));
+        const w = Math.max(0, Math.min(secim.w, canvas.width - x));
+        const h = Math.max(0, Math.min(secim.h, canvas.height - y));
+
+        if (w > 2 && h > 2) {
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(x, y, w, h);
+          ctx.clip();
+          ctx.drawImage(aktifImg, 0, 0, canvas.width, canvas.height);
+          ctx.restore();
+
+          ctx.strokeStyle = "#00f0ff";
+          ctx.lineWidth = 2.5;
+          ctx.strokeRect(x, y, w, h);
+
+          ctx.fillStyle = "#c77dff";
+          const k = 8;
+          ctx.fillRect(x - 2, y - 2, k, k);
+          ctx.fillRect(x + w - k + 2, y - 2, k, k);
+          ctx.fillRect(x - 2, y + h - k + 2, k, k);
+          ctx.fillRect(x + w - k + 2, y + h - k + 2, k, k);
+        }
+      }
+
+      function canvasKoordinatiAl(clientX, clientY) {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / (rect.width || 1);
+        const scaleY = canvas.height / (rect.height || 1);
+        return {
+          x: Math.max(0, Math.min((clientX - rect.left) * scaleX, canvas.width)),
+          y: Math.max(0, Math.min((clientY - rect.top) * scaleY, canvas.height))
+        };
+      }
+
+      function baslaCizim(clientX, clientY) {
+        surukleniyor = true;
+        baslangicNokta = canvasKoordinatiAl(clientX, clientY);
+        secim = { x: baslangicNokta.x, y: baslangicNokta.y, w: 0, h: 0 };
+        sahneyiCiz();
+      }
+
+      function ilerleCizim(clientX, clientY) {
+        if (!surukleniyor) return;
+        const guncel = canvasKoordinatiAl(clientX, clientY);
+        secim = {
+          x: Math.min(baslangicNokta.x, guncel.x),
+          y: Math.min(baslangicNokta.y, guncel.y),
+          w: Math.abs(guncel.x - baslangicNokta.x),
+          h: Math.abs(guncel.y - baslangicNokta.y)
+        };
+        sahneyiCiz();
+      }
+
+      function bitirCizim() {
+        if (!surukleniyor) return;
+        surukleniyor = false;
+        if (secim.w < 16 || secim.h < 16) {
+          secim = { x: 0, y: 0, w: canvas.width, h: canvas.height };
+          sahneyiCiz();
+        }
+      }
+
+      canvas.addEventListener("mousedown", (e) => baslaCizim(e.clientX, e.clientY));
+      window.addEventListener("mousemove", (e) => ilerleCizim(e.clientX, e.clientY));
+      window.addEventListener("mouseup", bitirCizim);
+
+      canvas.addEventListener("touchstart", (e) => {
+        if (!e.touches.length) return;
+        e.preventDefault();
+        baslaCizim(e.touches[0].clientX, e.touches[0].clientY);
+      }, { passive: false });
+
+      window.addEventListener("touchmove", (e) => {
+        if (!surukleniyor || !e.touches.length) return;
+        e.preventDefault();
+        ilerleCizim(e.touches[0].clientX, e.touches[0].clientY);
+      }, { passive: false });
+
+      window.addEventListener("touchend", bitirCizim);
+
+      function kirpilmisDosyaUret(orijinalDosya, tamAlan = false) {
+        return new Promise((resolve) => {
+          if (!aktifImg || tamAlan || secim.w < 16 || secim.h < 16) {
+            resolve(orijinalDosya);
+            return;
+          }
+
+          const natW = aktifImg.naturalWidth || aktifImg.width;
+          const natH = aktifImg.naturalHeight || aktifImg.height;
+          const sx = Math.max(0, Math.round((secim.x / canvas.width) * natW));
+          const sy = Math.max(0, Math.round((secim.y / canvas.height) * natH));
+          const sw = Math.max(10, Math.min(natW - sx, Math.round((secim.w / canvas.width) * natW)));
+          const sh = Math.max(10, Math.min(natH - sy, Math.round((secim.h / canvas.height) * natH)));
+
+          const outCanvas = document.createElement("canvas");
+          outCanvas.width = sw;
+          outCanvas.height = sh;
+          const outCtx = outCanvas.getContext("2d");
+          outCtx.drawImage(aktifImg, sx, sy, sw, sh, 0, 0, sw, sh);
+
+          outCanvas.toBlob((blob) => {
+            if (!blob) {
+              resolve(orijinalDosya);
+              return;
+            }
+            const temizAd = (orijinalDosya.name || "kirpilmis.jpg").replace(/\.[^.]+$/, "") + "_kirp.jpg";
+            resolve(new File([blob], temizAd, { type: "image/jpeg" }));
+          }, "image/jpeg", 0.9);
+        });
+      }
+
+      async function siradakiFotografiAc() {
+        if (!bekleyenKuyruk.length) {
+          backdrop.classList.add("hidden");
+          const tamamlananlar = islenmisDosyalar;
+          const cb = aktifCallback;
+          islenmisDosyalar = [];
+          aktifCallback = null;
+          if (typeof cb === "function" && tamamlananlar.length) {
+            await cb(tamamlananlar);
+          }
+          return;
+        }
+
+        const toplam = islenmisDosyalar.length + bekleyenKuyruk.length;
+        const mevcutSira = islenmisDosyalar.length + 1;
+        const dosya = bekleyenKuyruk[0];
+        siraBilgi.textContent = `Fotoğraf ${mevcutSira}/${toplam} — ${dosya.name || "foto.jpg"}`;
+
+        try {
+          const img = await dosyayiResmeCevir(dosya);
+          sahneyiHazirla(img);
+          backdrop.classList.remove("hidden");
+        } catch {
+          bekleyenKuyruk.shift();
+          islenmisDosyalar.push(dosya);
+          await siradakiFotografiAc();
+        }
+      }
+
+      window.kirpmaAkisiniBaslat = function (files, onComplete) {
+        if (!Array.isArray(files) || !files.length) return;
+        bekleyenKuyruk = files.slice();
+        islenmisDosyalar = [];
+        aktifCallback = onComplete;
+        siradakiFotografiAc();
+      };
+
+      document.getElementById("kirpmaTumAlanBtn").addEventListener("click", () => {
+        secim = { x: 0, y: 0, w: canvas.width, h: canvas.height };
+        sahneyiCiz();
+      });
+
+      document.getElementById("kirpmaOnaylaBtn").addEventListener("click", async () => {
+        const dosya = bekleyenKuyruk.shift();
+        if (!dosya) return;
+        const kirpilmis = await kirpilmisDosyaUret(dosya, false);
+        islenmisDosyalar.push(kirpilmis);
+        await siradakiFotografiAc();
+      });
+
+      document.getElementById("kirpmaKirpmadanBtn").addEventListener("click", async () => {
+        const dosya = bekleyenKuyruk.shift();
+        if (!dosya) return;
+        islenmisDosyalar.push(dosya);
+        await siradakiFotografiAc();
+      });
+
+      document.getElementById("kirpmaIptalBtn").addEventListener("click", () => {
+        bekleyenKuyruk = [];
+        islenmisDosyalar = [];
+        aktifCallback = null;
+        backdrop.classList.add("hidden");
+      });
+    })();
+
+    /* ==================== SON EKLENEN BİLGİ KARTI ==================== */
+    let guncelSonKayit = null;
+
+    function enSonKaydiBul() {
+      if (!state || !Array.isArray(state.records) || !state.records.length) {
+        return null;
+      }
+      const normal = state.records.map(r => normalizeRecord(r));
+      normal.sort((a, b) => {
+        const tA = new Date(a.uploadedAt || a.updatedAt || 0).getTime() || 0;
+        const tB = new Date(b.uploadedAt || b.updatedAt || 0).getTime() || 0;
+        return tB - tA;
+      });
+      return normal[0] || null;
+    }
+
+    function sonBilgiKartiniYerlestirVeGuncelle() {
+      const stage = document.getElementById("centerHomeStage");
+      const pair = stage ? stage.querySelector(".square-pair") : null;
+      if (!stage || !pair) return;
+
+      let kart = document.getElementById("sonBilgiUstKart");
+      if (!kart) {
+        kart = document.createElement("div");
+        kart.id = "sonBilgiUstKart";
+        kart.title = "Açıklamasını görmek için tıklayın";
+        kart.addEventListener("click", () => {
+          if (!guncelSonKayit) return;
+          sonBilgiModalAc(guncelSonKayit);
+        });
+        stage.insertBefore(kart, pair);
+      }
+
+      const sonKayit = enSonKaydiBul();
+      guncelSonKayit = sonKayit;
+
+      if (!sonKayit) {
+        kart.innerHTML = `
+          <div class="son-bilgi-top">
+            <span class="son-bilgi-etiket">Son Eklenen Bilgi</span>
+            <span class="son-bilgi-ipucu">Kayıt bekleniyor</span>
+          </div>
+          <div class="son-bilgi-baslik">Henüz eklenmiş bir bilgi yok</div>
+          <div class="son-bilgi-meta">
+            <span>Yeni bilgi eklendiğinde burada anlık görünür.</span>
+          </div>
+        `;
+        return;
+      }
+
+      kart.innerHTML = `
+        <div class="son-bilgi-top">
+          <span class="son-bilgi-etiket">Son Eklenen Bilgi</span>
+          <span class="son-bilgi-ipucu">Açıklama için tıkla ↗</span>
+        </div>
+        <div class="son-bilgi-baslik">${escapeHtml(sonKayit.title || "Başlıksız Kayıt")}</div>
+        <div class="son-bilgi-meta">
+          <span class="badge user">Ekleyen: ${escapeHtml(sonKayit.uploadedBy || "Bilinmiyor")}</span>
+          <span>🕒 ${escapeHtml(formatDateTr(sonKayit.uploadedAt || sonKayit.updatedAt))}</span>
+        </div>
+      `;
+    }
+
+    function sonBilgiModalAc(rec) {
+      const backdrop = document.getElementById("sonBilgiDetayBackdrop");
+      const icerik = document.getElementById("sonBilgiDetayIcerik");
+      if (!backdrop || !icerik || !rec) return;
+
+      icerik.innerHTML = `
+        <div class="record-meta" style="margin-bottom:10px;">
+          <span class="badge">${escapeHtml(rec.category || "Genel")}</span>
+          <span class="badge">${escapeHtml(rec.group || "Geneli")}</span>
+          <span class="badge user">Ekleyen: ${escapeHtml(rec.uploadedBy || "Bilinmiyor")}</span>
+          <span>🕒 ${escapeHtml(formatDateTr(rec.uploadedAt || rec.updatedAt))}</span>
+        </div>
+        <div style="font-size:1.12rem; font-weight:800; color:#ffffff; margin-bottom:10px;">
+          ${escapeHtml(rec.title || "Başlıksız Kayıt")}
+        </div>
+        <div style="font-size:0.84rem; color:var(--neon-cyan); font-weight:700; margin-bottom:6px;">
+          Açıklama / İçerik
+        </div>
+        <div class="record-item" style="margin-bottom:0;">
+          <pre style="white-space:pre-wrap; font-family:inherit; margin:0; color:var(--text);">${escapeHtml(rec.content || "Açıklama bulunmuyor.")}</pre>
+        </div>
+      `;
+      backdrop.classList.remove("hidden");
+    }
+
+    document.getElementById("sonBilgiDetayKapatBtn").addEventListener("click", () => {
+      document.getElementById("sonBilgiDetayBackdrop").classList.add("hidden");
+    });
+
+    document.getElementById("sonBilgiDetayBackdrop").addEventListener("click", (e) => {
+      if (e.target.id === "sonBilgiDetayBackdrop") {
+        document.getElementById("sonBilgiDetayBackdrop").classList.add("hidden");
+      }
+    });
+
+    /* ==================== VARDİYA, MOLA & 2 DK SESLİ UYARI ==================== */
+    (function () {
+      const VARDIYA_STORAGE_KEY = "servis_asistani_vardiyalar_v1";
+      const SAYAC_STORAGE_KEY = "servis_asistani_aktif_mola_v1";
+      const EKIP_MOLA_STORAGE_KEY = "servis_asistani_ekip_molalar_v1";
+      const UYARI_ATILAN_KEY = "servis_asistani_2dk_bip_atildi_v1";
+      const YEMEK_SANIYE = 50 * 60;
+      const MOLA_SANIYE = 10 * 60;
+
+      let vardiyaKayitlari = [];
+      let aktifSayac = null;
+      let ekipMolalar = [];
+      let sayacInterval = null;
+      let audioCtx = null;
+      let bipTimer = null;
+
+      function sesBaglaminiHazirla() {
+        try {
+          const Ctx = window.AudioContext || window.webkitAudioContext;
+          if (!Ctx) return null;
+          if (!audioCtx) audioCtx = new Ctx();
+          if (audioCtx.state === "suspended") audioCtx.resume().catch(() => {});
+          return audioCtx;
+        } catch {
+          return null;
+        }
+      }
+
+      function tekBipCal(ctx, baslangicZamani) {
+        try {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(920, baslangicZamani);
+          gain.gain.setValueAtTime(0.0001, baslangicZamani);
+          gain.gain.exponentialRampToValueAtTime(0.25, baslangicZamani + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, baslangicZamani + 0.14);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(baslangicZamani);
+          osc.stop(baslangicZamani + 0.15);
+        } catch {}
+      }
+
+      function onKezBipBipCal() {
+        if (bipTimer) {
+          clearInterval(bipTimer);
+          bipTimer = null;
+        }
+        const ctx = sesBaglaminiHazirla();
+        let sayac = 0;
+
+        function birCiftBip() {
+          sayac++;
+          if (ctx) {
+            const now = ctx.currentTime;
+            tekBipCal(ctx, now);
+            tekBipCal(ctx, now + 0.19);
+          }
+          if (sayac >= 10 && bipTimer) {
+            clearInterval(bipTimer);
+            bipTimer = null;
+          }
+        }
+
+        birCiftBip();
+        if (sayac < 10) bipTimer = setInterval(birCiftBip, 450);
+      }
+
+      function vardiyaAktifKullanici() {
+        return currentSession?.user || "Kullanıcı";
+      }
+
+      function vardiyaYerelYukle() {
+        try {
+          const raw = localStorage.getItem(VARDIYA_STORAGE_KEY);
+          const arr = raw ? JSON.parse(raw) : [];
+          vardiyaKayitlari = Array.isArray(arr) ? arr : [];
+        } catch {
+          vardiyaKayitlari = [];
+        }
+      }
+
+      function vardiyaYerelKaydet() {
+        try {
+          localStorage.setItem(VARDIYA_STORAGE_KEY, JSON.stringify(vardiyaKayitlari));
+        } catch {}
+      }
+
+      function ekipMolaYerelYukle() {
+        try {
+          const raw = localStorage.getItem(EKIP_MOLA_STORAGE_KEY);
+          const arr = raw ? JSON.parse(raw) : [];
+          ekipMolalar = Array.isArray(arr) ? arr : [];
+        } catch {
+          ekipMolalar = [];
+        }
+      }
+
+      function ekipMolaYerelKaydet() {
+        try {
+          localStorage.setItem(EKIP_MOLA_STORAGE_KEY, JSON.stringify(ekipMolalar));
+        } catch {}
+      }
+
+      function formatMMSS(toplamSaniye) {
+        const s = Math.max(0, Math.floor(toplamSaniye));
+        const dk = Math.floor(s / 60);
+        const sn = s % 60;
+        return `${String(dk).padStart(2, "0")}:${String(sn).padStart(2, "0")}`;
+      }
+
+      function molaSureDetayiHesapla(molaObj) {
+        const gecenToplam = Math.max(0, Math.floor((Date.now() - molaObj.startMs) / 1000));
+        const kalan = molaObj.durationSec - gecenToplam;
+        const suresiDoldu = kalan <= 0;
+        const fazlaGecen = suresiDoldu ? Math.abs(kalan) : 0;
+        return { suresiDoldu, kalanStr: formatMMSS(kalan), gecenStr: formatMMSS(fazlaGecen) };
+      }
+
+      async function aktifMolayiBulutaYaz(molaObj) {
+        ekipMolaYerelYukle();
+        ekipMolalar = ekipMolalar.filter(x => x.kisi !== molaObj.kisi);
+        ekipMolalar.push(molaObj);
+        ekipMolaYerelKaydet();
+        ekipMolaArayuzunuGuncelle();
+
+        const cfg = getSbConfig();
+        if (!cfg) return;
+        try {
+          await fetch(`${cfg.url}/rest/v1/records`, {
+            method: "POST",
+            headers: {
+              "apikey": cfg.key,
+              "Authorization": `Bearer ${cfg.key}`,
+              "Content-Type": "application/json",
+              "Prefer": "resolution=merge-duplicates"
+            },
+            body: JSON.stringify([{
+              id: `aktif_mola_${molaObj.kisi}`,
+              category: "AktifMola",
+              group: molaObj.kisi,
+              title: `${molaObj.kisi} - ${molaObj.tur}`,
+              content: JSON.stringify(molaObj),
+              updated_at: new Date().toISOString()
+            }])
+          });
+        } catch {}
+      }
+
+      async function aktifMolayiBuluttanSil(kisi) {
+        ekipMolaYerelYukle();
+        ekipMolalar = ekipMolalar.filter(x => x.kisi !== kisi);
+        ekipMolaYerelKaydet();
+        ekipMolaArayuzunuGuncelle();
+
+        const cfg = getSbConfig();
+        if (!cfg) return;
+        try {
+          await fetch(`${cfg.url}/rest/v1/records?id=eq.${encodeURIComponent(`aktif_mola_${kisi}`)}`, {
+            method: "DELETE",
+            headers: {
+              "apikey": cfg.key,
+              "Authorization": `Bearer ${cfg.key}`
+            }
+          });
+        } catch {}
+      }
+
+      async function aktifMolalariBuluttanCek() {
+        const cfg = getSbConfig();
+        if (!cfg) {
+          ekipMolaArayuzunuGuncelle();
+          return;
+        }
+        try {
+          const res = await fetch(`${cfg.url}/rest/v1/records?category=eq.${encodeURIComponent("AktifMola")}&order=updated_at.desc`, {
+            headers: { "apikey": cfg.key, "Authorization": `Bearer ${cfg.key}` }
+          });
+          if (!res.ok) return;
+          const rows = await res.json();
+          const simdi = Date.now();
+          const liste = [];
+          for (const row of rows) {
+            try {
+              const parsed = JSON.parse(row.content || "{}");
+              if (parsed && parsed.kisi && parsed.startMs && parsed.durationSec) {
+                const gecen = Math.max(0, Math.floor((simdi - parsed.startMs) / 1000));
+                if (gecen < parsed.durationSec + 4 * 3600) liste.push(parsed);
+              }
+            } catch {}
+          }
+          ekipMolalar = liste;
+          ekipMolaYerelKaydet();
+          ekipMolaArayuzunuGuncelle();
+        } catch {}
+      }
+
+      function ekipMolaArayuzunuGuncelle() {
+        const rozet = document.getElementById("vardiyaEkipMolaRozet");
+        if (!rozet) return;
+        const digerMolalar = ekipMolalar.filter(m => m.kisi !== vardiyaAktifKullanici());
+        if (!digerMolalar.length) {
+          rozet.classList.add("hidden");
+        } else {
+          rozet.classList.remove("hidden");
+          const ozetler = digerMolalar.map(m => {
+            const d = molaSureDetayiHesapla(m);
+            return d.suresiDoldu ? `${m.kisi} (${m.tur}: +${d.gecenStr} geçti)` : `${m.kisi} (${m.tur}: ${d.kalanStr} kaldı)`;
+          });
+          rozet.textContent = `☕ Molada: ${ozetler.join(" • ")}`;
+        }
+        if (!document.getElementById("vardiyaEkipMolaModalBackdrop").classList.contains("hidden")) {
+          ekipMolaModalListesiniCiz();
+        }
+      }
+
+      function ekipMolaModalListesiniCiz() {
+        const listeEl = document.getElementById("vardiyaEkipMolaListe");
+        if (!listeEl) return;
+        if (!ekipMolalar.length) {
+          listeEl.innerHTML = `<p class="status-msg" style="margin:0;">Şu an aktif molada olan kimse görünmüyor.</p>`;
+          return;
+        }
+        listeEl.innerHTML = ekipMolalar.map(m => {
+          const d = molaSureDetayiHesapla(m);
+          return `
+            <div class="vardiya-ekip-satir ${d.suresiDoldu ? "expired" : ""}">
+              <div>
+                <strong style="color:#ffffff;">${escapeHtml(m.kisi)}</strong>
+                <span class="badge" style="margin-left:6px;">${escapeHtml(m.tur)}</span>
+              </div>
+              <div style="font-weight:800; font-variant-numeric:tabular-nums; color:${d.suresiDoldu ? "#ffffff" : "var(--neon-cyan)"};">
+                ${d.suresiDoldu ? `Süre doldu • Geçen: +${d.gecenStr}` : `Kalan: ${d.kalanStr}`}
+              </div>
+            </div>
+          `;
+        }).join("");
+      }
+
+      async function vardiyaBuluttanSenkronizeEt() {
+        vardiyaYerelYukle();
+        const cfg = getSbConfig();
+        if (!cfg) return;
+        try {
+          const res = await fetch(`${cfg.url}/rest/v1/records?category=eq.${encodeURIComponent("VardiyaPlanı")}&order=updated_at.desc`, {
+            headers: { "apikey": cfg.key, "Authorization": `Bearer ${cfg.key}` }
+          });
+          if (!res.ok) return;
+          const rows = await res.json();
+          const mapById = new Map(vardiyaKayitlari.map(x => [x.id, x]));
+          for (const row of rows) {
+            try {
+              const parsed = JSON.parse(row.content || "{}");
+              if (parsed && parsed.id) mapById.set(parsed.id, parsed);
+            } catch {}
+          }
+          vardiyaKayitlari = Array.from(mapById.values()).sort((a, b) =>
+            String(a.tarih || "").localeCompare(String(b.tarih || ""))
+          );
+          vardiyaYerelKaydet();
+        } catch {}
+      }
+
+      async function vardiyaBulutaYaz(item) {
+        const cfg = getSbConfig();
+        if (!cfg) return;
+        try {
+          await fetch(`${cfg.url}/rest/v1/records`, {
+            method: "POST",
+            headers: {
+              "apikey": cfg.key,
+              "Authorization": `Bearer ${cfg.key}`,
+              "Content-Type": "application/json",
+              "Prefer": "resolution=merge-duplicates"
+            },
+            body: JSON.stringify([{
+              id: item.id,
+              category: "VardiyaPlanı",
+              group: item.kisi || "Genel",
+              title: `${item.tarih} (${item.vardiya}) - ${item.kisi}`,
+              content: JSON.stringify(item),
+              updated_at: new Date().toISOString()
+            }])
+          });
+        } catch {}
+      }
+
+      function vardiyaAnaEkranaYerlestir() {
+        const home = document.getElementById("centerHomeStage");
+        if (!home || document.getElementById("vardiyaAnaBar")) return;
+
+        const bar = document.createElement("div");
+        bar.id = "vardiyaAnaBar";
+        bar.innerHTML = `
+          <div class="vardiya-top-actions">
+            <button id="vardiyaMolaBaslatBtn" type="button">⏱️ Mola Başlat</button>
+            <button id="vardiyaPlanBtn" type="button">📅 Vardiya Saatleri</button>
+          </div>
+          <div id="vardiyaMolaSecimBox" class="hidden">
+            <button id="vardiyaYemekBaslatBtn" type="button" class="cyan-outline">🍽️ Yemek (50 dk)</button>
+            <button id="vardiyaKisaMolaBaslatBtn" type="button">☕ Mola (10 dk)</button>
+          </div>
+        `;
+        home.appendChild(bar);
+
+        document.getElementById("vardiyaMolaBaslatBtn").addEventListener("click", () => {
+          sesBaglaminiHazirla();
+          document.getElementById("vardiyaMolaSecimBox").classList.toggle("hidden");
+        });
+
+        document.getElementById("vardiyaYemekBaslatBtn").addEventListener("click", () => {
+          document.getElementById("vardiyaMolaSecimBox").classList.add("hidden");
+          vardiyaSayacBaslat("Yemek", YEMEK_SANIYE);
+        });
+
+        document.getElementById("vardiyaKisaMolaBaslatBtn").addEventListener("click", () => {
+          document.getElementById("vardiyaMolaSecimBox").classList.add("hidden");
+          vardiyaSayacBaslat("Mola", MOLA_SANIYE);
+        });
+
+        document.getElementById("vardiyaPlanBtn").addEventListener("click", async () => {
+          const bugun = new Date().toISOString().slice(0, 10);
+          const ayInp = document.getElementById("vardiyaAyInput");
+          const tarihInp = document.getElementById("vardiyaTarihInput");
+          if (!ayInp.value) ayInp.value = bugun.slice(0, 7);
+          if (!tarihInp.value) tarihInp.value = bugun;
+          document.getElementById("vardiyaPlanModalBackdrop").classList.remove("hidden");
+          await vardiyaBuluttanSenkronizeEt();
+          vardiyaListeyiCiz();
+        });
+      }
+
+      function sayacKaydet() {
+        try {
+          if (aktifSayac) localStorage.setItem(SAYAC_STORAGE_KEY, JSON.stringify(aktifSayac));
+          else localStorage.removeItem(SAYAC_STORAGE_KEY);
+        } catch {}
+      }
+
+      function sayacYukle() {
+        try {
+          const raw = localStorage.getItem(SAYAC_STORAGE_KEY);
+          if (!raw) return null;
+          const p = JSON.parse(raw);
+          if (p && p.startMs && p.durationSec) return p;
+        } catch {}
+        return null;
+      }
+
+      async function vardiyaSayacBaslat(tur, sureSaniye) {
+        sesBaglaminiHazirla();
+        const kisi = vardiyaAktifKullanici();
+        aktifSayac = { kisi, tur, durationSec: sureSaniye, startMs: Date.now() };
+        sayacKaydet();
+        await aktifMolayiBulutaYaz(aktifSayac);
+        sayacTick();
+        if (sayacInterval) clearInterval(sayacInterval);
+        sayacInterval = setInterval(sayacTick, 500);
+      }
+
+      async function vardiyaSayacBitir() {
+        const kisi = aktifSayac?.kisi || vardiyaAktifKullanici();
+        aktifSayac = null;
+        sayacKaydet();
+        if (sayacInterval) {
+          clearInterval(sayacInterval);
+          sayacInterval = null;
+        }
+        document.getElementById("vardiyaFloatingWidget").classList.add("hidden");
+        document.getElementById("vardiyaFloatingWidget").classList.remove("expired");
+        document.getElementById("vardiyaSayacModalBackdrop").classList.add("hidden");
+        document.getElementById("vardiyaSayacModalCard").classList.remove("expired");
+        await aktifMolayiBuluttanSil(kisi);
+      }
+
+      function sayacTick() {
+        ekipMolaArayuzunuGuncelle();
+
+        const fw = document.getElementById("vardiyaFloatingWidget");
+        const mc = document.getElementById("vardiyaSayacModalCard");
+        if (!aktifSayac) {
+          fw.classList.add("hidden");
+          return;
+        }
+
+        fw.classList.remove("hidden");
+        const gecenToplam = Math.max(0, Math.floor((Date.now() - aktifSayac.startMs) / 1000));
+        const kalan = aktifSayac.durationSec - gecenToplam;
+        const suresiDoldu = kalan <= 0;
+        const fazlaGecen = suresiDoldu ? Math.abs(kalan) : 0;
+
+        const atilanStartMs = Number(localStorage.getItem(UYARI_ATILAN_KEY) || "0");
+        if (kalan <= 120 && kalan > 0 && atilanStartMs !== aktifSayac.startMs) {
+          localStorage.setItem(UYARI_ATILAN_KEY, String(aktifSayac.startMs));
+          onKezBipBipCal();
+        }
+
+        const gosterilecekSaat = suresiDoldu ? formatMMSS(fazlaGecen) : formatMMSS(kalan);
+        document.getElementById("vardiyaFwTur").textContent = aktifSayac.tur;
+        document.getElementById("vardiyaFwDurum").textContent = suresiDoldu ? "Süre doldu" : "Kalan";
+        document.getElementById("vardiyaFwSaat").textContent = suresiDoldu ? `+${gosterilecekSaat}` : gosterilecekSaat;
+
+        const fwEkstra = document.getElementById("vardiyaFwEkstra");
+        if (suresiDoldu) {
+          fw.classList.add("expired");
+          mc.classList.add("expired");
+          fwEkstra.classList.remove("hidden");
+          fwEkstra.textContent = `Süre doldu • Geçen: +${formatMMSS(fazlaGecen)}`;
+        } else {
+          fw.classList.remove("expired");
+          mc.classList.remove("expired");
+          fwEkstra.classList.add("hidden");
+        }
+
+        document.getElementById("vardiyaModalTurLabel").textContent = `${aktifSayac.tur} Sayacı`;
+        document.getElementById("vardiyaModalSaat").textContent = suresiDoldu ? `+${gosterilecekSaat}` : gosterilecekSaat;
+
+        const durumMetin = document.getElementById("vardiyaModalDurumMetin");
+        const gecenMetin = document.getElementById("vardiyaModalGecenMetin");
+        if (suresiDoldu) {
+          durumMetin.textContent = "Süre doldu!";
+          gecenMetin.classList.remove("hidden");
+          gecenMetin.textContent = `Geçen süre: +${formatMMSS(fazlaGecen)}`;
+        } else {
+          durumMetin.textContent = `${aktifSayac.tur} süresi devam ediyor...`;
+          gecenMetin.classList.add("hidden");
+        }
+      }
+
+      function vardiyaListeyiCiz() {
+        const listeEl = document.getElementById("vardiyaListeAlani");
+        if (!listeEl) return;
+        const seciliAy = (document.getElementById("vardiyaAyInput").value || "").trim();
+        const seciliKisi = document.getElementById("vardiyaKisiFiltre").value || "ALL";
+
+        const filtreli = vardiyaKayitlari.filter(item => {
+          if (seciliAy && !String(item.tarih || "").startsWith(seciliAy)) return false;
+          if (seciliKisi !== "ALL" && item.kisi !== seciliKisi) return false;
+          return true;
+        });
+
+        if (!filtreli.length) {
+          listeEl.innerHTML = `<p class="status-msg">Bu ay/filtre için kayıtlı vardiya bulunmuyor.</p>`;
+          return;
+        }
+
+        listeEl.innerHTML = filtreli.map(item => {
+          const molalar = [item.mola1, item.mola2, item.mola3, item.mola4].filter(Boolean);
+          const molaOzet = molalar.length ? molalar.join(" • ") : "Mola saati girilmedi";
+          return `
+            <div class="vardiya-day-row">
+              <div class="vardiya-day-top">
+                <div>
+                  <strong style="color:#ffffff;">${escapeHtml(item.tarih || "-")}</strong>
+                  <span class="badge" style="margin-left:6px;">${escapeHtml(item.vardiya || "-")}</span>
+                  <span class="badge user" style="margin-left:4px;">Ekleyen: ${escapeHtml(item.kisi || "-")}</span>
+                </div>
+                <span class="badge ok">Yemek (50dk): ${escapeHtml(item.yemek || "-")}</span>
+              </div>
+              <div style="font-size:0.84rem; color:var(--muted);">
+                10 dk Molalar: <strong style="color:var(--neon-cyan);">${escapeHtml(molaOzet)}</strong>
+              </div>
+            </div>
+          `;
+        }).join("");
+      }
+
+      vardiyaAnaEkranaYerlestir();
+      vardiyaYerelYukle();
+      ekipMolaYerelYukle();
+      vardiyaBuluttanSenkronizeEt();
+      aktifMolalariBuluttanCek();
+
+      aktifSayac = sayacYukle();
+      if (aktifSayac) {
+        sayacTick();
+        sayacInterval = setInterval(sayacTick, 500);
+      } else {
+        ekipMolaArayuzunuGuncelle();
+      }
+
+      setInterval(aktifMolalariBuluttanCek, 5000);
+
+      document.getElementById("vardiyaEkipMolaRozet").addEventListener("click", async () => {
+        await aktifMolalariBuluttanCek();
+        ekipMolaModalListesiniCiz();
+        document.getElementById("vardiyaEkipMolaModalBackdrop").classList.remove("hidden");
+      });
+
+      document.getElementById("vardiyaEkipMolaKapatBtn").addEventListener("click", () => {
+        document.getElementById("vardiyaEkipMolaModalBackdrop").classList.add("hidden");
+      });
+
+      document.getElementById("vardiyaFloatingWidget").addEventListener("click", () => {
+        sayacTick();
+        document.getElementById("vardiyaSayacModalBackdrop").classList.remove("hidden");
+      });
+
+      document.getElementById("vardiyaModalKucultBtn").addEventListener("click", () => {
+        document.getElementById("vardiyaSayacModalBackdrop").classList.add("hidden");
+      });
+
+      document.getElementById("vardiyaErkenBitirBtn").addEventListener("click", async () => {
+        await vardiyaSayacBitir();
+      });
+
+      document.getElementById("vardiyaPlanKapatBtn").addEventListener("click", () => {
+        document.getElementById("vardiyaPlanModalBackdrop").classList.add("hidden");
+      });
+
+      document.getElementById("vardiyaYenileBtn").addEventListener("click", async () => {
+        await vardiyaBuluttanSenkronizeEt();
+        vardiyaListeyiCiz();
+      });
+
+      document.getElementById("vardiyaAyInput").addEventListener("change", vardiyaListeyiCiz);
+      document.getElementById("vardiyaKisiFiltre").addEventListener("change", vardiyaListeyiCiz);
+
+      document.getElementById("vardiyaKaydetBtn").addEventListener("click", async () => {
+        const tarih = document.getElementById("vardiyaTarihInput").value;
+        const vardiya = document.getElementById("vardiyaSaatDilimiSelect").value;
+        const yemek = document.getElementById("vardiyaYemekSaatInput").value;
+        const mola1 = document.getElementById("vardiyaMola1Input").value;
+        const mola2 = document.getElementById("vardiyaMola2Input").value;
+        const mola3 = document.getElementById("vardiyaMola3Input").value;
+        const mola4 = document.getElementById("vardiyaMola4Input").value;
+        const durumEl = document.getElementById("vardiyaDurumMesaj");
+
+        if (!tarih) {
+          durumEl.textContent = "Lütfen bir tarih seçin.";
+          return;
+        }
+
+        const kisi = vardiyaAktifKullanici();
+        const id = `vardiya_${tarih}_${kisi}`;
+        const yeniKayit = {
+          id, tarih, vardiya, yemek, mola1, mola2, mola3, mola4, kisi,
+          updatedAt: new Date().toISOString()
+        };
+
+        vardiyaKayitlari = vardiyaKayitlari.filter(x => x.id !== id);
+        vardiyaKayitlari.push(yeniKayit);
+        vardiyaKayitlari.sort((a, b) => String(a.tarih || "").localeCompare(String(b.tarih || "")));
+        vardiyaYerelKaydet();
+        vardiyaListeyiCiz();
+        await vardiyaBulutaYaz(yeniKayit);
+        durumEl.textContent = `${tarih} vardiyası (${kisi}) kaydedildi ve paylaşıldı.`;
+      });
+
+      document.addEventListener("click", () => sesBaglaminiHazirla(), { passive: true });
+      document.addEventListener("touchstart", () => sesBaglaminiHazirla(), { passive: true });
+    })();
+
+    extSyncSelectOptions();
+    sonBilgiKartiniYerlestirVeGuncelle();
     closeFailedModal();
     closeRecordsModal();
     renderUploadQueue();
@@ -2657,1647 +4033,3 @@ Kayıttaki "Yapılması gereken" adımlar.`;
   </script>
 </body>
 </html>
-<style id="vardiya-modulu-style">
-  @keyframes vardiyaBlinkRed {
-    0%, 100% {
-      background: rgba(255, 59, 92, 0.24);
-      border-color: #ff3b5c;
-      box-shadow: 0 0 22px rgba(255, 59, 92, 0.75);
-      color: #ffd6de;
-    }
-    50% {
-      background: rgba(120, 10, 30, 0.45);
-      border-color: #ff8fa3;
-      box-shadow: 0 0 8px rgba(255, 59, 92, 0.3);
-      color: #ffffff;
-    }
-  }
-
-  #vardiyaAnaBar {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    margin-top: 14px;
-    width: 100%;
-    max-width: 420px;
-  }
-
-  .vardiya-top-actions {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    justify-content: center;
-    width: 100%;
-  }
-
-  #vardiyaMolaBaslatBtn {
-    background: linear-gradient(135deg, rgba(0, 240, 255, 0.18), rgba(157, 78, 221, 0.22));
-    color: var(--neon-cyan);
-    border: 1.5px solid var(--neon-cyan);
-    box-shadow: 0 0 16px rgba(0, 240, 255, 0.32);
-    border-radius: 12px;
-    padding: 10px 16px;
-    font-weight: 800;
-    cursor: pointer;
-  }
-
-  #vardiyaPlanBtn {
-    background: var(--panel-2);
-    color: var(--text);
-    border: 1px solid var(--neon-purple-bright);
-    border-radius: 12px;
-    padding: 10px 16px;
-    font-weight: 700;
-    cursor: pointer;
-  }
-
-  #vardiyaMolaSecimBox {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    flex-wrap: wrap;
-    background: var(--panel);
-    border: 1px solid var(--neon-cyan);
-    border-radius: 12px;
-    padding: 10px 12px;
-    box-shadow: 0 0 18px rgba(0, 240, 255, 0.22);
-  }
-
-  /* Sağ üstte diğer kişilerin aktif molalarını gösteren küçük rozet */
-  #vardiyaEkipMolaRozet {
-    position: fixed;
-    top: 58px;
-    right: 14px;
-    z-index: 42;
-    background: rgba(17, 15, 26, 0.94);
-    border: 1px solid var(--neon-purple-bright);
-    box-shadow: 0 0 14px rgba(157, 78, 221, 0.35);
-    border-radius: 999px;
-    padding: 5px 12px;
-    font-size: 0.78rem;
-    font-weight: 700;
-    color: var(--neon-cyan);
-    cursor: pointer;
-    user-select: none;
-    transition: transform 0.15s ease, border-color 0.15s ease;
-  }
-
-  #vardiyaEkipMolaRozet:hover {
-    transform: translateY(-1px);
-    border-color: var(--neon-cyan);
-  }
-
-  .vardiya-ekip-satir {
-    background: var(--panel-2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 10px 12px;
-    margin-bottom: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-
-  .vardiya-ekip-satir.expired {
-    animation: vardiyaBlinkRed 0.9s infinite;
-  }
-
-  #vardiyaFloatingWidget {
-    position: fixed;
-    right: 14px;
-    bottom: 18px;
-    z-index: 45;
-    background: var(--panel);
-    border: 1.5px solid var(--neon-cyan);
-    box-shadow: 0 0 18px rgba(0, 240, 255, 0.35);
-    border-radius: 14px;
-    padding: 10px 14px;
-    cursor: pointer;
-    min-width: 148px;
-    user-select: none;
-    transition: transform 0.18s ease;
-  }
-
-  #vardiyaFloatingWidget:hover {
-    transform: translateY(-2px);
-  }
-
-  #vardiyaFloatingWidget.expired {
-    animation: vardiyaBlinkRed 0.9s infinite;
-  }
-
-  .vardiya-fw-label {
-    font-size: 0.74rem;
-    color: var(--muted);
-    font-weight: 700;
-    display: flex;
-    justify-content: space-between;
-    gap: 8px;
-  }
-
-  .vardiya-fw-time {
-    font-size: 1.25rem;
-    font-weight: 900;
-    color: var(--neon-cyan);
-    font-variant-numeric: tabular-nums;
-    margin-top: 2px;
-  }
-
-  #vardiyaFloatingWidget.expired .vardiya-fw-time {
-    color: #ffffff;
-  }
-
-  .vardiya-fw-over {
-    font-size: 0.78rem;
-    font-weight: 800;
-    margin-top: 2px;
-    font-variant-numeric: tabular-nums;
-  }
-
-  #vardiyaSayacModalBackdrop,
-  #vardiyaEkipMolaModalBackdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(4, 3, 8, 0.8);
-    backdrop-filter: blur(5px);
-    z-index: 65;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-  }
-
-  #vardiyaSayacModalCard {
-    background: var(--panel);
-    border: 1.5px solid var(--neon-cyan);
-    border-radius: 16px;
-    padding: 20px;
-    max-width: 390px;
-    width: 100%;
-    text-align: center;
-    box-shadow: 0 0 28px rgba(0, 240, 255, 0.3);
-  }
-
-  #vardiyaSayacModalCard.expired {
-    animation: vardiyaBlinkRed 0.9s infinite;
-  }
-
-  .vardiya-big-clock {
-    font-size: 2.5rem;
-    font-weight: 900;
-    font-variant-numeric: tabular-nums;
-    margin: 10px 0 6px;
-    color: var(--neon-cyan);
-  }
-
-  #vardiyaSayacModalCard.expired .vardiya-big-clock {
-    color: #ffffff;
-  }
-
-  #vardiyaPlanModalBackdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(4, 3, 8, 0.8);
-    backdrop-filter: blur(5px);
-    z-index: 60;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-  }
-
-  .vardiya-plan-card {
-    background: var(--panel);
-    border: 1px solid var(--neon-purple-bright);
-    border-radius: 16px;
-    padding: 18px;
-    max-width: 760px;
-    width: 100%;
-    max-height: 88vh;
-    overflow-y: auto;
-    box-shadow: 0 0 28px rgba(157, 78, 221, 0.35);
-  }
-
-  .vardiya-day-row {
-    background: var(--panel-2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 10px 12px;
-    margin-bottom: 8px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .vardiya-day-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  .vardiya-mini-inputs {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(125px, 1fr));
-    gap: 8px;
-  }
-
-  .vardiya-mini-inputs input,
-  .vardiya-mini-inputs select {
-    padding: 7px 9px;
-    font-size: 0.84rem;
-  }
-</style>
-
-<div id="vardiyaEkipMolaRozet" class="hidden" title="Moladaki kişilerin kalan süresini görmek için tıklayın">
-  ☕ Molada: -
-</div>
-
-<div id="vardiyaEkipMolaModalBackdrop" class="hidden">
-  <div class="vardiya-plan-card" style="max-width:440px;">
-    <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px;">
-      <strong style="color:var(--neon-cyan); font-size:0.98rem;">Aktif Molalar & Kalan Süreler</strong>
-      <button id="vardiyaEkipMolaKapatBtn" type="button" class="secondary" style="padding:6px 10px; font-size:0.8rem;">Kapat</button>
-    </div>
-    <div id="vardiyaEkipMolaListe"></div>
-  </div>
-</div>
-
-<div id="vardiyaFloatingWidget" class="hidden" title="Büyütmek için tıklayın">
-  <div class="vardiya-fw-label">
-    <span id="vardiyaFwTur">Mola</span>
-    <span id="vardiyaFwDurum">Kalan</span>
-  </div>
-  <div id="vardiyaFwSaat" class="vardiya-fw-time">10:00</div>
-  <div id="vardiyaFwEkstra" class="vardiya-fw-over hidden">Süre doldu • Geçen: +00:00</div>
-</div>
-
-<div id="vardiyaSayacModalBackdrop" class="hidden">
-  <div id="vardiyaSayacModalCard">
-    <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
-      <strong id="vardiyaModalTurLabel" style="color:var(--neon-cyan);">Mola Sayacı</strong>
-      <button id="vardiyaModalKucultBtn" type="button" class="secondary" style="padding:5px 10px; font-size:0.8rem;">Küçült</button>
-    </div>
-    <div id="vardiyaModalSaat" class="vardiya-big-clock">10:00</div>
-    <div id="vardiyaModalDurumMetin" class="status-msg" style="margin-top:0; font-weight:700;">Mola devam ediyor...</div>
-    <div id="vardiyaModalGecenMetin" class="hidden" style="margin-top:8px; font-size:0.95rem; font-weight:800;">Geçen süre: +00:00</div>
-    <div style="margin-top:16px;">
-      <button id="vardiyaErkenBitirBtn" type="button" class="danger" style="width:100%;">Erken Bitir</button>
-    </div>
-  </div>
-</div>
-
-<div id="vardiyaPlanModalBackdrop" class="hidden">
-  <div class="vardiya-plan-card">
-    <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px;">
-      <h2 style="margin:0; color:var(--neon-cyan);">Aylık Vardiya & Mola Planı (Paylaşımlı)</h2>
-      <button id="vardiyaPlanKapatBtn" type="button" class="secondary">Kapat</button>
-    </div>
-
-    <div class="row" style="margin-bottom:10px;">
-      <div>
-        <label for="vardiyaAyInput">Ay (YYYY-MM)</label>
-        <input id="vardiyaAyInput" type="month" />
-      </div>
-      <div>
-        <label for="vardiyaKisiFiltre">Kişi / Görünüm</label>
-        <select id="vardiyaKisiFiltre">
-          <option value="ALL">Tüm Ekip (Son Eklenenler)</option>
-          <option value="Arda">Arda</option>
-          <option value="Görkem">Görkem</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="vardiya-day-row" style="border-color:var(--neon-cyan);">
-      <strong style="color:var(--neon-cyan); font-size:0.9rem;">Günlük Vardiya & Mola Saati Ekle / Güncelle</strong>
-      <div class="vardiya-mini-inputs">
-        <div>
-          <label for="vardiyaTarihInput">Tarih</label>
-          <input id="vardiyaTarihInput" type="date" />
-        </div>
-        <div>
-          <label for="vardiyaSaatDilimiSelect">Vardiya</label>
-          <select id="vardiyaSaatDilimiSelect">
-            <option value="09:00 / 19:00">09:00 / 19:00</option>
-            <option value="11:00 / 21:00">11:00 / 21:00</option>
-          </select>
-        </div>
-        <div>
-          <label for="vardiyaYemekSaatInput">Yemek (50 dk)</label>
-          <input id="vardiyaYemekSaatInput" type="time" />
-        </div>
-        <div>
-          <label for="vardiyaMola1Input">10dk Mola 1</label>
-          <input id="vardiyaMola1Input" type="time" />
-        </div>
-        <div>
-          <label for="vardiyaMola2Input">10dk Mola 2</label>
-          <input id="vardiyaMola2Input" type="time" />
-        </div>
-        <div>
-          <label for="vardiyaMola3Input">10dk Mola 3</label>
-          <input id="vardiyaMola3Input" type="time" />
-        </div>
-        <div>
-          <label for="vardiyaMola4Input">10dk Mola 4</label>
-          <input id="vardiyaMola4Input" type="time" />
-        </div>
-      </div>
-      <div class="actions" style="margin-top:8px;">
-        <button id="vardiyaKaydetBtn" type="button">Vardiyayı Kaydet & Paylaş</button>
-        <button id="vardiyaYenileBtn" type="button" class="secondary">Buluttan Yenile</button>
-      </div>
-      <div id="vardiyaDurumMesaj" class="status-msg"></div>
-    </div>
-
-    <div id="vardiyaListeAlani"></div>
-  </div>
-</div>
-
-<script id="vardiya-modulu-script">
-(function () {
-  const VARDIYA_STORAGE_KEY = "servis_asistani_vardiyalar_v1";
-  const SAYAC_STORAGE_KEY = "servis_asistani_aktif_mola_v1";
-  const EKIP_MOLA_STORAGE_KEY = "servis_asistani_ekip_molalar_v1";
-  const YEMEK_SANIYE = 50 * 60;
-  const MOLA_SANIYE = 10 * 60;
-
-  let vardiyaKayitlari = [];
-  let aktifSayac = null;
-  let ekipMolalar = [];
-  let sayacInterval = null;
-  let syncTimer = null;
-
-  function vardiyaAktifKullanici() {
-    try {
-      if (window.currentSession && window.currentSession.user) {
-        return window.currentSession.user;
-      }
-      const raw = sessionStorage.getItem("servis_asistani_session_v1") || localStorage.getItem("servis_asistani_session_v1");
-      if (raw) {
-        const p = JSON.parse(raw);
-        if (p && p.user) return p.user;
-      }
-    } catch {}
-    return "Kullanıcı";
-  }
-
-  function vardiyaYerelYukle() {
-    try {
-      const raw = localStorage.getItem(VARDIYA_STORAGE_KEY);
-      const arr = raw ? JSON.parse(raw) : [];
-      vardiyaKayitlari = Array.isArray(arr) ? arr : [];
-    } catch {
-      vardiyaKayitlari = [];
-    }
-  }
-
-  function vardiyaYerelKaydet() {
-    try {
-      localStorage.setItem(VARDIYA_STORAGE_KEY, JSON.stringify(vardiyaKayitlari));
-    } catch {}
-  }
-
-  function ekipMolaYerelYukle() {
-    try {
-      const raw = localStorage.getItem(EKIP_MOLA_STORAGE_KEY);
-      const arr = raw ? JSON.parse(raw) : [];
-      ekipMolalar = Array.isArray(arr) ? arr : [];
-    } catch {
-      ekipMolalar = [];
-    }
-  }
-
-  function ekipMolaYerelKaydet() {
-    try {
-      localStorage.setItem(EKIP_MOLA_STORAGE_KEY, JSON.stringify(ekipMolalar));
-    } catch {}
-  }
-
-  async function aktifMolayiBulutaYaz(molaObj) {
-    ekipMolaYerelYukle();
-    ekipMolalar = ekipMolalar.filter(x => x.kisi !== molaObj.kisi);
-    ekipMolalar.push(molaObj);
-    ekipMolaYerelKaydet();
-    ekipMolaArayuzunuGuncelle();
-
-    if (typeof getSbConfig !== "function") return;
-    const cfg = getSbConfig();
-    if (!cfg) return;
-    const id = `aktif_mola_${molaObj.kisi}`;
-    const payload = [{
-      id,
-      category: "AktifMola",
-      group: molaObj.kisi,
-      title: `${molaObj.kisi} - ${molaObj.tur}`,
-      content: JSON.stringify(molaObj),
-      updated_at: new Date().toISOString()
-    }];
-    try {
-      await fetch(`${cfg.url}/rest/v1/records`, {
-        method: "POST",
-        headers: {
-          "apikey": cfg.key,
-          "Authorization": `Bearer ${cfg.key}`,
-          "Content-Type": "application/json",
-          "Prefer": "resolution=merge-duplicates"
-        },
-        body: JSON.stringify(payload)
-      });
-    } catch {}
-  }
-
-  async function aktifMolayiBuluttanSil(kisi) {
-    ekipMolaYerelYukle();
-    ekipMolalar = ekipMolalar.filter(x => x.kisi !== kisi);
-    ekipMolaYerelKaydet();
-    ekipMolaArayuzunuGuncelle();
-
-    if (typeof getSbConfig !== "function") return;
-    const cfg = getSbConfig();
-    if (!cfg) return;
-    const id = `aktif_mola_${kisi}`;
-    try {
-      await fetch(`${cfg.url}/rest/v1/records?id=eq.${encodeURIComponent(id)}`, {
-        method: "DELETE",
-        headers: {
-          "apikey": cfg.key,
-          "Authorization": `Bearer ${cfg.key}`
-        }
-      });
-    } catch {}
-  }
-
-  async function aktifMolalariBuluttanCek() {
-    if (typeof getSbConfig !== "function") {
-      ekipMolaArayuzunuGuncelle();
-      return;
-    }
-    const cfg = getSbConfig();
-    if (!cfg) {
-      ekipMolaArayuzunuGuncelle();
-      return;
-    }
-    try {
-      const res = await fetch(`${cfg.url}/rest/v1/records?category=eq.${encodeURIComponent("AktifMola")}&order=updated_at.desc`, {
-        headers: {
-          "apikey": cfg.key,
-          "Authorization": `Bearer ${cfg.key}`
-        }
-      });
-      if (!res.ok) return;
-      const rows = await res.json();
-      const simdi = Date.now();
-      const liste = [];
-      for (const row of rows) {
-        try {
-          const parsed = JSON.parse(row.content || "{}");
-          if (parsed && parsed.kisi && parsed.startMs && parsed.durationSec) {
-            const gecen = Math.max(0, Math.floor((simdi - parsed.startMs) / 1000));
-            // 4 saatten eski unutulmuş kayıtları temizle
-            if (gecen < parsed.durationSec + 4 * 3600) {
-              liste.push(parsed);
-            }
-          }
-        } catch {}
-      }
-      ekipMolalar = liste;
-      ekipMolaYerelKaydet();
-      ekipMolaArayuzunuGuncelle();
-    } catch {}
-  }
-
-  function molaSureDetayiHesapla(molaObj) {
-    const gecenToplam = Math.max(0, Math.floor((Date.now() - molaObj.startMs) / 1000));
-    const kalan = molaObj.durationSec - gecenToplam;
-    const suresiDoldu = kalan <= 0;
-    const fazlaGecen = suresiDoldu ? Math.abs(kalan) : 0;
-    return {
-      suresiDoldu,
-      kalanStr: formatMMSS(kalan),
-      gecenStr: formatMMSS(fazlaGecen)
-    };
-  }
-
-  function ekipMolaArayuzunuGuncelle() {
-    const rozet = document.getElementById("vardiyaEkipMolaRozet");
-    if (!rozet) return;
-
-    const digerMolalar = ekipMolalar.filter(m => m.kisi !== vardiyaAktifKullanici());
-    if (!digerMolalar.length) {
-      rozet.classList.add("hidden");
-    } else {
-      rozet.classList.remove("hidden");
-      const ozetler = digerMolalar.map(m => {
-        const d = molaSureDetayiHesapla(m);
-        return d.suresiDoldu
-          ? `${m.kisi} (${m.tur}: +${d.gecenStr} geçti)`
-          : `${m.kisi} (${m.tur}: ${d.kalanStr} kaldı)`;
-      });
-      rozet.textContent = `☕ Molada: ${ozetler.join(" • ")}`;
-    }
-
-    const modalAcik = !document.getElementById("vardiyaEkipMolaModalBackdrop").classList.contains("hidden");
-    if (modalAcik) {
-      ekipMolaModalListesiniCiz();
-    }
-  }
-
-  function ekipMolaModalListesiniCiz() {
-    const listeEl = document.getElementById("vardiyaEkipMolaListe");
-    if (!listeEl) return;
-
-    if (!ekipMolalar.length) {
-      listeEl.innerHTML = `<p class="status-msg" style="margin:0;">Şu an aktif molada olan kimse görünmüyor.</p>`;
-      return;
-    }
-
-    listeEl.innerHTML = ekipMolalar.map(m => {
-      const d = molaSureDetayiHesapla(m);
-      return `
-        <div class="vardiya-ekip-satir ${d.suresiDoldu ? "expired" : ""}">
-          <div>
-            <strong style="color:#ffffff;">${m.kisi}</strong>
-            <span class="badge" style="margin-left:6px;">${m.tur}</span>
-          </div>
-          <div style="font-weight:800; font-variant-numeric:tabular-nums; color:${d.suresiDoldu ? "#ffffff" : "var(--neon-cyan)"};">
-            ${d.suresiDoldu ? `Süre doldu • Geçen: +${d.gecenStr}` : `Kalan: ${d.kalanStr}`}
-          </div>
-        </div>
-      `;
-    }).join("");
-  }
-
-  async function vardiyaBuluttanSenkronizeEt() {
-    vardiyaYerelYukle();
-    if (typeof getSbConfig !== "function") return;
-    const cfg = getSbConfig();
-    if (!cfg) return;
-    try {
-      const res = await fetch(`${cfg.url}/rest/v1/records?category=eq.${encodeURIComponent("VardiyaPlanı")}&order=updated_at.desc`, {
-        headers: {
-          "apikey": cfg.key,
-          "Authorization": `Bearer ${cfg.key}`
-        }
-      });
-      if (!res.ok) return;
-      const rows = await res.json();
-      const mapById = new Map(vardiyaKayitlari.map(x => [x.id, x]));
-      for (const row of rows) {
-        try {
-          const parsed = JSON.parse(row.content || "{}");
-          if (parsed && parsed.id) {
-            mapById.set(parsed.id, parsed);
-          }
-        } catch {}
-      }
-      vardiyaKayitlari = Array.from(mapById.values()).sort((a, b) =>
-        String(a.tarih || "").localeCompare(String(b.tarih || ""))
-      );
-      vardiyaYerelKaydet();
-    } catch {}
-  }
-
-  async function vardiyaBulutaYaz(item) {
-    if (typeof getSbConfig !== "function") return;
-    const cfg = getSbConfig();
-    if (!cfg) return;
-    const payload = [{
-      id: item.id,
-      category: "VardiyaPlanı",
-      group: item.kisi || "Genel",
-      title: `${item.tarih} (${item.vardiya}) - ${item.kisi}`,
-      content: JSON.stringify(item),
-      updated_at: new Date().toISOString()
-    }];
-    try {
-      await fetch(`${cfg.url}/rest/v1/records`, {
-        method: "POST",
-        headers: {
-          "apikey": cfg.key,
-          "Authorization": `Bearer ${cfg.key}`,
-          "Content-Type": "application/json",
-          "Prefer": "resolution=merge-duplicates"
-        },
-        body: JSON.stringify(payload)
-      });
-    } catch {}
-  }
-
-  function vardiyaAnaEkranaYerlestir() {
-    const home = document.getElementById("centerHomeStage");
-    if (!home || document.getElementById("vardiyaAnaBar")) return;
-
-    const bar = document.createElement("div");
-    bar.id = "vardiyaAnaBar";
-    bar.innerHTML = `
-      <div class="vardiya-top-actions">
-        <button id="vardiyaMolaBaslatBtn" type="button">⏱️ Mola Başlat</button>
-        <button id="vardiyaPlanBtn" type="button">📅 Vardiya Saatleri</button>
-      </div>
-      <div id="vardiyaMolaSecimBox" class="hidden">
-        <button id="vardiyaYemekBaslatBtn" type="button" class="cyan-outline">🍽️ Yemek (50 dk)</button>
-        <button id="vardiyaKisaMolaBaslatBtn" type="button">☕ Mola (10 dk)</button>
-      </div>
-    `;
-    home.appendChild(bar);
-
-    document.getElementById("vardiyaMolaBaslatBtn").addEventListener("click", () => {
-      document.getElementById("vardiyaMolaSecimBox").classList.toggle("hidden");
-    });
-
-    document.getElementById("vardiyaYemekBaslatBtn").addEventListener("click", () => {
-      document.getElementById("vardiyaMolaSecimBox").classList.add("hidden");
-      vardiyaSayacBaslat("Yemek", YEMEK_SANIYE);
-    });
-
-    document.getElementById("vardiyaKisaMolaBaslatBtn").addEventListener("click", () => {
-      document.getElementById("vardiyaMolaSecimBox").classList.add("hidden");
-      vardiyaSayacBaslat("Mola", MOLA_SANIYE);
-    });
-
-    document.getElementById("vardiyaPlanBtn").addEventListener("click", async () => {
-      const bugun = new Date().toISOString().slice(0, 10);
-      const ayInp = document.getElementById("vardiyaAyInput");
-      const tarihInp = document.getElementById("vardiyaTarihInput");
-      if (!ayInp.value) ayInp.value = bugun.slice(0, 7);
-      if (!tarihInp.value) tarihInp.value = bugun;
-      document.getElementById("vardiyaPlanModalBackdrop").classList.remove("hidden");
-      await vardiyaBuluttanSenkronizeEt();
-      vardiyaListeyiCiz();
-    });
-  }
-
-  function formatMMSS(toplamSaniye) {
-    const s = Math.max(0, Math.floor(toplamSaniye));
-    const dk = Math.floor(s / 60);
-    const sn = s % 60;
-    return `${String(dk).padStart(2, "0")}:${String(sn).padStart(2, "0")}`;
-  }
-
-  function sayacKaydet() {
-    try {
-      if (aktifSayac) {
-        localStorage.setItem(SAYAC_STORAGE_KEY, JSON.stringify(aktifSayac));
-      } else {
-        localStorage.removeItem(SAYAC_STORAGE_KEY);
-      }
-    } catch {}
-  }
-
-  function sayacYukle() {
-    try {
-      const raw = localStorage.getItem(SAYAC_STORAGE_KEY);
-      if (!raw) return null;
-      const p = JSON.parse(raw);
-      if (p && p.startMs && p.durationSec) return p;
-    } catch {}
-    return null;
-  }
-
-  async function vardiyaSayacBaslat(tur, sureSaniye) {
-    const kisi = vardiyaAktifKullanici();
-    aktifSayac = {
-      kisi,
-      tur,
-      durationSec: sureSaniye,
-      startMs: Date.now()
-    };
-    sayacKaydet();
-    await aktifMolayiBulutaYaz(aktifSayac);
-    sayacTick();
-    if (sayacInterval) clearInterval(sayacInterval);
-    sayacInterval = setInterval(sayacTick, 500);
-  }
-
-  async function vardiyaSayacBitir() {
-    const kisi = aktifSayac?.kisi || vardiyaAktifKullanici();
-    aktifSayac = null;
-    sayacKaydet();
-    if (sayacInterval) {
-      clearInterval(sayacInterval);
-      sayacInterval = null;
-    }
-    document.getElementById("vardiyaFloatingWidget").classList.add("hidden");
-    document.getElementById("vardiyaFloatingWidget").classList.remove("expired");
-    document.getElementById("vardiyaSayacModalBackdrop").classList.add("hidden");
-    document.getElementById("vardiyaSayacModalCard").classList.remove("expired");
-    await aktifMolayiBuluttanSil(kisi);
-  }
-
-  function sayacTick() {
-    ekipMolaArayuzunuGuncelle();
-
-    const fw = document.getElementById("vardiyaFloatingWidget");
-    const mc = document.getElementById("vardiyaSayacModalCard");
-    if (!aktifSayac) {
-      fw.classList.add("hidden");
-      return;
-    }
-
-    fw.classList.remove("hidden");
-    const gecenToplam = Math.max(0, Math.floor((Date.now() - aktifSayac.startMs) / 1000));
-    const kalan = aktifSayac.durationSec - gecenToplam;
-    const suresiDoldu = kalan <= 0;
-    const fazlaGecen = suresiDoldu ? Math.abs(kalan) : 0;
-
-    const gosterilecekSaat = suresiDoldu ? formatMMSS(fazlaGecen) : formatMMSS(kalan);
-
-    document.getElementById("vardiyaFwTur").textContent = aktifSayac.tur;
-    document.getElementById("vardiyaFwDurum").textContent = suresiDoldu ? "Süre doldu" : "Kalan";
-    document.getElementById("vardiyaFwSaat").textContent = suresiDoldu ? `+${gosterilecekSaat}` : gosterilecekSaat;
-
-    const fwEkstra = document.getElementById("vardiyaFwEkstra");
-    if (suresiDoldu) {
-      fw.classList.add("expired");
-      mc.classList.add("expired");
-      fwEkstra.classList.remove("hidden");
-      fwEkstra.textContent = `Süre doldu • Geçen: +${formatMMSS(fazlaGecen)}`;
-    } else {
-      fw.classList.remove("expired");
-      mc.classList.remove("expired");
-      fwEkstra.classList.add("hidden");
-    }
-
-    document.getElementById("vardiyaModalTurLabel").textContent = `${aktifSayac.tur} Sayacı`;
-    document.getElementById("vardiyaModalSaat").textContent = suresiDoldu ? `+${gosterilecekSaat}` : gosterilecekSaat;
-
-    const durumMetin = document.getElementById("vardiyaModalDurumMetin");
-    const gecenMetin = document.getElementById("vardiyaModalGecenMetin");
-
-    if (suresiDoldu) {
-      durumMetin.textContent = "Süre doldu!";
-      gecenMetin.classList.remove("hidden");
-      gecenMetin.textContent = `Geçen süre: +${formatMMSS(fazlaGecen)}`;
-    } else {
-      durumMetin.textContent = `${aktifSayac.tur} süresi devam ediyor...`;
-      gecenMetin.classList.add("hidden");
-    }
-  }
-
-  function vardiyaListeyiCiz() {
-    const listeEl = document.getElementById("vardiyaListeAlani");
-    if (!listeEl) return;
-    const seciliAy = (document.getElementById("vardiyaAyInput").value || "").trim();
-    const seciliKisi = document.getElementById("vardiyaKisiFiltre").value || "ALL";
-
-    const filtreli = vardiyaKayitlari.filter(item => {
-      if (seciliAy && !String(item.tarih || "").startsWith(seciliAy)) return false;
-      if (seciliKisi !== "ALL" && item.kisi !== seciliKisi) return false;
-      return true;
-    });
-
-    if (!filtreli.length) {
-      listeEl.innerHTML = `<p class="status-msg">Bu ay/filtre için kayıtlı vardiya bulunmuyor.</p>`;
-      return;
-    }
-
-    listeEl.innerHTML = filtreli.map(item => {
-      const molalar = [item.mola1, item.mola2, item.mola3, item.mola4].filter(Boolean);
-      const molaOzet = molalar.length ? molalar.join(" • ") : "Mola saati girilmedi";
-      return `
-        <div class="vardiya-day-row">
-          <div class="vardiya-day-top">
-            <div>
-              <strong style="color:#ffffff;">${item.tarih || "-"}</strong>
-              <span class="badge" style="margin-left:6px;">${item.vardiya || "-"}</span>
-              <span class="badge user" style="margin-left:4px;">Ekleyen: ${item.kisi || "-"}</span>
-            </div>
-            <span class="badge ok">Yemek (50dk): ${item.yemek || "-"}</span>
-          </div>
-          <div style="font-size:0.84rem; color:var(--muted);">
-            10 dk Molalar: <strong style="color:var(--neon-cyan);">${molaOzet}</strong>
-          </div>
-        </div>
-      `;
-    }).join("");
-  }
-
-  document.addEventListener("DOMContentLoaded", () => {
-    vardiyaAnaEkranaYerlestir();
-    vardiyaYerelYukle();
-    ekipMolaYerelYukle();
-    vardiyaBuluttanSenkronizeEt();
-    aktifMolalariBuluttanCek();
-
-    aktifSayac = sayacYukle();
-    if (aktifSayac) {
-      sayacTick();
-      sayacInterval = setInterval(sayacTick, 500);
-    } else {
-      ekipMolaArayuzunuGuncelle();
-    }
-
-    syncTimer = setInterval(aktifMolalariBuluttanCek, 5000);
-
-    document.getElementById("vardiyaEkipMolaRozet").addEventListener("click", async () => {
-      await aktifMolalariBuluttanCek();
-      ekipMolaModalListesiniCiz();
-      document.getElementById("vardiyaEkipMolaModalBackdrop").classList.remove("hidden");
-    });
-
-    document.getElementById("vardiyaEkipMolaKapatBtn").addEventListener("click", () => {
-      document.getElementById("vardiyaEkipMolaModalBackdrop").classList.add("hidden");
-    });
-
-    document.getElementById("vardiyaFloatingWidget").addEventListener("click", () => {
-      sayacTick();
-      document.getElementById("vardiyaSayacModalBackdrop").classList.remove("hidden");
-    });
-
-    document.getElementById("vardiyaModalKucultBtn").addEventListener("click", () => {
-      document.getElementById("vardiyaSayacModalBackdrop").classList.add("hidden");
-    });
-
-    document.getElementById("vardiyaErkenBitirBtn").addEventListener("click", async () => {
-      await vardiyaSayacBitir();
-    });
-
-    document.getElementById("vardiyaPlanKapatBtn").addEventListener("click", () => {
-      document.getElementById("vardiyaPlanModalBackdrop").classList.add("hidden");
-    });
-
-    document.getElementById("vardiyaYenileBtn").addEventListener("click", async () => {
-      await vardiyaBuluttanSenkronizeEt();
-      vardiyaListeyiCiz();
-    });
-
-    document.getElementById("vardiyaAyInput").addEventListener("change", vardiyaListeyiCiz);
-    document.getElementById("vardiyaKisiFiltre").addEventListener("change", vardiyaListeyiCiz);
-
-    document.getElementById("vardiyaKaydetBtn").addEventListener("click", async () => {
-      const tarih = document.getElementById("vardiyaTarihInput").value;
-      const vardiya = document.getElementById("vardiyaSaatDilimiSelect").value;
-      const yemek = document.getElementById("vardiyaYemekSaatInput").value;
-      const mola1 = document.getElementById("vardiyaMola1Input").value;
-      const mola2 = document.getElementById("vardiyaMola2Input").value;
-      const mola3 = document.getElementById("vardiyaMola3Input").value;
-      const mola4 = document.getElementById("vardiyaMola4Input").value;
-      const durumEl = document.getElementById("vardiyaDurumMesaj");
-
-      if (!tarih) {
-        durumEl.textContent = "Lütfen bir tarih seçin.";
-        return;
-      }
-
-      const kisi = vardiyaAktifKullanici();
-      const id = `vardiya_${tarih}_${kisi}`;
-      const yeniKayit = {
-        id,
-        tarih,
-        vardiya,
-        yemek,
-        mola1,
-        mola2,
-        mola3,
-        mola4,
-        kisi,
-        updatedAt: new Date().toISOString()
-      };
-
-      vardiyaKayitlari = vardiyaKayitlari.filter(x => x.id !== id);
-      vardiyaKayitlari.push(yeniKayit);
-      vardiyaKayitlari.sort((a, b) => String(a.tarih || "").localeCompare(String(b.tarih || "")));
-      vardiyaYerelKaydet();
-      vardiyaListeyiCiz();
-      await vardiyaBulutaYaz(yeniKayit);
-
-      durumEl.textContent = `${tarih} vardiyası (${kisi}) kaydedildi ve paylaşıldı.`;
-    });
-  });
-
-  const observer = new MutationObserver(() => {
-    vardiyaAnaEkranaYerlestir();
-  });
-  observer.observe(document.body, { childList: true, subtree: true });
-})();
-</script>
-<script id="mola-2dk-10bip-script">
-(function () {
-  const SAYAC_KEY = "servis_asistani_aktif_mola_v1";
-  const UYARI_ATILAN_KEY = "servis_asistani_2dk_bip_atildi_v1";
-  let audioCtx = null;
-  let bipTimer = null;
-  let sonKontrolStartMs = null;
-
-  function sesBaglaminiHazirla() {
-    try {
-      const Ctx = window.AudioContext || window.webkitAudioContext;
-      if (!Ctx) return null;
-      if (!audioCtx) {
-        audioCtx = new Ctx();
-      }
-      if (audioCtx.state === "suspended") {
-        audioCtx.resume().catch(() => {});
-      }
-      return audioCtx;
-    } catch {
-      return null;
-    }
-  }
-
-  function tekBipCal(ctx, baslangicZamani) {
-    try {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(920, baslangicZamani);
-
-      gain.gain.setValueAtTime(0.0001, baslangicZamani);
-      gain.gain.exponentialRampToValueAtTime(0.25, baslangicZamani + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.0001, baslangicZamani + 0.14);
-
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-
-      osc.start(baslangicZamani);
-      osc.stop(baslangicZamani + 0.15);
-    } catch {}
-  }
-
-  function onKezBipBipCal() {
-    if (bipTimer) {
-      clearInterval(bipTimer);
-      bipTimer = null;
-    }
-    const ctx = sesBaglaminiHazirla();
-    let sayac = 0;
-
-    function birCiftBip() {
-      sayac++;
-      if (ctx) {
-        const now = ctx.currentTime;
-        tekBipCal(ctx, now);
-        tekBipCal(ctx, now + 0.19);
-      }
-      if (sayac >= 10 && bipTimer) {
-        clearInterval(bipTimer);
-        bipTimer = null;
-      }
-    }
-
-    birCiftBip();
-    if (sayac < 10) {
-      bipTimer = setInterval(birCiftBip, 450);
-    }
-  }
-
-  function aktifMolayiOku() {
-    try {
-      const raw = localStorage.getItem(SAYAC_KEY);
-      if (!raw) return null;
-      const p = JSON.parse(raw);
-      if (p && p.startMs && p.durationSec) return p;
-    } catch {}
-    return null;
-  }
-
-  function ikiDakikaKontrolEt() {
-    const mola = aktifMolayiOku();
-    if (!mola) {
-      sonKontrolStartMs = null;
-      return;
-    }
-
-    if (sonKontrolStartMs !== mola.startMs) {
-      sonKontrolStartMs = mola.startMs;
-    }
-
-    const gecenSn = Math.max(0, Math.floor((Date.now() - mola.startMs) / 1000));
-    const kalanSn = mola.durationSec - gecenSn;
-
-    const atilanStartMs = Number(localStorage.getItem(UYARI_ATILAN_KEY) || "0");
-    if (kalanSn <= 120 && kalanSn > 0 && atilanStartMs !== mola.startMs) {
-      localStorage.setItem(UYARI_ATILAN_KEY, String(mola.startMs));
-      onKezBipBipCal();
-    }
-  }
-
-  document.addEventListener("click", () => {
-    sesBaglaminiHazirla();
-  }, { passive: true });
-
-  document.addEventListener("touchstart", () => {
-    sesBaglaminiHazirla();
-  }, { passive: true });
-
-  setInterval(ikiDakikaKontrolEt, 500);
-})();
-</script>
-<style id="son-bilgi-kart-style">
-  #sonBilgiUstKart {
-    width: 100%;
-    max-width: 440px;
-    background: linear-gradient(155deg, rgba(17, 15, 26, 0.96), rgba(25, 22, 38, 0.94));
-    border: 1.5px solid var(--neon-cyan);
-    box-shadow: 0 0 20px rgba(0, 240, 255, 0.22), inset 0 0 14px rgba(157, 78, 221, 0.14);
-    border-radius: 16px;
-    padding: 12px 15px;
-    cursor: pointer;
-    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
-    user-select: none;
-  }
-
-  #sonBilgiUstKart:hover {
-    transform: translateY(-2px);
-    border-color: var(--neon-purple-bright);
-    box-shadow: 0 0 26px rgba(0, 240, 255, 0.36), 0 0 24px rgba(157, 78, 221, 0.28);
-  }
-
-  .son-bilgi-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 6px;
-    font-size: 0.76rem;
-  }
-
-  .son-bilgi-etiket {
-    color: var(--neon-cyan);
-    font-weight: 800;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-  }
-
-  .son-bilgi-ipucu {
-    color: var(--muted);
-    font-weight: 600;
-  }
-
-  .son-bilgi-baslik {
-    font-size: 1rem;
-    font-weight: 800;
-    color: #ffffff;
-    margin: 0 0 8px;
-    word-break: break-word;
-  }
-
-  .son-bilgi-meta {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.8rem;
-    color: var(--muted);
-  }
-
-  #sonBilgiDetayBackdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(4, 3, 8, 0.8);
-    backdrop-filter: blur(5px);
-    z-index: 70;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-  }
-
-  #sonBilgiDetayCard {
-    background: var(--panel);
-    border: 1.5px solid var(--neon-cyan);
-    box-shadow: 0 0 30px rgba(0, 240, 255, 0.28);
-    border-radius: 16px;
-    max-width: 620px;
-    width: 100%;
-    max-height: 86vh;
-    overflow-y: auto;
-    padding: 18px;
-  }
-</style>
-
-<div id="sonBilgiDetayBackdrop" class="hidden">
-  <div id="sonBilgiDetayCard">
-    <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px;">
-      <strong style="color:var(--neon-cyan); font-size:1rem;">Son Eklenen Bilgi Detayı</strong>
-      <button id="sonBilgiDetayKapatBtn" type="button" class="secondary" style="padding:6px 12px; font-size:0.82rem;">Kapat</button>
-    </div>
-    <div id="sonBilgiDetayIcerik"></div>
-  </div>
-</div>
-
-<script id="son-bilgi-kart-script">
-(function () {
-  let guncelSonKayit = null;
-
-  function enSonKaydiBul() {
-    if (!window.state || !Array.isArray(window.state.records) || !window.state.records.length) {
-      return null;
-    }
-    const normal = window.state.records.map(r =>
-      typeof normalizeRecord === "function" ? normalizeRecord(r) : r
-    );
-    normal.sort((a, b) => {
-      const tA = new Date(a.uploadedAt || a.updatedAt || 0).getTime() || 0;
-      const tB = new Date(b.uploadedAt || b.updatedAt || 0).getTime() || 0;
-      return tB - tA;
-    });
-    return normal[0] || null;
-  }
-
-  function formatTarihSaat(rec) {
-    const raw = rec?.uploadedAt || rec?.updatedAt;
-    if (typeof formatDateTr === "function") {
-      return formatDateTr(raw);
-    }
-    try {
-      return new Date(raw || Date.now()).toLocaleString("tr-TR", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit"
-      });
-    } catch {
-      return "";
-    }
-  }
-
-  function esc(str) {
-    if (typeof escapeHtml === "function") return escapeHtml(str ?? "");
-    return String(str ?? "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;");
-  }
-
-  function sonBilgiKartiniYerlestirVeGuncelle() {
-    const stage = document.getElementById("centerHomeStage");
-    const pair = stage ? stage.querySelector(".square-pair") : null;
-    if (!stage || !pair) return;
-
-    let kart = document.getElementById("sonBilgiUstKart");
-    if (!kart) {
-      kart = document.createElement("div");
-      kart.id = "sonBilgiUstKart";
-      kart.title = "Açıklamasını görmek için tıklayın";
-      kart.addEventListener("click", () => {
-        if (!guncelSonKayit) return;
-        sonBilgiModalAc(guncelSonKayit);
-      });
-      stage.insertBefore(kart, pair);
-    }
-
-    const sonKayit = enSonKaydiBul();
-    guncelSonKayit = sonKayit;
-
-    if (!sonKayit) {
-      kart.innerHTML = `
-        <div class="son-bilgi-top">
-          <span class="son-bilgi-etiket">Son Eklenen Bilgi</span>
-          <span class="son-bilgi-ipucu">Kayıt bekleniyor</span>
-        </div>
-        <div class="son-bilgi-baslik">Henüz eklenmiş bir bilgi yok</div>
-        <div class="son-bilgi-meta">
-          <span>Yeni bilgi eklendiğinde burada anlık görünür.</span>
-        </div>
-      `;
-      return;
-    }
-
-    const kisi = sonKayit.uploadedBy || "Bilinmiyor";
-    const tarihSaat = formatTarihSaat(sonKayit);
-
-    kart.innerHTML = `
-      <div class="son-bilgi-top">
-        <span class="son-bilgi-etiket">Son Eklenen Bilgi</span>
-        <span class="son-bilgi-ipucu">Açıklama için tıkla ↗</span>
-      </div>
-      <div class="son-bilgi-baslik">${esc(sonKayit.title || "Başlıksız Kayıt")}</div>
-      <div class="son-bilgi-meta">
-        <span class="badge user">Ekleyen: ${esc(kisi)}</span>
-        <span>🕒 ${esc(tarihSaat)}</span>
-      </div>
-    `;
-  }
-
-  function sonBilgiModalAc(rec) {
-    const backdrop = document.getElementById("sonBilgiDetayBackdrop");
-    const icerik = document.getElementById("sonBilgiDetayIcerik");
-    if (!backdrop || !icerik || !rec) return;
-
-    const kisi = rec.uploadedBy || "Bilinmiyor";
-    const tarihSaat = formatTarihSaat(rec);
-
-    icerik.innerHTML = `
-      <div class="record-meta" style="margin-bottom:10px;">
-        <span class="badge">${esc(rec.category || "Genel")}</span>
-        <span class="badge">${esc(rec.group || "Geneli")}</span>
-        <span class="badge user">Ekleyen: ${esc(kisi)}</span>
-        <span>🕒 ${esc(tarihSaat)}</span>
-      </div>
-      <div style="font-size:1.12rem; font-weight:800; color:#ffffff; margin-bottom:10px;">
-        ${esc(rec.title || "Başlıksız Kayıt")}
-      </div>
-      <div style="font-size:0.84rem; color:var(--neon-cyan); font-weight:700; margin-bottom:6px;">
-        Açıklama / İçerik
-      </div>
-      <div class="record-item" style="margin-bottom:0;">
-        <pre style="white-space:pre-wrap; font-family:inherit; margin:0; color:var(--text);">${esc(rec.content || "Açıklama bulunmuyor.")}</pre>
-      </div>
-    `;
-
-    backdrop.classList.remove("hidden");
-  }
-
-  function sonBilgiModalKapat() {
-    const backdrop = document.getElementById("sonBilgiDetayBackdrop");
-    if (backdrop) backdrop.classList.add("hidden");
-  }
-
-  document.addEventListener("DOMContentLoaded", () => {
-    sonBilgiKartiniYerlestirVeGuncelle();
-
-    document.getElementById("sonBilgiDetayKapatBtn")?.addEventListener("click", sonBilgiModalKapat);
-    document.getElementById("sonBilgiDetayBackdrop")?.addEventListener("click", (e) => {
-      if (e.target.id === "sonBilgiDetayBackdrop") {
-        sonBilgiModalKapat();
-      }
-    });
-
-    // Kayıt eklendiğinde veya buluttan çekildiğinde anlık yakalamak için periyodik + DOM gözlemi
-    setInterval(sonBilgiKartiniYerlestirVeGuncelle, 600);
-  });
-
-  const sonBilgiObserver = new MutationObserver(() => {
-    sonBilgiKartiniYerlestirVeGuncelle();
-  });
-  sonBilgiObserver.observe(document.body, { childList: true, subtree: true });
-})();
-</script>
-<style id="foto-kirpma-modulu-style">
-  #kirpmaModalBackdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(4, 3, 8, 0.88);
-    backdrop-filter: blur(6px);
-    z-index: 80;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 14px;
-  }
-
-  #kirpmaModalCard {
-    background: var(--panel);
-    border: 1.5px solid var(--neon-cyan);
-    box-shadow: 0 0 30px rgba(0, 240, 255, 0.28), 0 0 28px rgba(157, 78, 221, 0.22);
-    border-radius: 16px;
-    max-width: 720px;
-    width: 100%;
-    max-height: 92vh;
-    overflow-y: auto;
-    padding: 16px;
-  }
-
-  #kirpmaSahneWrap {
-    position: relative;
-    width: 100%;
-    background: #06050a;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    touch-action: none;
-    user-select: none;
-  }
-
-  #kirpmaCanvas {
-    display: block;
-    max-width: 100%;
-    max-height: 62vh;
-    cursor: crosshair;
-  }
-
-  .kirpma-bilgi-satir {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-top: 8px;
-    font-size: 0.82rem;
-    color: var(--muted);
-  }
-</style>
-
-<div id="kirpmaModalBackdrop" class="hidden">
-  <div id="kirpmaModalCard">
-    <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px;">
-      <div>
-        <strong style="color:var(--neon-cyan); font-size:1rem;">Fotoğrafı Kırp (Sadece Soru Alanı)</strong>
-        <div id="kirpmaSiraBilgi" style="font-size:0.78rem; color:var(--muted);"></div>
-      </div>
-      <button id="kirpmaIptalBtn" type="button" class="secondary" style="padding:6px 12px; font-size:0.82rem;">İptal</button>
-    </div>
-
-    <div id="kirpmaSahneWrap">
-      <canvas id="kirpmaCanvas"></canvas>
-    </div>
-
-    <div class="kirpma-bilgi-satir">
-      <span>Parmağınız veya farenizle soru kısmının etrafında alan çizin.</span>
-      <button id="kirpmaTumAlanBtn" type="button" class="secondary" style="padding:5px 10px; font-size:0.78rem;">Tüm Alanı Seç</button>
-    </div>
-
-    <div class="actions" style="margin-top:12px;">
-      <button id="kirpmaOnaylaBtn" type="button" class="ok-btn">✂️ Kırp ve Devam Et</button>
-      <button id="kirpmaKirpmadanBtn" type="button" class="cyan-outline">Kırpmadan Yükle</button>
-    </div>
-  </div>
-</div>
-
-<script id="foto-kirpma-modulu-script">
-(function () {
-  const backdrop = document.getElementById("kirpmaModalBackdrop");
-  const canvas = document.getElementById("kirpmaCanvas");
-  const ctx = canvas.getContext("2d");
-  const siraBilgi = document.getElementById("kirpmaSiraBilgi");
-
-  let bekleyenKuyruk = [];
-  let islenmisDosyalar = [];
-  let aktifCallback = null;
-  let aktifImg = null;
-  let aktifDosyaAdi = "foto.jpg";
-
-  // Canvas içindeki çizim koordinatları
-  let secim = { x: 0, y: 0, w: 0, h: 0 };
-  let surukleniyor = false;
-  let baslangicNokta = { x: 0, y: 0 };
-
-  function dosyayiResmeCevir(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onerror = reject;
-      reader.onload = () => {
-        const img = new Image();
-        img.onerror = reject;
-        img.onload = () => resolve(img);
-        img.src = String(reader.result || "");
-      };
-      reader.readAsDataURL(file);
-    });
-  }
-
-  function sahneyiHazirla(img) {
-    aktifImg = img;
-    const maxW = Math.min(670, window.innerWidth - 56);
-    const maxH = Math.min(460, Math.floor(window.innerHeight * 0.6));
-    const natW = img.naturalWidth || img.width || 800;
-    const natH = img.naturalHeight || img.height || 600;
-
-    const oran = Math.min(maxW / natW, maxH / natH, 1);
-    canvas.width = Math.max(120, Math.round(natW * oran));
-    canvas.height = Math.max(120, Math.round(natH * oran));
-
-    // Varsayılan olarak ortada %70'lik bir alan seçili gelsin
-    const padX = Math.round(canvas.width * 0.12);
-    const padY = Math.round(canvas.height * 0.12);
-    secim = {
-      x: padX,
-      y: padY,
-      w: Math.max(40, canvas.width - padX * 2),
-      h: Math.max(40, canvas.height - padY * 2)
-    };
-    sahneyiCiz();
-  }
-
-  function sahneyiCiz() {
-    if (!aktifImg) return;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(aktifImg, 0, 0, canvas.width, canvas.height);
-
-    // Kırpılacak alanın dışını hafif karart
-    ctx.fillStyle = "rgba(4, 3, 8, 0.58)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    const x = Math.max(0, Math.min(secim.x, canvas.width));
-    const y = Math.max(0, Math.min(secim.y, canvas.height));
-    const w = Math.max(0, Math.min(secim.w, canvas.width - x));
-    const h = Math.max(0, Math.min(secim.h, canvas.height - y));
-
-    if (w > 2 && h > 2) {
-      // Seçili alanı net göster
-      ctx.save();
-      ctx.beginPath();
-      ctx.rect(x, y, w, h);
-      ctx.clip();
-      ctx.drawImage(aktifImg, 0, 0, canvas.width, canvas.height);
-      ctx.restore();
-
-      // Neon çerçeve
-      ctx.strokeStyle = "#00f0ff";
-      ctx.lineWidth = 2.5;
-      ctx.strokeRect(x, y, w, h);
-
-      // Köşe işaretleri
-      ctx.fillStyle = "#c77dff";
-      const k = 8;
-      ctx.fillRect(x - 2, y - 2, k, k);
-      ctx.fillRect(x + w - k + 2, y - 2, k, k);
-      ctx.fillRect(x - 2, y + h - k + 2, k, k);
-      ctx.fillRect(x + w - k + 2, y + h - k + 2, k, k);
-    }
-  }
-
-  function canvasKoordinatiAl(clientX, clientY) {
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / (rect.width || 1);
-    const scaleY = canvas.height / (rect.height || 1);
-    const px = Math.max(0, Math.min((clientX - rect.left) * scaleX, canvas.width));
-    const py = Math.max(0, Math.min((clientY - rect.top) * scaleY, canvas.height));
-    return { x: px, y: py };
-  }
-
-  function baslaCizim(clientX, clientY) {
-    surukleniyor = true;
-    baslangicNokta = canvasKoordinatiAl(clientX, clientY);
-    secim = { x: baslangicNokta.x, y: baslangicNokta.y, w: 0, h: 0 };
-    sahneyiCiz();
-  }
-
-  function ilerleCizim(clientX, clientY) {
-    if (!surukleniyor) return;
-    const guncel = canvasKoordinatiAl(clientX, clientY);
-    secim = {
-      x: Math.min(baslangicNokta.x, guncel.x),
-      y: Math.min(baslangicNokta.y, guncel.y),
-      w: Math.abs(guncel.x - baslangicNokta.x),
-      h: Math.abs(guncel.y - baslangicNokta.y)
-    };
-    sahneyiCiz();
-  }
-
-  function bitirCizim() {
-    if (!surukleniyor) return;
-    surukleniyor = false;
-    if (secim.w < 16 || secim.h < 16) {
-      secim = { x: 0, y: 0, w: canvas.width, h: canvas.height };
-      sahneyiCiz();
-    }
-  }
-
-  canvas.addEventListener("mousedown", (e) => baslaCizim(e.clientX, e.clientY));
-  window.addEventListener("mousemove", (e) => ilerleCizim(e.clientX, e.clientY));
-  window.addEventListener("mouseup", bitirCizim);
-
-  canvas.addEventListener("touchstart", (e) => {
-    if (!e.touches.length) return;
-    e.preventDefault();
-    baslaCizim(e.touches[0].clientX, e.touches[0].clientY);
-  }, { passive: false });
-
-  window.addEventListener("touchmove", (e) => {
-    if (!surukleniyor || !e.touches.length) return;
-    e.preventDefault();
-    ilerleCizim(e.touches[0].clientX, e.touches[0].clientY);
-  }, { passive: false });
-
-  window.addEventListener("touchend", bitirCizim);
-
-  function kirpilmisDosyaUret(orijinalDosya, tamAlan = false) {
-    return new Promise((resolve) => {
-      if (!aktifImg || tamAlan || secim.w < 16 || secim.h < 16) {
-        resolve(orijinalDosya);
-        return;
-      }
-
-      const natW = aktifImg.naturalWidth || aktifImg.width;
-      const natH = aktifImg.naturalHeight || aktifImg.height;
-      const sx = Math.max(0, Math.round((secim.x / canvas.width) * natW));
-      const sy = Math.max(0, Math.round((secim.y / canvas.height) * natH));
-      const sw = Math.max(10, Math.min(natW - sx, Math.round((secim.w / canvas.width) * natW)));
-      const sh = Math.max(10, Math.min(natH - sy, Math.round((secim.h / canvas.height) * natH)));
-
-      const outCanvas = document.createElement("canvas");
-      outCanvas.width = sw;
-      outCanvas.height = sh;
-      const outCtx = outCanvas.getContext("2d");
-      outCtx.drawImage(aktifImg, sx, sy, sw, sh, 0, 0, sw, sh);
-
-      outCanvas.toBlob((blob) => {
-        if (!blob) {
-          resolve(orijinalDosya);
-          return;
-        }
-        const temizAd = (orijinalDosya.name || "kirpilmis.jpg").replace(/\.[^.]+$/, "") + "_kirp.jpg";
-        const yeniDosya = new File([blob], temizAd, { type: "image/jpeg" });
-        resolve(yeniDosya);
-      }, "image/jpeg", 0.9);
-    });
-  }
-
-  async function siradakiFotografiAc() {
-    if (!bekleyenKuyruk.length) {
-      backdrop.classList.add("hidden");
-      const tamamlananlar = islenmisDosyalar;
-      const cb = aktifCallback;
-      islenmisDosyalar = [];
-      aktifCallback = null;
-      if (typeof cb === "function" && tamamlananlar.length) {
-        await cb(tamamlananlar);
-      }
-      return;
-    }
-
-    const toplam = islenmisDosyalar.length + bekleyenKuyruk.length;
-    const mevcutSira = islenmisDosyalar.length + 1;
-    const dosya = bekleyenKuyruk[0];
-    aktifDosyaAdi = dosya.name || "foto.jpg";
-    siraBilgi.textContent = `Fotoğraf ${mevcutSira}/${toplam} — ${aktifDosyaAdi}`;
-
-    try {
-      const img = await dosyayiResmeCevir(dosya);
-      sahneyiHazirla(img);
-      backdrop.classList.remove("hidden");
-    } catch {
-      bekleyenKuyruk.shift();
-      islenmisDosyalar.push(dosya);
-      await siradakiFotografiAc();
-    }
-  }
-
-  function kirpmaAkisiniBaslat(files, onComplete) {
-    if (!Array.isArray(files) || !files.length) return;
-    bekleyenKuyruk = files.slice();
-    islenmisDosyalar = [];
-    aktifCallback = onComplete;
-    siradakiFotografiAc();
-  }
-
-  document.getElementById("kirpmaTumAlanBtn").addEventListener("click", () => {
-    secim = { x: 0, y: 0, w: canvas.width, h: canvas.height };
-    sahneyiCiz();
-  });
-
-  document.getElementById("kirpmaOnaylaBtn").addEventListener("click", async () => {
-    const dosya = bekleyenKuyruk.shift();
-    if (!dosya) return;
-    const kirpilmis = await kirpilmisDosyaUret(dosya, false);
-    islenmisDosyalar.push(kirpilmis);
-    await siradakiFotografiAc();
-  });
-
-  document.getElementById("kirpmaKirpmadanBtn").addEventListener("click", async () => {
-    const dosya = bekleyenKuyruk.shift();
-    if (!dosya) return;
-    islenmisDosyalar.push(dosya);
-    await siradakiFotografiAc();
-  });
-
-  document.getElementById("kirpmaIptalBtn").addEventListener("click", () => {
-    bekleyenKuyruk = [];
-    islenmisDosyalar = [];
-    aktifCallback = null;
-    backdrop.classList.add("hidden");
-  });
-
-  // Mevcut Fotoğraf Çek ve Fotoğraf Yükle inputlarını kırpma ekranına yönlendir
-  function inputlariKirpmayaBagla() {
-    const camInp = document.getElementById("cameraCaptureInput");
-    const fileInp = document.getElementById("photoFileInput");
-
-    [camInp, fileInp].forEach((inp) => {
-      if (!inp || inp.dataset.kirpmaBaglandi === "1") return;
-      inp.dataset.kirpmaBaglandi = "1";
-
-      inp.addEventListener("change", (e) => {
-        const files = e.target.files ? Array.from(e.target.files) : [];
-        if (!files.length) return;
-
-        // Diğer listener'ların doğrudan çalıştırmasını engellemek için hemen durdur ve kendi akışımızı başlat
-        e.stopImmediatePropagation();
-        inp.value = "";
-
-        kirpmaAkisiniBaslat(files, async (kirpilmisDosyalar) => {
-          if (typeof extOpenUploadTargetFlow === "function") {
-            extOpenUploadTargetFlow(kirpilmisDosyalar);
-            return;
-          }
-          const home = document.getElementById("centerHomeStage");
-          const ask = document.getElementById("askWindowCard");
-          const queueCard = document.getElementById("uploadQueueCard");
-          if (home) home.classList.add("hidden");
-          if (ask) ask.classList.add("hidden");
-          if (queueCard) queueCard.classList.remove("hidden");
-          if (typeof runImageBatch === "function") {
-            await runImageBatch(kirpilmisDosyalar);
-          }
-        });
-      }, true);
-    });
-  }
-
-  document.addEventListener("DOMContentLoaded", inputlariKirpmayaBagla);
-  inputlariKirpmayaBagla();
-})();
-</script>
