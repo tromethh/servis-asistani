@@ -623,6 +623,34 @@
       background: rgba(0, 240, 255, 0.07);
       border: 1px solid rgba(0, 240, 255, 0.4);
     }
+
+    .ext-vertical-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .ext-vertical-btn {
+      width: 100%;
+      text-align: left;
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .ext-vertical-btn:hover {
+      border-color: var(--neon-cyan);
+    }
+
+    .ext-vertical-btn.active {
+      border-color: var(--ok);
+      background: rgba(0, 245, 160, 0.12);
+      color: var(--ok);
+    }
   </style>
 </head>
 <body>
@@ -651,22 +679,27 @@
           <button id="pickSureclerBtn" type="button" class="cat-choice-btn">Süreçler</button>
           <button id="pickParcaKodlariBtn" type="button" class="cat-choice-btn cyan">Parça Kodları</button>
         </div>
+        <button id="extPickMakaleBtn" type="button" class="cat-choice-btn" style="width:100%; margin-bottom:14px; border-color:var(--ok);">Makale</button>
 
-        <!-- Eklenen: Yeni Kategori Oluşturma Alanı -->
-        <div id="extCustomMainCatArea" class="ext-panel-box">
-          <strong style="color:var(--neon-cyan); font-size:0.88rem;">+ Yeni Kategori Oluştur</strong>
+        <!-- Makale'ye tıklandığında açılan kategori listesi ve kategori oluşturma -->
+        <div id="extMakaleCatListView" class="ext-panel-box hidden">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:8px;">
+            <strong style="color:var(--neon-cyan); font-size:0.92rem;">Makale Kategorileri</strong>
+            <button id="extMakaleBackTo3Btn" type="button" class="secondary" style="padding:6px 10px; font-size:0.8rem;">← Geri Dön</button>
+          </div>
+          <div id="extCustomMainCatButtons" class="ext-vertical-list" style="margin-bottom:12px;"></div>
+          <strong style="color:var(--neon-cyan); font-size:0.86rem;">+ Yeni Makale Kategorisi Oluştur</strong>
           <div class="ext-inline-row">
             <input id="extNewMainCatInput" type="text" placeholder="Örn: Garanti Süreci, İade Süreci..." />
             <button id="extAddMainCatBtn" type="button">Kategori Ekle</button>
           </div>
-          <div id="extCustomMainCatButtons" class="sort-bar" style="margin-top:10px; margin-bottom:0;"></div>
         </div>
       </div>
 
       <div id="stepPartSubType" class="hidden">
         <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px;">
           <strong style="color:var(--neon-cyan);">Parça Kodları — Tür Seçin:</strong>
-          <button id="backToMainCatBtn" type="button" class="secondary" style="padding:6px 10px; font-size:0.8rem;">← Geri</button>
+          <button id="backToMainCatBtn" type="button" class="secondary" style="padding:6px 10px; font-size:0.8rem;">← Geri Dön</button>
         </div>
         <p style="color:var(--muted); font-size:0.88rem; margin:0 0 10px;">Temizlik mi Kişisel bakım mı?</p>
         <div class="cat-grid">
@@ -679,24 +712,21 @@
         <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px; flex-wrap:wrap;">
           <span id="activePathBadge" class="badge">Seçim</span>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <!-- Eklenen: Alt Kategori Oluştur Butonu -->
-            <button id="extToggleSubCatBtn" type="button" class="cyan-outline" style="padding:6px 10px; font-size:0.8rem;">+ Alt Kategori Oluştur</button>
-            <button id="changeCategoryBtn" type="button" class="secondary" style="padding:6px 10px; font-size:0.8rem;">Kategori Değiştir</button>
+            <button id="extToggleSubCatBtn" type="button" class="cyan-outline hidden" style="padding:6px 10px; font-size:0.8rem;">+ Alt Kategori Oluştur</button>
+            <button id="changeCategoryBtn" type="button" class="secondary" style="padding:6px 10px; font-size:0.8rem;">← Geri Dön</button>
           </div>
         </div>
 
-        <!-- Eklenen: Alt Kategori Formu & Seçici -->
         <div id="extSubCatBox" class="ext-panel-box hidden">
-          <strong style="color:var(--neon-cyan); font-size:0.86rem;">Bu Kategori Altında Alt Kategori Oluştur</strong>
+          <strong style="color:var(--neon-cyan); font-size:0.86rem;">Bu Makale Kategorisi Altında Alt Kategori Oluştur</strong>
           <div class="ext-inline-row">
             <input id="extNewSubCatInput" type="text" placeholder="Alt kategori adı yazın..." />
             <button id="extSaveSubCatBtn" type="button">Oluştur</button>
           </div>
         </div>
-        <div id="extSubCatChips" class="sort-bar"></div>
+        <div id="extSubCatChips" class="sort-bar hidden"></div>
 
-        <!-- Eklenen: Kategori İçinden Fotoğraf Yükle / Çek ve Sayfada Bütünleşik Araştırma -->
-        <div id="extCategoryActionsBox" class="ext-panel-box">
+        <div id="extCategoryActionsBox" class="ext-panel-box hidden">
           <strong style="color:#ffffff; font-size:0.88rem;">Bu Bölüme Fotoğraf Yükle / Çek</strong>
           <div class="actions" style="margin-top:8px; margin-bottom:10px;">
             <button id="extCatCamBtn" type="button" class="cyan-outline" style="padding:7px 11px; font-size:0.82rem;">📷 Fotoğraf Çek</button>
@@ -721,6 +751,55 @@
         </div>
 
         <div id="recordsModalList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bilgi Yükle -> Fotoğraf seçildikten sonra 2 seçenek + Makale Kategori / Opsiyonel Alt Kategori akışı -->
+  <div id="extUploadFlowModal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px;">
+        <h2 id="extUploadFlowTitle" style="margin:0; color:var(--neon-cyan);">Yükleme Hedefi Seçin</h2>
+        <button id="extUploadFlowCloseBtn" type="button" class="secondary">İptal</button>
+      </div>
+
+      <div id="extUploadStepTwoChoices">
+        <p style="color:var(--muted); font-size:0.9rem; margin:0 0 12px;">Seçilen görseller nereye yüklensin?</p>
+        <div class="cat-grid">
+          <button id="extUploadChooseSPBtn" type="button" class="cat-choice-btn">Süreçler / Parça Kodları</button>
+          <button id="extUploadChooseMakaleBtn" type="button" class="cat-choice-btn cyan">Makale</button>
+        </div>
+      </div>
+
+      <div id="extUploadStepMakaleCat" class="hidden">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px;">
+          <strong style="color:var(--neon-cyan);">Makale Kategorisi Seçin</strong>
+          <button id="extUploadBackToTwoBtn" type="button" class="secondary" style="padding:6px 10px; font-size:0.8rem;">← Geri Dön</button>
+        </div>
+        <div class="ext-inline-row" style="margin-top:0; margin-bottom:10px;">
+          <input id="extUploadCatSearchInput" type="text" placeholder="🔍 Kategori ara..." />
+        </div>
+        <div id="extUploadCatButtonsList" class="ext-vertical-list"></div>
+        <div class="ext-inline-row" style="margin-top:12px;">
+          <input id="extUploadNewCatInput" type="text" placeholder="Yeni kategori adı..." />
+          <button id="extUploadCreateCatBtn" type="button">Ekle ve Seç</button>
+        </div>
+      </div>
+
+      <div id="extUploadStepMakaleSubCat" class="hidden">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px;">
+          <strong id="extUploadSubCatTitle" style="color:var(--neon-cyan);">Alt Kategori Seçin (İsteğe Bağlı)</strong>
+          <button id="extUploadBackToCatBtn" type="button" class="secondary" style="padding:6px 10px; font-size:0.8rem;">← Geri Dön</button>
+        </div>
+        <p style="color:var(--muted); font-size:0.85rem; margin:0 0 8px;">Alt kategori seçmek zorunda değilsiniz; doğrudan yüklemeyi başlatabilirsiniz.</p>
+        <div id="extUploadSubCatButtonsList" class="ext-vertical-list"></div>
+        <div class="ext-inline-row" style="margin-top:10px;">
+          <input id="extUploadNewSubCatInput" type="text" placeholder="Yeni alt kategori (opsiyonel)..." />
+          <button id="extUploadAddSubCatBtn" type="button" class="secondary">Alt Kategori Ekle</button>
+        </div>
+        <div class="actions">
+          <button id="extUploadConfirmStartBtn" type="button" class="ok-btn">Yüklemeyi Başlat</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1084,6 +1163,10 @@
       const files = e.target.files ? Array.from(e.target.files) : [];
       cameraCaptureInput.value = "";
       if (!files.length) return;
+      if (typeof extOpenUploadTargetFlow === "function") {
+        extOpenUploadTargetFlow(files);
+        return;
+      }
       centerHomeStage.classList.add("hidden");
       askWindowCard.classList.add("hidden");
       uploadQueueCard.classList.remove("hidden");
@@ -1094,6 +1177,10 @@
       const files = e.target.files ? Array.from(e.target.files) : [];
       photoFileInput.value = "";
       if (!files.length) return;
+      if (typeof extOpenUploadTargetFlow === "function") {
+        extOpenUploadTargetFlow(files);
+        return;
+      }
       centerHomeStage.classList.add("hidden");
       askWindowCard.classList.add("hidden");
       uploadQueueCard.classList.remove("hidden");
@@ -1121,6 +1208,7 @@
       document.getElementById("extPageResearchOutput").innerHTML = "";
       document.getElementById("extPageResearchInput").value = "";
       document.getElementById("extSubCatBox").classList.add("hidden");
+      document.getElementById("extMakaleCatListView").classList.add("hidden");
       extRenderCustomMainButtons();
       document.getElementById("recordsModalTitle").textContent = "Kayıtlar — Bölüm Seçin";
       showRecordsStep("main");
@@ -1137,9 +1225,11 @@
       selectedMainCat = "Süreçler";
       selectedPartSub = null;
       expandedTitleIds.clear();
+      document.getElementById("extToggleSubCatBtn").classList.add("hidden");
+      document.getElementById("extSubCatChips").classList.add("hidden");
+      document.getElementById("extCategoryActionsBox").classList.add("hidden");
       document.getElementById("recordsModalTitle").textContent = "Kayıtlar — Süreçler";
       document.getElementById("activePathBadge").textContent = "Süreçler";
-      extRenderSubCatChips();
       showRecordsStep("list");
       renderRecordsModalList();
     });
@@ -1161,9 +1251,11 @@
     document.getElementById("pickTemizlikBtn").addEventListener("click", () => {
       selectedPartSub = "Temizlik";
       expandedTitleIds.clear();
+      document.getElementById("extToggleSubCatBtn").classList.add("hidden");
+      document.getElementById("extSubCatChips").classList.add("hidden");
+      document.getElementById("extCategoryActionsBox").classList.add("hidden");
       document.getElementById("recordsModalTitle").textContent = "Parça Kodları — Temizlik";
       document.getElementById("activePathBadge").textContent = "Parça Kodları / Temizlik";
-      extRenderSubCatChips();
       showRecordsStep("list");
       renderRecordsModalList();
     });
@@ -1171,19 +1263,25 @@
     document.getElementById("pickKisiselBakimBtn").addEventListener("click", () => {
       selectedPartSub = "Kişisel Bakım";
       expandedTitleIds.clear();
+      document.getElementById("extToggleSubCatBtn").classList.add("hidden");
+      document.getElementById("extSubCatChips").classList.add("hidden");
+      document.getElementById("extCategoryActionsBox").classList.add("hidden");
       document.getElementById("recordsModalTitle").textContent = "Parça Kodları — Kişisel Bakım";
       document.getElementById("activePathBadge").textContent = "Parça Kodları / Kişisel Bakım";
-      extRenderSubCatChips();
       showRecordsStep("list");
       renderRecordsModalList();
     });
 
     document.getElementById("changeCategoryBtn").addEventListener("click", () => {
+      const wasMakale = selectedMainCat && selectedMainCat !== "Süreçler" && selectedMainCat !== "Parça Kodları";
       selectedMainCat = null;
       selectedPartSub = null;
       extRenderCustomMainButtons();
       document.getElementById("recordsModalTitle").textContent = "Kayıtlar — Bölüm Seçin";
       showRecordsStep("main");
+      if (wasMakale) {
+        document.getElementById("extMakaleCatListView").classList.remove("hidden");
+      }
     });
 
     function updateSortButtons() {
@@ -2210,6 +2308,9 @@ Kayıttaki "Yapılması gereken" adımlar.`;
     const EXT_CAT_STORAGE_KEY = "servis_asistani_ext_cats_v1";
     let extCatTree = extLoadCatTree();
     let extPendingUpload = null;
+    let extPendingFiles = [];
+    let extChosenMakaleCat = null;
+    let extChosenMakaleSub = null;
 
     function extLoadCatTree() {
       try {
@@ -2247,9 +2348,7 @@ Kayıttaki "Yapılması gereken" adımlar.`;
       if (all.includes(cur)) sel.value = cur;
     }
 
-    function extRenderCustomMainButtons() {
-      const box = document.getElementById("extCustomMainCatButtons");
-      if (!box) return;
+    function extCollectMakaleCategories() {
       for (const r of state.records) {
         if (r.category && r.category !== "Süreçler" && r.category !== "Parça Kodları") {
           if (!Array.isArray(extCatTree[r.category])) extCatTree[r.category] = [];
@@ -2259,20 +2358,29 @@ Kayıttaki "Yapılması gereken" adımlar.`;
         }
       }
       extSaveCatTree();
-      const customCats = Object.keys(extCatTree);
+      return Object.keys(extCatTree);
+    }
+
+    function extRenderCustomMainButtons() {
+      const box = document.getElementById("extCustomMainCatButtons");
+      if (!box) return;
+      const customCats = extCollectMakaleCategories();
       if (!customCats.length) {
-        box.innerHTML = "";
+        box.innerHTML = `<p style="color:var(--muted); font-size:0.85rem; margin:0;">Henüz makale kategorisi oluşturulmadı.</p>`;
         return;
       }
       box.innerHTML = customCats.map(cat => `
-        <button type="button" class="sort-btn" data-ext-cat="${escapeHtml(cat)}">${escapeHtml(cat)}</button>
+        <button type="button" class="ext-vertical-btn" data-ext-cat="${escapeHtml(cat)}">${escapeHtml(cat)}</button>
       `).join("");
       box.querySelectorAll("[data-ext-cat]").forEach(btn => {
         btn.addEventListener("click", () => {
           selectedMainCat = btn.getAttribute("data-ext-cat");
           selectedPartSub = null;
           expandedTitleIds.clear();
-          document.getElementById("recordsModalTitle").textContent = `Kayıtlar — ${selectedMainCat}`;
+          document.getElementById("extToggleSubCatBtn").classList.remove("hidden");
+          document.getElementById("extSubCatChips").classList.remove("hidden");
+          document.getElementById("extCategoryActionsBox").classList.remove("hidden");
+          document.getElementById("recordsModalTitle").textContent = `Makale — ${selectedMainCat}`;
           document.getElementById("activePathBadge").textContent = selectedMainCat;
           extRenderSubCatChips();
           showRecordsStep("list");
@@ -2280,6 +2388,15 @@ Kayıttaki "Yapılması gereken" adımlar.`;
         });
       });
     }
+
+    document.getElementById("extPickMakaleBtn").addEventListener("click", () => {
+      extRenderCustomMainButtons();
+      document.getElementById("extMakaleCatListView").classList.toggle("hidden");
+    });
+
+    document.getElementById("extMakaleBackTo3Btn").addEventListener("click", () => {
+      document.getElementById("extMakaleCatListView").classList.add("hidden");
+    });
 
     function extRenderSubCatChips() {
       const chips = document.getElementById("extSubCatChips");
@@ -2334,6 +2451,137 @@ Kayıttaki "Yapılması gereken" adımlar.`;
       document.getElementById("extSubCatBox").classList.add("hidden");
       extRenderSubCatChips();
       renderRecordsModalList();
+    });
+
+    /* Bilgi Yükle -> Fotoğraf Seçildikten Sonra 2 Seçenek + Makale Kategori & Opsiyonel Alt Kategori Akışı */
+    const extUploadFlowModal = document.getElementById("extUploadFlowModal");
+
+    function extShowUploadStep(step) {
+      document.getElementById("extUploadStepTwoChoices").classList.toggle("hidden", step !== "two");
+      document.getElementById("extUploadStepMakaleCat").classList.toggle("hidden", step !== "cat");
+      document.getElementById("extUploadStepMakaleSubCat").classList.toggle("hidden", step !== "sub");
+    }
+
+    function extOpenUploadTargetFlow(files) {
+      extPendingFiles = files;
+      extChosenMakaleCat = null;
+      extChosenMakaleSub = null;
+      document.getElementById("extUploadCatSearchInput").value = "";
+      document.getElementById("extUploadNewCatInput").value = "";
+      document.getElementById("extUploadNewSubCatInput").value = "";
+      document.getElementById("extUploadFlowTitle").textContent = "Yükleme Hedefi Seçin";
+      extShowUploadStep("two");
+      extUploadFlowModal.classList.remove("hidden");
+    }
+
+    function extStartBatchWithOverride(override) {
+      const files = extPendingFiles;
+      extPendingFiles = [];
+      extUploadFlowModal.classList.add("hidden");
+      centerHomeStage.classList.add("hidden");
+      askWindowCard.classList.add("hidden");
+      uploadQueueCard.classList.remove("hidden");
+      runImageBatch(files, override);
+    }
+
+    document.getElementById("extUploadFlowCloseBtn").addEventListener("click", () => {
+      extPendingFiles = [];
+      extUploadFlowModal.classList.add("hidden");
+    });
+
+    document.getElementById("extUploadChooseSPBtn").addEventListener("click", () => {
+      extStartBatchWithOverride(null);
+    });
+
+    document.getElementById("extUploadChooseMakaleBtn").addEventListener("click", () => {
+      extCollectMakaleCategories();
+      document.getElementById("extUploadFlowTitle").textContent = "Makale — Kategori Seçin";
+      extRenderUploadCatList();
+      extShowUploadStep("cat");
+    });
+
+    document.getElementById("extUploadBackToTwoBtn").addEventListener("click", () => {
+      document.getElementById("extUploadFlowTitle").textContent = "Yükleme Hedefi Seçin";
+      extShowUploadStep("two");
+    });
+
+    function extRenderUploadCatList() {
+      const q = (document.getElementById("extUploadCatSearchInput").value || "").trim().toLowerCase();
+      const cats = extCollectMakaleCategories().filter(c => !q || c.toLowerCase().includes(q));
+      const list = document.getElementById("extUploadCatButtonsList");
+      if (!cats.length) {
+        list.innerHTML = `<p style="color:var(--muted); font-size:0.85rem; margin:0;">Kategori bulunamadı. Aşağıdan yeni kategori ekleyebilirsiniz.</p>`;
+        return;
+      }
+      list.innerHTML = cats.map(c => `
+        <button type="button" class="ext-vertical-btn" data-up-cat="${escapeHtml(c)}">${escapeHtml(c)}</button>
+      `).join("");
+      list.querySelectorAll("[data-up-cat]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          extSelectMakaleCatForUpload(btn.getAttribute("data-up-cat"));
+        });
+      });
+    }
+
+    document.getElementById("extUploadCatSearchInput").addEventListener("input", extRenderUploadCatList);
+
+    document.getElementById("extUploadCreateCatBtn").addEventListener("click", () => {
+      const inp = document.getElementById("extUploadNewCatInput");
+      const name = inp.value.trim();
+      if (!name) return;
+      extEnsureCat(name);
+      inp.value = "";
+      extSelectMakaleCatForUpload(name);
+    });
+
+    function extSelectMakaleCatForUpload(catName) {
+      extChosenMakaleCat = catName;
+      extChosenMakaleSub = null;
+      document.getElementById("extUploadFlowTitle").textContent = `Makale / ${catName}`;
+      document.getElementById("extUploadSubCatTitle").textContent = `${catName} — Alt Kategori (İsteğe Bağlı)`;
+      extRenderUploadSubCatList();
+      extShowUploadStep("sub");
+    }
+
+    function extRenderUploadSubCatList() {
+      const subs = Array.isArray(extCatTree[extChosenMakaleCat]) ? extCatTree[extChosenMakaleCat] : [];
+      const list = document.getElementById("extUploadSubCatButtonsList");
+      let html = `<button type="button" class="ext-vertical-btn ${!extChosenMakaleSub ? "active" : ""}" data-up-sub="">Alt Kategori Seçmeden Devam Et (Geneli)</button>`;
+      html += subs.map(s => `
+        <button type="button" class="ext-vertical-btn ${extChosenMakaleSub === s ? "active" : ""}" data-up-sub="${escapeHtml(s)}">${escapeHtml(s)}</button>
+      `).join("");
+      list.innerHTML = html;
+      list.querySelectorAll("[data-up-sub]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const val = btn.getAttribute("data-up-sub");
+          extChosenMakaleSub = val || null;
+          extRenderUploadSubCatList();
+        });
+      });
+    }
+
+    document.getElementById("extUploadBackToCatBtn").addEventListener("click", () => {
+      document.getElementById("extUploadFlowTitle").textContent = "Makale — Kategori Seçin";
+      extRenderUploadCatList();
+      extShowUploadStep("cat");
+    });
+
+    document.getElementById("extUploadAddSubCatBtn").addEventListener("click", () => {
+      const inp = document.getElementById("extUploadNewSubCatInput");
+      const sub = inp.value.trim();
+      if (!sub || !extChosenMakaleCat) return;
+      extEnsureCat(extChosenMakaleCat, sub);
+      extChosenMakaleSub = sub;
+      inp.value = "";
+      extRenderUploadSubCatList();
+    });
+
+    document.getElementById("extUploadConfirmStartBtn").addEventListener("click", () => {
+      if (!extChosenMakaleCat) return;
+      extStartBatchWithOverride({
+        category: extChosenMakaleCat,
+        group: extChosenMakaleSub || "Geneli"
+      });
     });
 
     document.getElementById("extCatCamBtn").addEventListener("click", () => {
