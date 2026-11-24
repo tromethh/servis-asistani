@@ -406,7 +406,7 @@
       <div class="card">
         <h2>Görsel Yükle ve Gönder</h2>
         <p style="color:var(--muted); font-size:0.88rem; margin-top:0;">
-          Görseli seçip <strong>Gönder</strong> butonuna basın. Kategori (<strong>Parça Kodları</strong> veya <strong>Süreçler</strong>), başlık ve metin ayrıştırma arka planda otomatik tamamlanıp yükleyen kişi ve saat bilgisiyle kaydedilir.
+          Görseli seçip <strong>Gönder</strong> butonuna basın. Telefon görselleri mobil ağda hızlı yüklenmesi için otomatik optimize edilir; kategori, başlık ve metin ayrıştırma arka planda tamamlanıp yükleyen kişi ve saat bilgisiyle kaydedilir.
         </p>
 
         <label for="photoInput">Görsel Seç (Birden fazla seçebilirsiniz)</label>
@@ -478,22 +478,18 @@
   </main>
 
   <script>
-    // =========================================================================
-    // KOD İÇİ AYARLAR
-    // =========================================================================
     const GEMINI_FALLBACK_MODELS = [
-      "gemini-3.5-flash-lite",
-      "gemini-3.8-flash",
-      "gemini-3.5-flash",
       "gemini-2.5-flash",
       "gemini-2.5-flash-lite",
       "gemini-2.0-flash",
-      "gemini-2.0-flash-lite"
+      "gemini-2.0-flash-lite",
+      "gemini-3.5-flash-lite",
+      "gemini-3.8-flash",
+      "gemini-3.5-flash"
     ];
 
     const SUPABASE_URL = "https://oojtiixfmwdnvpimbtlm.supabase.co";
     const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_0LCNWLQnZflockS_Jaaquw_cgSS5Suv";
-    // =========================================================================
 
     const STORAGE_KEY = "servis_asistani_v1";
     const FAILED_STORAGE_KEY = "servis_asistani_failed_v1";
@@ -712,10 +708,12 @@
     }
 
     function saveLocalState(s) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        schemaVersion: 1,
-        records: s.records
-      }));
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          schemaVersion: 1,
+          records: s.records
+        }));
+      } catch {}
     }
 
     function loadFailedJobs() {
@@ -733,7 +731,7 @@
         localStorage.setItem(FAILED_STORAGE_KEY, JSON.stringify(jobs));
       } catch {
         const slim = jobs.map(j => ({ ...j, imageDataUrl: "" }));
-        localStorage.setItem(FAILED_STORAGE_KEY, JSON.stringify(slim));
+        try { localStorage.setItem(FAILED_STORAGE_KEY, JSON.stringify(slim)); } catch {}
       }
       updateNotifButton();
     }
@@ -1005,21 +1003,69 @@
       });
     });
 
-    function readFileAsDataUrlAndBase64(file) {
+    function optimizeImageFile(file, maxSide = 1280, quality = 0.78) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.onload = () => {
-          const dataUrl = reader.result;
-          const base64 = String(dataUrl).split(",")[1];
-          resolve({ dataUrl, base64 });
-        };
         reader.onerror = reject;
+        reader.onload = () => {
+          const rawDataUrl = String(reader.result || "");
+          const img = new Image();
+          img.onerror = () => {
+            const parts = rawDataUrl.split(",");
+            resolve({
+              dataUrl: rawDataUrl,
+              base64: parts[1] || "",
+              mimeType: file.type || "image/jpeg"
+            });
+          };
+          img.onload = () => {
+            let width = img.naturalWidth || img.width;
+            let height = img.naturalHeight || img.height;
+            if (width > maxSide || height > maxSide) {
+              if (width >= height) {
+                height = Math.round((height * maxSide) / width);
+                width = maxSide;
+              } else {
+                width = Math.round((width * maxSide) / height);
+                height = maxSide;
+              }
+            }
+            const canvas = document.createElement("canvas");
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, width, height);
+            const compressedDataUrl = canvas.toDataURL("image/jpeg", quality);
+            const base64 = compressedDataUrl.split(",")[1] || "";
+            resolve({
+              dataUrl: compressedDataUrl,
+              base64,
+              mimeType: "image/jpeg"
+            });
+          };
+          img.src = rawDataUrl;
+        };
         reader.readAsDataURL(file);
       });
     }
 
     function sleep(ms) {
       return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function fetchWithTimeout(url, options, timeoutMs = 35000) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        return await fetch(url, { ...options, signal: controller.signal });
+      } catch (err) {
+        if (err.name === "AbortError") {
+          throw new Error("İstek zaman aşımına uğradı (mobil ağ yavaş olabilir).");
+        }
+        throw err;
+      } finally {
+        clearTimeout(timer);
+      }
     }
 
     async function trySingleModel(apiKey, modelName, parts, systemInstruction) {
@@ -1039,11 +1085,11 @@
         systemInstruction: systemInstruction ? { parts: [{ text: systemInstruction }] } : undefined
       };
 
-      const res = await fetch(url, {
+      const res = await fetchWithTimeout(url, {
         method: "POST",
         headers,
         body: JSON.stringify(body)
-      });
+      }, 35000);
       const data = await res.json();
       if (!res.ok) {
         throw new Error(data.error?.message || `API hatası (${res.status})`);
@@ -1065,13 +1111,13 @@
 
       const models = Array.isArray(GEMINI_FALLBACK_MODELS) && GEMINI_FALLBACK_MODELS.length
         ? GEMINI_FALLBACK_MODELS
-        : ["gemini-3.5-flash-lite", "gemini-3.8-flash", "gemini-3.5-flash"];
+        : ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.0-flash"];
 
       const errors = [];
       for (let i = 0; i < models.length; i++) {
         const modelName = models[i];
         let attempt = 0;
-        const maxRetries = 3;
+        const maxRetries = 2;
 
         while (attempt <= maxRetries) {
           try {
@@ -1080,7 +1126,7 @@
             const isHighDemand = /high demand|overloaded|429|503|unavailable/i.test(err.message);
             if (isHighDemand && attempt < maxRetries) {
               attempt++;
-              await sleep(1500 * attempt);
+              await sleep(1200 * attempt);
               continue;
             }
             errors.push(`${modelName}: ${err.message}`);
@@ -1186,14 +1232,20 @@ Ardından yalnızca şu JSON formatında yanıt ver (başka açıklama yazma):
       fileInput.value = "";
 
       for (const entry of batchItems) {
-        const { dataUrl, base64 } = await readFileAsDataUrlAndBase64(entry.file);
-        await processImagePayload(
-          entry.file.name,
-          entry.file.type || "image/jpeg",
-          base64,
-          dataUrl,
-          entry.queueId
-        );
+        updateQueueItem(entry.queueId, "processing", "Görsel telefon ağına uygun boyuta getiriliyor...");
+        try {
+          const { dataUrl, base64, mimeType } = await optimizeImageFile(entry.file, 1280, 0.78);
+          await processImagePayload(
+            entry.file.name,
+            mimeType,
+            base64,
+            dataUrl,
+            entry.queueId
+          );
+        } catch (err) {
+          recordFailure(entry.file.name, entry.file.type || "image/jpeg", "", "", err.message);
+          updateQueueItem(entry.queueId, "error", err.message);
+        }
       }
 
       const batchErrors = batchItems.filter(b => {
