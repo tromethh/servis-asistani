@@ -39,44 +39,28 @@
       border-bottom: 1px solid var(--border);
       padding: 12px 16px;
     }
-    .header-top {
+    .header-inner {
       max-width: 980px;
-      margin: 0 auto 10px;
+      margin: 0 auto;
       display: flex;
-      flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
       gap: 10px;
     }
-    h1 { font-size: 1.05rem; margin: 0; }
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    .sync-pill {
-      font-size: 0.8rem;
-      color: var(--muted);
-      background: var(--panel);
-      border: 1px solid var(--border);
-      padding: 5px 10px;
-      border-radius: 999px;
-    }
     .user-pill {
-      font-size: 0.8rem;
+      font-size: 0.88rem;
       color: #93c5fd;
       background: rgba(59, 130, 246, 0.16);
       border: 1px solid rgba(59, 130, 246, 0.4);
-      padding: 5px 10px;
+      padding: 6px 12px;
       border-radius: 999px;
-      font-weight: 600;
+      font-weight: 700;
     }
     .notif-btn {
       background: var(--danger-bg);
       color: #fca5a5;
       border: 1px solid var(--danger);
-      padding: 5px 12px;
+      padding: 6px 12px;
       border-radius: 999px;
       font-size: 0.82rem;
       font-weight: 700;
@@ -88,62 +72,10 @@
       border-color: var(--border);
       font-weight: 600;
     }
-    .tabs {
-      max-width: 980px;
-      margin: 0 auto;
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-    }
-    .tab-btn {
-      background: var(--panel);
-      color: var(--muted);
-      border: 1px solid var(--border);
-      padding: 8px 14px;
-      border-radius: 999px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 0.9rem;
-      white-space: nowrap;
-    }
-    .tab-btn.active {
-      background: var(--accent);
-      color: #fff;
-      border-color: var(--accent);
-    }
     main {
       max-width: 980px;
       margin: 18px auto;
-      padding: 0 16px 120px;
-    }
-    .center-hero {
-      min-height: calc(100vh - 230px);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 20px 12px;
-    }
-    .hero-prompt-btn {
-      background: linear-gradient(135deg, #2563eb, #3b82f6);
-      color: #fff;
-      border: 1px solid rgba(147, 197, 253, 0.4);
-      border-radius: 999px;
-      padding: 16px 26px;
-      font-size: 1.05rem;
-      font-weight: 700;
-      box-shadow: 0 12px 30px rgba(37, 99, 235, 0.35);
-      cursor: pointer;
-    }
-    .hero-prompt-btn:hover {
-      background: linear-gradient(135deg, #1d4ed8, #2563eb);
-    }
-    .hero-sub {
-      color: var(--muted);
-      font-size: 0.88rem;
-      margin-top: 10px;
-      max-width: 440px;
+      padding: 0 16px 140px;
     }
     .gate-wrap {
       max-width: 520px;
@@ -313,35 +245,39 @@
     .hidden { display: none !important; }
     .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
 
-    .bottom-cam-dock {
+    .bottom-right-dock {
       position: fixed;
-      left: 50%;
+      right: 16px;
       bottom: 18px;
-      transform: translateX(-50%);
       z-index: 35;
       display: flex;
       flex-direction: column;
-      align-items: center;
+      align-items: flex-end;
       gap: 10px;
     }
-    .cam-fab {
-      width: 62px;
-      height: 62px;
-      border-radius: 999px;
+    .dock-btn-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .dock-action-btn {
       background: var(--accent);
       color: #fff;
-      border: 2px solid rgba(255, 255, 255, 0.25);
-      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 999px;
+      padding: 12px 18px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
       cursor: pointer;
     }
-    .cam-fab:hover {
+    .dock-action-btn.upload {
+      background: #1d4ed8;
+    }
+    .dock-action-btn:hover {
       background: var(--accent-hover);
     }
-    .cam-menu {
+    .upload-pop-menu {
       background: var(--panel);
       border: 1px solid var(--border);
       border-radius: 14px;
@@ -350,9 +286,9 @@
       display: flex;
       flex-direction: column;
       gap: 6px;
-      min-width: 200px;
+      min-width: 210px;
     }
-    .cam-menu-btn {
+    .upload-pop-btn {
       width: 100%;
       text-align: left;
       background: var(--panel-2);
@@ -364,13 +300,13 @@
       font-weight: 600;
       cursor: pointer;
     }
-    .cam-menu-btn:hover {
+    .upload-pop-btn:hover {
       background: #272f3d;
     }
 
     .toast-stack {
       position: fixed;
-      top: 72px;
+      top: 64px;
       right: 16px;
       z-index: 40;
       display: flex;
@@ -422,20 +358,10 @@
 </head>
 <body>
   <header>
-    <div class="header-top">
-      <h1>Servis Bilgi & FS Asistanı</h1>
-      <div class="header-right">
-        <span id="currentUserBadge" class="user-pill hidden">Kullanıcı: -</span>
-        <span id="headerSyncStatus" class="sync-pill">Yerel mod</span>
-        <button id="notifToggleBtn" type="button" class="notif-btn ok hidden">Bildirimler (0)</button>
-      </div>
+    <div class="header-inner">
+      <span id="currentUserBadge" class="user-pill hidden">Kullanıcı: -</span>
+      <button id="notifToggleBtn" type="button" class="notif-btn ok hidden">Bildirimler (0)</button>
     </div>
-    <nav id="appTabs" class="tabs hidden">
-      <button class="tab-btn active" data-tab="sor">Soru Sor</button>
-      <button class="tab-btn" data-tab="yukle">Görsel Gönder</button>
-      <button class="tab-btn" data-tab="gruplar">Gruplar & Kayıtlar</button>
-      <button class="tab-btn" data-tab="yedek">Yedekleme</button>
-    </nav>
   </header>
 
   <div id="toastStack" class="toast-stack"></div>
@@ -500,131 +426,62 @@
   </div>
 
   <main id="appMain" class="hidden">
-    <section id="tab-sor" class="tab-panel">
-      <div id="centerAskHero" class="center-hero">
-        <button id="openAskBoxBtn" type="button" class="hero-prompt-btn">Buradan soru sorabilirsiniz</button>
-        <p class="hero-sub">
-          Yazarak veya sesli konuşarak soru sorabilir, alttaki kamera simgesinden fotoğraf çekebilir, yükleyebilir veya metin ekleyebilirsiniz.
-        </p>
-      </div>
-
-      <div id="askFormCard" class="card hidden">
-        <h2>Müşteri / Çalışan Sorusu</h2>
-        <div class="row">
-          <div>
-            <label for="askCategory">Kategori Filtresi (İsteğe Bağlı)</label>
-            <select id="askCategory">
-              <option value="">Tüm Kategoriler</option>
-              <option value="Parça Kodları">Parça Kodları</option>
-              <option value="Süreçler">Süreçler</option>
-            </select>
-          </div>
-          <div>
-            <label for="askGroup">Model / Alt Grup (İsteğe Bağlı, örn. V15)</label>
-            <input id="askGroup" type="text" placeholder="Örn: V15, V11, V16..." />
-          </div>
+    <div id="askFormCard" class="card hidden">
+      <h2>Soru Sor</h2>
+      <div class="row">
+        <div>
+          <label for="askCategory">Kategori Filtresi (İsteğe Bağlı)</label>
+          <select id="askCategory">
+            <option value="">Tüm Kategoriler</option>
+            <option value="Parça Kodları">Parça Kodları</option>
+            <option value="Süreçler">Süreçler</option>
+          </select>
         </div>
-        <label for="questionInput">Soru / Model / Parça Kodu</label>
-        <textarea id="questionInput" placeholder="Soruyu, cihaz modelini veya parça kodunu yazın ya da mikrofona konuşun..."></textarea>
-        <div class="actions">
-          <button id="askMicBtn" type="button" class="mic-btn">🎤 Sesli Konuş</button>
-          <button id="askBtn" type="button">Kayıtlarda Ara ve Yanıtla</button>
-          <button id="clearAskBtn" type="button" class="secondary">Temizle</button>
+        <div>
+          <label for="askGroup">Model / Alt Grup (İsteğe Bağlı, örn. V15)</label>
+          <input id="askGroup" type="text" placeholder="Örn: V15, V11, V16..." />
         </div>
-        <div id="askStatus" class="status-msg"></div>
       </div>
-
-      <div id="answerArea"></div>
-    </section>
-
-    <section id="tab-yukle" class="tab-panel hidden">
-      <div class="card">
-        <h2>Görsel Yükle ve Gönder</h2>
-        <p style="color:var(--muted); font-size:0.88rem; margin-top:0;">
-          Görseli seçip <strong>Gönder</strong> butonuna basın. Telefon görselleri mobil ağda hızlı yüklenmesi için otomatik optimize edilir; kategori, başlık ve metin ayrıştırma arka planda tamamlanıp yükleyen kişi ve saat bilgisiyle kaydedilir.
-        </p>
-
-        <label for="photoInput">Görsel Seç (Birden fazla seçebilirsiniz)</label>
-        <input id="photoInput" type="file" accept="image/*" multiple />
-
-        <div class="actions">
-          <button id="sendPhotosBtn" type="button">Gönder</button>
-          <button id="bulkDeleteFailedYukleBtn" type="button" class="danger">İşleme Alınamayanları Toplu Sil</button>
-        </div>
-        <div id="uploadStatus" class="status-msg"></div>
+      <label for="questionInput">Soru / Model / Parça Kodu</label>
+      <textarea id="questionInput" placeholder="Soruyu, cihaz modelini veya parça kodunu yazın ya da mikrofona konuşun..."></textarea>
+      <div class="actions">
+        <button id="askMicBtn" type="button" class="mic-btn">🎤 Sesli Konuş</button>
+        <button id="askBtn" type="button">Kayıtlarda Ara ve Yanıtla</button>
+        <button id="clearAskBtn" type="button" class="secondary">Temizle</button>
       </div>
+      <div id="askStatus" class="status-msg"></div>
+    </div>
 
-      <div class="card">
-        <div class="queue-header">
-          <h2 style="margin:0;">Yükleme Sırası <span id="queueCountBadge" class="badge">0</span></h2>
+    <div id="answerArea"></div>
+
+    <div id="uploadPanelCard" class="card hidden">
+      <div class="queue-header">
+        <h2 style="margin:0;">Yükleme Sırası <span id="queueCountBadge" class="badge">0</span></h2>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
           <button id="clearFinishedQueueBtn" type="button" class="secondary">Tamamlananları Temizle</button>
-        </div>
-        <div id="uploadQueueList">
-          <p style="color:var(--muted); margin:0; font-size:0.88rem;">Henüz sıraya alınmış görsel yok.</p>
+          <button id="bulkDeleteFailedBtn" type="button" class="danger">İşleme Alınamayanları Toplu Sil</button>
         </div>
       </div>
-    </section>
+      <div id="uploadStatus" class="status-msg" style="margin-top:0; margin-bottom:8px;"></div>
+      <div id="uploadQueueList">
+        <p style="color:var(--muted); margin:0; font-size:0.88rem;">Henüz sıraya alınmış işlem yok.</p>
+      </div>
+    </div>
 
-    <section id="tab-gruplar" class="tab-panel hidden">
-      <div class="card">
-        <h2>Kayıtlı Gruplar ve Bilgiler</h2>
-        <div class="row">
-          <div>
-            <label for="filterCategory">Kategori</label>
-            <select id="filterCategory">
-              <option value="">Tümü</option>
-              <option value="Parça Kodları">Parça Kodları</option>
-              <option value="Süreçler">Süreçler</option>
-            </select>
-          </div>
-          <div>
-            <label for="filterGroup">Alt Grup / Model</label>
-            <input id="filterGroup" type="text" placeholder="Örn: V15" />
-          </div>
-          <div>
-            <label for="filterSearch">Kelime Ara</label>
-            <input id="filterSearch" type="text" placeholder="Parça kodu, kelime..." />
-          </div>
-        </div>
-        <div class="actions">
-          <button id="refreshBtn" type="button" class="secondary">Kayıtları Yenile</button>
-          <button id="bulkDeleteFailedGruplarBtn" type="button" class="danger">İşleme Alınamayanları Toplu Sil</button>
-        </div>
-      </div>
-      <div id="recordsList"></div>
-    </section>
-
-    <section id="tab-yedek" class="tab-panel hidden">
-      <div class="card">
-        <h2>Veri Yedekleme ve Geri Yükleme</h2>
-        <p style="color:var(--muted); font-size:0.9rem;">
-          Kayıtlarınız sabit şema (<code>v1</code>) ile tutulur. Düzenli JSON yedeği alarak güvenliği artırabilirsiniz.
-        </p>
-        <div class="actions">
-          <button id="exportBtn" type="button" class="secondary">JSON Yedeği İndir</button>
-          <label class="secondary" style="padding:10px 14px; border-radius:8px; cursor:pointer; margin:0;">
-            JSON Yedeği Yükle
-            <input id="importInput" type="file" accept="application/json" style="display:none;" />
-          </label>
-        </div>
-        <div id="backupStatus" class="status-msg"></div>
-      </div>
-    </section>
+    <input id="cameraCaptureInput" type="file" accept="image/*" capture="environment" class="hidden" />
+    <input id="photoFileInput" type="file" accept="image/*" multiple class="hidden" />
   </main>
 
-  <div id="bottomCamDock" class="bottom-cam-dock hidden">
-    <div id="camActionMenu" class="cam-menu hidden">
-      <button id="menuTakePhotoBtn" type="button" class="cam-menu-btn">📷 Fotoğraf Çek</button>
-      <button id="menuUploadPhotoBtn" type="button" class="cam-menu-btn">🖼️ Fotoğraf Yükle</button>
-      <button id="menuWriteTextBtn" type="button" class="cam-menu-btn">✍️ Metin Yaz</button>
+  <div id="bottomRightDock" class="bottom-right-dock hidden">
+    <div id="uploadPopMenu" class="upload-pop-menu hidden">
+      <button id="popTakePhotoBtn" type="button" class="upload-pop-btn">📷 Fotoğraf Çek</button>
+      <button id="popUploadPhotoBtn" type="button" class="upload-pop-btn">🖼️ Fotoğraf Yükle</button>
+      <button id="popWriteTextBtn" type="button" class="upload-pop-btn">✍️ Metin Yaz</button>
     </div>
-    <button id="camFabBtn" type="button" class="cam-fab" aria-label="Kamera ve Bilgi İşlemleri">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-        <circle cx="12" cy="13" r="4"></circle>
-      </svg>
-    </button>
-    <input id="cameraCaptureInput" type="file" accept="image/*" capture="environment" class="hidden" />
+    <div class="dock-btn-row">
+      <button id="dockAskBtn" type="button" class="dock-action-btn">Soru sor</button>
+      <button id="dockUploadBtn" type="button" class="dock-action-btn upload">Bilgi Yükle</button>
+    </div>
   </div>
 
   <script>
@@ -686,15 +543,13 @@
     function applyAuthState() {
       const gate = document.getElementById("authGate");
       const main = document.getElementById("appMain");
-      const tabs = document.getElementById("appTabs");
       const userBadge = document.getElementById("currentUserBadge");
       const notifBtn = document.getElementById("notifToggleBtn");
-      const dock = document.getElementById("bottomCamDock");
+      const dock = document.getElementById("bottomRightDock");
 
       if (currentSession && currentSession.apiKey && currentSession.user) {
         gate.classList.add("hidden");
         main.classList.remove("hidden");
-        tabs.classList.remove("hidden");
         userBadge.classList.remove("hidden");
         notifBtn.classList.remove("hidden");
         dock.classList.remove("hidden");
@@ -704,7 +559,6 @@
       } else {
         gate.classList.remove("hidden");
         main.classList.add("hidden");
-        tabs.classList.add("hidden");
         userBadge.classList.add("hidden");
         notifBtn.classList.add("hidden");
         dock.classList.add("hidden");
@@ -740,60 +594,47 @@
       }
     });
 
-    function switchTab(target) {
-      document.querySelectorAll(".tab-btn").forEach(b => {
-        b.classList.toggle("active", b.dataset.tab === target);
-      });
-      document.querySelectorAll(".tab-panel").forEach(p => p.classList.add("hidden"));
-      document.getElementById("tab-" + target).classList.remove("hidden");
-      if (target === "gruplar") {
-        syncFromCloud().then(renderRecords);
-      }
-    }
-
-    document.querySelectorAll(".tab-btn").forEach(btn => {
-      btn.addEventListener("click", () => switchTab(btn.dataset.tab));
-    });
-
-    const openAskBoxBtn = document.getElementById("openAskBoxBtn");
+    const dockAskBtn = document.getElementById("dockAskBtn");
+    const dockUploadBtn = document.getElementById("dockUploadBtn");
+    const uploadPopMenu = document.getElementById("uploadPopMenu");
     const askFormCard = document.getElementById("askFormCard");
-    const centerAskHero = document.getElementById("centerAskHero");
+    const uploadPanelCard = document.getElementById("uploadPanelCard");
+    const cameraCaptureInput = document.getElementById("cameraCaptureInput");
+    const photoFileInput = document.getElementById("photoFileInput");
 
-    openAskBoxBtn.addEventListener("click", () => {
-      centerAskHero.classList.add("hidden");
+    dockAskBtn.addEventListener("click", () => {
+      uploadPopMenu.classList.add("hidden");
       askFormCard.classList.remove("hidden");
       document.getElementById("questionInput").focus();
+      askFormCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
     });
 
-    const camFabBtn = document.getElementById("camFabBtn");
-    const camActionMenu = document.getElementById("camActionMenu");
-    const cameraCaptureInput = document.getElementById("cameraCaptureInput");
-
-    camFabBtn.addEventListener("click", (e) => {
+    dockUploadBtn.addEventListener("click", (e) => {
       e.stopPropagation();
-      camActionMenu.classList.toggle("hidden");
+      uploadPopMenu.classList.toggle("hidden");
     });
 
     document.addEventListener("click", (e) => {
-      if (!camActionMenu.classList.contains("hidden") && !e.target.closest("#bottomCamDock")) {
-        camActionMenu.classList.add("hidden");
+      if (!uploadPopMenu.classList.contains("hidden") && !e.target.closest("#bottomRightDock")) {
+        uploadPopMenu.classList.add("hidden");
       }
     });
 
-    document.getElementById("menuTakePhotoBtn").addEventListener("click", () => {
-      camActionMenu.classList.add("hidden");
+    document.getElementById("popTakePhotoBtn").addEventListener("click", () => {
+      uploadPopMenu.classList.add("hidden");
+      uploadPanelCard.classList.remove("hidden");
       cameraCaptureInput.click();
     });
 
-    document.getElementById("menuUploadPhotoBtn").addEventListener("click", () => {
-      camActionMenu.classList.add("hidden");
-      switchTab("yukle");
-      document.getElementById("photoInput").click();
+    document.getElementById("popUploadPhotoBtn").addEventListener("click", () => {
+      uploadPopMenu.classList.add("hidden");
+      uploadPanelCard.classList.remove("hidden");
+      photoFileInput.click();
     });
 
     const textEntryModal = document.getElementById("textEntryModal");
-    document.getElementById("menuWriteTextBtn").addEventListener("click", () => {
-      camActionMenu.classList.add("hidden");
+    document.getElementById("popWriteTextBtn").addEventListener("click", () => {
+      uploadPopMenu.classList.add("hidden");
       document.getElementById("manualStatus").textContent = "";
       textEntryModal.classList.remove("hidden");
       document.getElementById("manualTitle").focus();
@@ -805,10 +646,18 @@
 
     cameraCaptureInput.addEventListener("change", async (e) => {
       const files = e.target.files ? Array.from(e.target.files) : [];
-      if (!files.length) return;
-      switchTab("yukle");
-      await runImageBatch(files);
       cameraCaptureInput.value = "";
+      if (!files.length) return;
+      uploadPanelCard.classList.remove("hidden");
+      await runImageBatch(files);
+    });
+
+    photoFileInput.addEventListener("change", async (e) => {
+      const files = e.target.files ? Array.from(e.target.files) : [];
+      photoFileInput.value = "";
+      if (!files.length) return;
+      uploadPanelCard.classList.remove("hidden");
+      await runImageBatch(files);
     });
 
     function startVoiceInput(targetTextarea, buttonEl, statusEl) {
@@ -894,10 +743,7 @@
       document.getElementById("manualGroup").value = "";
       document.getElementById("manualTitle").value = "";
       document.getElementById("manualContent").value = "";
-      statusEl.textContent = `Kaydedildi (${uploader} — ${formatDateTr(nowIso)}).`;
-      if (!document.getElementById("tab-gruplar").classList.contains("hidden")) {
-        renderRecords();
-      }
+      statusEl.textContent = `Kaydedildi — Yükleyen Kişi: ${uploader} (${formatDateTr(nowIso)})`;
       setTimeout(() => {
         textEntryModal.classList.add("hidden");
       }, 600);
@@ -911,7 +757,7 @@
       badgeEl.textContent = String(uploadQueue.length);
 
       if (!uploadQueue.length) {
-        listEl.innerHTML = `<p style="color:var(--muted); margin:0; font-size:0.88rem;">Henüz sıraya alınmış görsel yok.</p>`;
+        listEl.innerHTML = `<p style="color:var(--muted); margin:0; font-size:0.88rem;">Henüz sıraya alınmış işlem yok.</p>`;
         return;
       }
 
@@ -1050,7 +896,7 @@
       const btn = document.getElementById("notifToggleBtn");
       if (!btn) return;
       const count = failedJobs.length;
-      btn.textContent = count > 0 ? `İşlem tamamlanamadı (${count})` : "Bildirimler (0)";
+      btn.textContent = count > 0 ? `Bildirimler (${count})` : "Bildirimler (0)";
       btn.classList.toggle("ok", count === 0);
     }
 
@@ -1137,9 +983,6 @@
       } else {
         document.getElementById("failedList").innerHTML = renderFailedListHtml();
       }
-      if (!document.getElementById("tab-gruplar").classList.contains("hidden")) {
-        renderRecords();
-      }
     };
 
     window.retryFailedJob = async function(id) {
@@ -1151,6 +994,7 @@
       failedJobs = failedJobs.filter(j => j.id !== id);
       saveFailedJobs(failedJobs);
       closeFailedModal();
+      uploadPanelCard.classList.remove("hidden");
       const qId = addQueueItem(job.fileName || "Görsel");
       await processImagePayload(job.fileName, job.mimeType, job.base64, job.imageDataUrl, qId);
     };
@@ -1172,24 +1016,15 @@
 
       document.getElementById("uploadStatus").textContent = "İşleme alınamayan tüm kayıtlar ve bildirimler silindi.";
       closeFailedModal();
-      if (!document.getElementById("tab-gruplar").classList.contains("hidden")) {
-        renderRecords();
-      }
     }
 
     document.getElementById("modalBulkDeleteBtn").addEventListener("click", bulkDeleteUnprocessed);
-    document.getElementById("bulkDeleteFailedYukleBtn").addEventListener("click", bulkDeleteUnprocessed);
-    document.getElementById("bulkDeleteFailedGruplarBtn").addEventListener("click", bulkDeleteUnprocessed);
+    document.getElementById("bulkDeleteFailedBtn").addEventListener("click", bulkDeleteUnprocessed);
 
     function getSbConfig() {
       const url = (SUPABASE_URL || "").trim().replace(/\/+$/, "");
       const key = (SUPABASE_PUBLISHABLE_KEY || "").trim();
       return (url && key) ? { url, key } : null;
-    }
-
-    function setSyncBadge(text) {
-      const el = document.getElementById("headerSyncStatus");
-      if (el) el.textContent = text;
     }
 
     async function sbFetchRecords() {
@@ -1258,22 +1093,18 @@
     async function sbDeleteRecord(id) {
       const cfg = getSbConfig();
       if (!cfg) return;
-      const res = await fetch(`${cfg.url}/rest/v1/records?id=eq.${encodeURIComponent(id)}`, {
+      await fetch(`${cfg.url}/rest/v1/records?id=eq.${encodeURIComponent(id)}`, {
         method: "DELETE",
         headers: {
           "apikey": cfg.key,
           "Authorization": `Bearer ${cfg.key}`
         }
       });
-      if (!res.ok) throw new Error(`Supabase silme hatası (${res.status})`);
     }
 
     async function syncFromCloud() {
       const cfg = getSbConfig();
-      if (!cfg) {
-        setSyncBadge("Yerel mod");
-        return;
-      }
+      if (!cfg) return;
       try {
         const remote = await sbFetchRecords();
         const localById = new Map(state.records.map(r => [r.id, r]));
@@ -1286,16 +1117,8 @@
           };
         });
         saveLocalState(state);
-        setSyncBadge(`Ortak DB bağlı (${remote.length})`);
-        if (!document.getElementById("tab-gruplar").classList.contains("hidden")) {
-          renderRecords();
-        }
-      } catch {
-        setSyncBadge("Yerel yedek aktif");
-      }
+      } catch {}
     }
-
-    document.getElementById("refreshBtn").addEventListener("click", () => syncFromCloud().then(renderRecords));
 
     function optimizeImageFile(file, maxSide = 1152, quality = 0.75) {
       return new Promise((resolve, reject) => {
@@ -1499,7 +1322,7 @@ Ardından yalnızca şu JSON formatında yanıt ver (başka açıklama yazma):
 
         await commitRecord(newRec);
         if (queueId) {
-          updateQueueItem(queueId, "done", `${parsed.category} / ${parsed.group} — "${parsed.title}" (${uploader}, ${formatDateTr(nowIso)}) kaydedildi.`);
+          updateQueueItem(queueId, "done", `${parsed.category} / ${parsed.group} — "${parsed.title}" | Yükleyen Kişi: ${uploader} | Saat: ${formatDateTr(nowIso)}`);
         }
       } catch (err) {
         recordFailure(fileName, mimeType, base64, dataUrl, err.message);
@@ -1550,72 +1373,9 @@ Ardından yalnızca şu JSON formatında yanıt ver (başka açıklama yazma):
       if (batchErrors === 0) {
         statusEl.textContent = "Tüm görseller sıkıştırılıp otomatik olarak kaydedildi.";
       } else {
-        statusEl.textContent = `${batchErrors} görsel tamamlanamadı; Yükleme Sırası ve sağ üstteki bildirimden kontrol edebilirsiniz.`;
+        statusEl.textContent = `${batchErrors} görsel tamamlanamadı; Bildirimler alanından kontrol edebilirsiniz.`;
       }
     }
-
-    document.getElementById("sendPhotosBtn").addEventListener("click", async () => {
-      const fileInput = document.getElementById("photoInput");
-      const files = fileInput.files ? Array.from(fileInput.files) : [];
-      fileInput.value = "";
-      await runImageBatch(files);
-    });
-
-    function renderRecords() {
-      const cat = document.getElementById("filterCategory").value;
-      const grp = document.getElementById("filterGroup").value.trim().toLowerCase();
-      const q = document.getElementById("filterSearch").value.trim().toLowerCase();
-      const listEl = document.getElementById("recordsList");
-
-      const filtered = state.records.filter(r => {
-        const recCat = normalizeCategory(r.category);
-        if (cat && recCat !== cat) return false;
-        if (grp && !r.group.toLowerCase().includes(grp)) return false;
-        if (q && !(
-          r.title.toLowerCase().includes(q) ||
-          r.content.toLowerCase().includes(q) ||
-          r.group.toLowerCase().includes(q) ||
-          (r.uploadedBy || "").toLowerCase().includes(q)
-        )) return false;
-        return true;
-      });
-
-      if (!filtered.length) {
-        listEl.innerHTML = `<div class="card"><p style="color:var(--muted); margin:0;">Filtreye uygun kayıt bulunamadı.</p></div>`;
-        return;
-      }
-
-      listEl.innerHTML = filtered.map(r => {
-        const rec = normalizeRecord(r);
-        return `
-          <div class="record-item">
-            <div class="record-meta">
-              <span class="badge">${escapeHtml(rec.category)}</span>
-              <span class="badge">${escapeHtml(rec.group)}</span>
-              <span class="badge user">Yükleyen Kişi: ${escapeHtml(rec.uploadedBy)}</span>
-              <span>Yükleme Zamanı: ${formatDateTr(rec.uploadedAt)}</span>
-            </div>
-            <strong>${escapeHtml(rec.title)}</strong>
-            <pre style="white-space:pre-wrap; font-family:inherit; margin:8px 0 0;">${escapeHtml(rec.content)}</pre>
-            <div class="actions">
-              <button type="button" class="danger" onclick="deleteRecord('${rec.id}')">Sil</button>
-            </div>
-          </div>
-        `;
-      }).join("");
-    }
-
-    window.deleteRecord = async function(id) {
-      state.records = state.records.filter(r => r.id !== id);
-      saveLocalState(state);
-      try { await sbDeleteRecord(id); } catch {}
-      renderRecords();
-    };
-
-    ["filterCategory", "filterGroup", "filterSearch"].forEach(id => {
-      document.getElementById(id).addEventListener("input", renderRecords);
-      document.getElementById(id).addEventListener("change", renderRecords);
-    });
 
     document.getElementById("askBtn").addEventListener("click", async () => {
       await syncFromCloud();
@@ -1681,35 +1441,6 @@ FS desteği alınması gerekir
       document.getElementById("questionInput").value = "";
       document.getElementById("answerArea").innerHTML = "";
       document.getElementById("askStatus").textContent = "";
-    });
-
-    document.getElementById("exportBtn").addEventListener("click", () => {
-      const blob = new Blob([JSON.stringify({ schemaVersion: 1, records: state.records }, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `servis-yedek-${new Date().toISOString().slice(0, 10)}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-      document.getElementById("backupStatus").textContent = "JSON yedeği indirildi.";
-    });
-
-    document.getElementById("importInput").addEventListener("change", async (e) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      try {
-        const parsed = JSON.parse(await file.text());
-        if (!Array.isArray(parsed.records)) throw new Error("Geçersiz yedek dosyası.");
-        state = {
-          schemaVersion: 1,
-          records: parsed.records.map(normalizeRecord)
-        };
-        saveLocalState(state);
-        try { await sbUpsertRecords(state.records); } catch {}
-        document.getElementById("backupStatus").textContent = `${state.records.length} kayıt geri yüklendi.`;
-      } catch (err) {
-        document.getElementById("backupStatus").textContent = "Yükleme hatası: " + err.message;
-      }
     });
 
     function escapeHtml(str) {
