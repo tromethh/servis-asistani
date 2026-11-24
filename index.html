@@ -304,6 +304,18 @@
       border-color: var(--neon-cyan);
     }
 
+    button.cyan-outline {
+      background: rgba(0, 240, 255, 0.12);
+      color: var(--neon-cyan);
+      border: 1px solid var(--neon-cyan);
+      box-shadow: none;
+    }
+
+    button.cyan-outline:hover {
+      background: rgba(0, 240, 255, 0.22);
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.35);
+    }
+
     button.danger {
       background: var(--danger);
       border-color: #ff758f;
@@ -316,20 +328,69 @@
       color: #fff;
     }
 
-    button.mic-btn {
-      background: rgba(0, 240, 255, 0.12);
-      color: var(--neon-cyan);
-      border: 1px solid var(--neon-cyan);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
+    .cat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(130px, 1fr));
+      gap: 12px;
+      margin-bottom: 14px;
     }
 
-    button.mic-btn.recording {
-      background: var(--danger-bg);
-      color: #ff9eb0;
-      border-color: var(--danger);
-      box-shadow: 0 0 16px rgba(255, 59, 92, 0.5);
+    .cat-choice-btn {
+      padding: 16px 14px;
+      border-radius: 14px;
+      background: linear-gradient(150deg, rgba(157, 78, 221, 0.16), rgba(25, 22, 38, 0.96));
+      border: 1.5px solid var(--neon-purple-bright);
+      color: var(--text);
+      font-size: 1rem;
+      font-weight: 800;
+      box-shadow: 0 0 14px rgba(157, 78, 221, 0.25);
+    }
+
+    .cat-choice-btn.cyan {
+      border-color: var(--neon-cyan);
+      background: linear-gradient(150deg, rgba(0, 240, 255, 0.14), rgba(25, 22, 38, 0.96));
+      box-shadow: 0 0 14px rgba(0, 240, 255, 0.24);
+    }
+
+    .sort-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .sort-btn {
+      padding: 8px 12px;
+      font-size: 0.84rem;
+      border-radius: 999px;
+      background: var(--panel-2);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      box-shadow: none;
+    }
+
+    .sort-btn.active {
+      background: rgba(0, 240, 255, 0.16);
+      color: var(--neon-cyan);
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
+    }
+
+    .title-only-item {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .title-only-item:hover {
+      border-color: var(--neon-cyan);
     }
 
     .fs-alert {
@@ -339,7 +400,17 @@
       padding: 16px;
       border-radius: var(--radius);
       font-weight: 700;
-      font-size: 1.05rem;
+      font-size: 1.08rem;
+      box-shadow: 0 0 18px rgba(255, 59, 92, 0.25);
+    }
+
+    .guess-box {
+      background: rgba(255, 183, 3, 0.1);
+      border: 1px solid rgba(255, 183, 3, 0.55);
+      box-shadow: 0 0 18px rgba(255, 183, 3, 0.16);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-top: 12px;
     }
 
     .summary-box {
@@ -435,6 +506,19 @@
     .hidden { display: none !important; }
     .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
 
+    .question-photo-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      background: var(--panel-2);
+      border: 1px dashed var(--neon-cyan);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-top: 10px;
+    }
+
     .toast-stack {
       position: fixed;
       top: 64px;
@@ -476,7 +560,7 @@
       border: 1px solid var(--neon-purple-bright);
       box-shadow: 0 0 30px rgba(157, 78, 221, 0.32);
       border-radius: var(--radius);
-      max-width: 680px;
+      max-width: 720px;
       width: 100%;
       max-height: 88vh;
       overflow-y: auto;
@@ -485,7 +569,7 @@
 
     .preview-img {
       max-width: 100%;
-      max-height: 260px;
+      max-height: 240px;
       border-radius: 8px;
       border: 1px solid var(--border);
       margin-top: 8px;
@@ -509,13 +593,48 @@
   <div id="recordsModal" class="modal-backdrop hidden">
     <div class="modal-card">
       <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px;">
-        <h2 style="margin:0; color:var(--neon-cyan);">Yüklenen Kayıtlar</h2>
+        <h2 id="recordsModalTitle" style="margin:0; color:var(--neon-cyan);">Kayıtlar</h2>
         <button id="closeRecordsModalBtn" type="button" class="secondary">Kapat</button>
       </div>
-      <div style="margin-bottom:12px;">
-        <input id="recordsModalSearch" type="text" placeholder="Kayıtlarda kelime, parça kodu veya kişi ara..." />
+
+      <div id="stepMainCategory">
+        <p style="color:var(--muted); font-size:0.9rem; margin:0 0 10px;">Görüntülemek istediğiniz bölümü seçin:</p>
+        <div class="cat-grid">
+          <button id="pickSureclerBtn" type="button" class="cat-choice-btn">Süreçler</button>
+          <button id="pickParcaKodlariBtn" type="button" class="cat-choice-btn cyan">Parça Kodları</button>
+        </div>
       </div>
-      <div id="recordsModalList"></div>
+
+      <div id="stepPartSubType" class="hidden">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px;">
+          <strong style="color:var(--neon-cyan);">Parça Kodları — Tür Seçin:</strong>
+          <button id="backToMainCatBtn" type="button" class="secondary" style="padding:6px 10px; font-size:0.8rem;">← Geri</button>
+        </div>
+        <p style="color:var(--muted); font-size:0.88rem; margin:0 0 10px;">Temizlik mi Kişisel bakım mı?</p>
+        <div class="cat-grid">
+          <button id="pickTemizlikBtn" type="button" class="cat-choice-btn cyan">Temizlik</button>
+          <button id="pickKisiselBakimBtn" type="button" class="cat-choice-btn">Kişisel Bakım</button>
+        </div>
+      </div>
+
+      <div id="stepRecordsList" class="hidden">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px; flex-wrap:wrap;">
+          <span id="activePathBadge" class="badge">Seçim</span>
+          <button id="changeCategoryBtn" type="button" class="secondary" style="padding:6px 10px; font-size:0.8rem;">Kategori Değiştir</button>
+        </div>
+
+        <div class="sort-bar">
+          <button id="sortTitleOnlyBtn" type="button" class="sort-btn">Sadece Başlık Sırala</button>
+          <button id="sortDetailedBtn" type="button" class="sort-btn active">Açıklamalı Sırala</button>
+          <button id="sortNewestBtn" type="button" class="sort-btn">Tarihe Göre Sırala</button>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <input id="recordsModalSearch" type="text" placeholder="Başlık, açıklama, parça kodu veya kişi ara..." />
+        </div>
+
+        <div id="recordsModalList"></div>
+      </div>
     </div>
   </div>
 
@@ -538,12 +657,24 @@
         <h2 style="margin:0; color:var(--neon-cyan);">Metin Yaz ve Kaydet</h2>
         <button id="closeTextModalBtn" type="button" class="secondary">Kapat</button>
       </div>
+      <div class="row">
+        <div>
+          <label for="manualCategory">Kategori</label>
+          <select id="manualCategory">
+            <option value="Süreçler">Süreçler</option>
+            <option value="Parça Kodları">Parça Kodları</option>
+          </select>
+        </div>
+        <div>
+          <label for="manualGroup">Alt Tür / Model (Örn: Temizlik, Kişisel Bakım, V15)</label>
+          <input id="manualGroup" type="text" placeholder="Örn: Temizlik veya Kişisel Bakım..." />
+        </div>
+      </div>
       <label for="manualTitle">Başlık</label>
       <input id="manualTitle" type="text" placeholder="Kısa başlık girin..." style="margin-bottom:12px;" />
-      <label for="manualContent">Bilgi / Metin</label>
-      <textarea id="manualContent" placeholder="Kaydedilecek metni yazın veya sesli dikte kullanın..."></textarea>
+      <label for="manualContent">Bilgi / Açıklama</label>
+      <textarea id="manualContent" placeholder="Kaydedilecek metni yazın..."></textarea>
       <div class="actions">
-        <button id="manualMicBtn" type="button" class="mic-btn">🎤 Sesli Yaz</button>
         <button id="saveManualBtn" type="button">Kaydet</button>
       </div>
       <div id="manualStatus" class="status-msg"></div>
@@ -598,11 +729,21 @@
         <h2 style="margin:0;">Soru Sor</h2>
         <button id="backHomeFromAskBtn" type="button" class="secondary">Kutucuklara Dön</button>
       </div>
-      <label for="questionInput">Sorunuzu yazın veya sesli konuşun</label>
-      <textarea id="questionInput" placeholder="Soruyu buraya yazın veya mikrofona konuşun..."></textarea>
+      <label for="questionInput">Müşterinin sorusunu yazın veya sorunun fotoğrafını ekleyin</label>
+      <textarea id="questionInput" placeholder="Soruyu veya parça/hata kodunu yazın..."></textarea>
+
+      <div class="question-photo-bar">
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button id="askCamBtn" type="button" class="cyan-outline" style="padding:8px 12px; font-size:0.84rem;">📷 Soru Fotoğrafı Çek</button>
+          <button id="askImgBtn" type="button" class="cyan-outline" style="padding:8px 12px; font-size:0.84rem;">🖼️ Fotoğraf Seç</button>
+          <button id="clearQuestionPhotoBtn" type="button" class="secondary hidden" style="padding:8px 12px; font-size:0.84rem;">Fotoğrafı Kaldır</button>
+        </div>
+        <span id="questionPhotoName" style="font-size:0.82rem; color:var(--muted);">Fotoğraf eklenmedi</span>
+      </div>
+      <img id="questionPhotoPreview" class="preview-img hidden" alt="Soru görseli önizleme" />
+
       <div class="actions">
-        <button id="askMicBtn" type="button" class="mic-btn">🎤 Sesli Konuş</button>
-        <button id="askBtn" type="button">Soruyu Gönder</button>
+        <button id="askBtn" type="button">Çözümü Bul</button>
         <button id="clearAskBtn" type="button" class="secondary">Temizle</button>
       </div>
       <div id="askStatus" class="status-msg"></div>
@@ -627,6 +768,8 @@
 
     <input id="cameraCaptureInput" type="file" accept="image/*" capture="environment" class="hidden" />
     <input id="photoFileInput" type="file" accept="image/*" multiple class="hidden" />
+    <input id="askCamInput" type="file" accept="image/*" capture="environment" class="hidden" />
+    <input id="askImgInput" type="file" accept="image/*" class="hidden" />
   </main>
 
   <script>
@@ -649,6 +792,12 @@
 
     let currentSession = loadSession();
     let uploadQueue = [];
+    let attachedQuestionPhoto = null; // { fileName, mimeType, base64, dataUrl }
+
+    let selectedMainCat = null;
+    let selectedPartSub = null;
+    let currentSortMode = "detailed";
+    let expandedTitleIds = new Set();
 
     function resolveUserByKey(apiKey) {
       const clean = String(apiKey || "").trim();
@@ -747,6 +896,8 @@
     const answerArea = document.getElementById("answerArea");
     const cameraCaptureInput = document.getElementById("cameraCaptureInput");
     const photoFileInput = document.getElementById("photoFileInput");
+    const askCamInput = document.getElementById("askCamInput");
+    const askImgInput = document.getElementById("askImgInput");
 
     document.getElementById("squareAskBtn").addEventListener("click", () => {
       centerHomeStage.classList.add("hidden");
@@ -792,6 +943,58 @@
       centerHomeStage.classList.remove("hidden");
     });
 
+    function clearQuestionPhoto() {
+      attachedQuestionPhoto = null;
+      const preview = document.getElementById("questionPhotoPreview");
+      const nameEl = document.getElementById("questionPhotoName");
+      const clearBtn = document.getElementById("clearQuestionPhotoBtn");
+      preview.src = "";
+      preview.classList.add("hidden");
+      clearBtn.classList.add("hidden");
+      nameEl.textContent = "Fotoğraf eklenmedi";
+    }
+
+    async function handleQuestionPhotoSelection(file) {
+      if (!file) return;
+      const statusEl = document.getElementById("askStatus");
+      statusEl.textContent = "Soru fotoğrafı hazırlanıyor...";
+      try {
+        const opt = await optimizeImageFile(file, 1280, 0.8);
+        attachedQuestionPhoto = {
+          fileName: file.name || "soru-gorseli.jpg",
+          mimeType: opt.mimeType,
+          base64: opt.base64,
+          dataUrl: opt.dataUrl
+        };
+        const preview = document.getElementById("questionPhotoPreview");
+        const nameEl = document.getElementById("questionPhotoName");
+        const clearBtn = document.getElementById("clearQuestionPhotoBtn");
+        preview.src = opt.dataUrl;
+        preview.classList.remove("hidden");
+        clearBtn.classList.remove("hidden");
+        nameEl.textContent = `${attachedQuestionPhoto.fileName} (~${opt.approxKb || 0} KB)`;
+        statusEl.textContent = "Fotoğraf eklendi. Çözümü Bul butonuna basabilirsiniz.";
+      } catch (err) {
+        statusEl.textContent = "Fotoğraf yüklenemedi: " + err.message;
+      }
+    }
+
+    document.getElementById("askCamBtn").addEventListener("click", () => askCamInput.click());
+    document.getElementById("askImgBtn").addEventListener("click", () => askImgInput.click());
+    document.getElementById("clearQuestionPhotoBtn").addEventListener("click", clearQuestionPhoto);
+
+    askCamInput.addEventListener("change", async (e) => {
+      const f = e.target.files?.[0];
+      askCamInput.value = "";
+      if (f) await handleQuestionPhotoSelection(f);
+    });
+
+    askImgInput.addEventListener("change", async (e) => {
+      const f = e.target.files?.[0];
+      askImgInput.value = "";
+      if (f) await handleQuestionPhotoSelection(f);
+    });
+
     cameraCaptureInput.addEventListener("change", async (e) => {
       const files = e.target.files ? Array.from(e.target.files) : [];
       cameraCaptureInput.value = "";
@@ -813,29 +1016,151 @@
     });
 
     const recordsModal = document.getElementById("recordsModal");
+    const stepMainCategory = document.getElementById("stepMainCategory");
+    const stepPartSubType = document.getElementById("stepPartSubType");
+    const stepRecordsList = document.getElementById("stepRecordsList");
     const recordsModalSearch = document.getElementById("recordsModalSearch");
+
+    function showRecordsStep(stepName) {
+      stepMainCategory.classList.toggle("hidden", stepName !== "main");
+      stepPartSubType.classList.toggle("hidden", stepName !== "partSub");
+      stepRecordsList.classList.toggle("hidden", stepName !== "list");
+    }
 
     document.getElementById("recordsBtn").addEventListener("click", async () => {
       await syncFromCloud();
+      selectedMainCat = null;
+      selectedPartSub = null;
+      expandedTitleIds.clear();
       recordsModalSearch.value = "";
-      renderRecordsModalList();
+      document.getElementById("recordsModalTitle").textContent = "Kayıtlar — Bölüm Seçin";
+      showRecordsStep("main");
       recordsModal.classList.remove("hidden");
     });
 
     document.getElementById("closeRecordsModalBtn").addEventListener("click", closeRecordsModal);
-    recordsModalSearch.addEventListener("input", renderRecordsModalList);
 
     function closeRecordsModal() {
       recordsModal.classList.add("hidden");
     }
+
+    document.getElementById("pickSureclerBtn").addEventListener("click", () => {
+      selectedMainCat = "Süreçler";
+      selectedPartSub = null;
+      expandedTitleIds.clear();
+      document.getElementById("recordsModalTitle").textContent = "Kayıtlar — Süreçler";
+      document.getElementById("activePathBadge").textContent = "Süreçler";
+      showRecordsStep("list");
+      renderRecordsModalList();
+    });
+
+    document.getElementById("pickParcaKodlariBtn").addEventListener("click", () => {
+      selectedMainCat = "Parça Kodları";
+      selectedPartSub = null;
+      document.getElementById("recordsModalTitle").textContent = "Kayıtlar — Parça Kodları";
+      showRecordsStep("partSub");
+    });
+
+    document.getElementById("backToMainCatBtn").addEventListener("click", () => {
+      selectedMainCat = null;
+      selectedPartSub = null;
+      document.getElementById("recordsModalTitle").textContent = "Kayıtlar — Bölüm Seçin";
+      showRecordsStep("main");
+    });
+
+    document.getElementById("pickTemizlikBtn").addEventListener("click", () => {
+      selectedPartSub = "Temizlik";
+      expandedTitleIds.clear();
+      document.getElementById("recordsModalTitle").textContent = "Parça Kodları — Temizlik";
+      document.getElementById("activePathBadge").textContent = "Parça Kodları / Temizlik";
+      showRecordsStep("list");
+      renderRecordsModalList();
+    });
+
+    document.getElementById("pickKisiselBakimBtn").addEventListener("click", () => {
+      selectedPartSub = "Kişisel Bakım";
+      expandedTitleIds.clear();
+      document.getElementById("recordsModalTitle").textContent = "Parça Kodları — Kişisel Bakım";
+      document.getElementById("activePathBadge").textContent = "Parça Kodları / Kişisel Bakım";
+      showRecordsStep("list");
+      renderRecordsModalList();
+    });
+
+    document.getElementById("changeCategoryBtn").addEventListener("click", () => {
+      selectedMainCat = null;
+      selectedPartSub = null;
+      document.getElementById("recordsModalTitle").textContent = "Kayıtlar — Bölüm Seçin";
+      showRecordsStep("main");
+    });
+
+    function updateSortButtons() {
+      document.getElementById("sortTitleOnlyBtn").classList.toggle("active", currentSortMode === "title_only");
+      document.getElementById("sortDetailedBtn").classList.toggle("active", currentSortMode === "detailed");
+      document.getElementById("sortNewestBtn").classList.toggle("active", currentSortMode === "newest");
+    }
+
+    document.getElementById("sortTitleOnlyBtn").addEventListener("click", () => {
+      currentSortMode = "title_only";
+      updateSortButtons();
+      renderRecordsModalList();
+    });
+
+    document.getElementById("sortDetailedBtn").addEventListener("click", () => {
+      currentSortMode = "detailed";
+      updateSortButtons();
+      renderRecordsModalList();
+    });
+
+    document.getElementById("sortNewestBtn").addEventListener("click", () => {
+      currentSortMode = "newest";
+      updateSortButtons();
+      renderRecordsModalList();
+    });
+
+    recordsModalSearch.addEventListener("input", renderRecordsModalList);
+
+    function matchesPersonalCare(text) {
+      return /(kişisel\s*bakım|airwrap|styler|supersonic|corrale|airstrait|saç|kurutma|şekillendirici)/i.test(text);
+    }
+
+    function matchesCleaning(text) {
+      return /(temizlik|süpürge|v8|v10|v11|v12|v15|v16|gen5|detect|outsize|submarine|wash|robot|360)/i.test(text);
+    }
+
+    function matchesPartSubType(record, subType) {
+      const combined = `${record.group || ""} ${record.title || ""} ${record.content || ""}`;
+      const gLower = String(record.group || "").toLowerCase();
+      if (subType === "Kişisel Bakım") {
+        if (gLower.includes("kişisel") || gLower.includes("bakım")) return true;
+        return matchesPersonalCare(combined);
+      }
+      if (subType === "Temizlik") {
+        if (gLower.includes("temizlik")) return true;
+        if (matchesPersonalCare(combined)) return false;
+        return matchesCleaning(combined) || true;
+      }
+      return true;
+    }
+
+    window.toggleTitleExpand = function(id) {
+      if (expandedTitleIds.has(id)) {
+        expandedTitleIds.delete(id);
+      } else {
+        expandedTitleIds.add(id);
+      }
+      renderRecordsModalList();
+    };
 
     function renderRecordsModalList() {
       const q = (recordsModalSearch?.value || "").trim().toLowerCase();
       const listEl = document.getElementById("recordsModalList");
       if (!listEl) return;
 
-      const filtered = state.records.filter(raw => {
-        const r = normalizeRecord(raw);
+      let filtered = state.records.map(normalizeRecord).filter(r => {
+        if (selectedMainCat && r.category !== selectedMainCat) return false;
+        if (selectedMainCat === "Parça Kodları" && selectedPartSub) {
+          if (!matchesPartSubType(r, selectedPartSub)) return false;
+        }
         if (!q) return true;
         return (
           r.title.toLowerCase().includes(q) ||
@@ -846,29 +1171,72 @@
         );
       });
 
+      if (currentSortMode === "title_only") {
+        filtered.sort((a, b) => a.title.localeCompare(b.title, "tr", { sensitivity: "base" }));
+      } else if (currentSortMode === "detailed") {
+        filtered.sort((a, b) => {
+          const byTitle = a.title.localeCompare(b.title, "tr", { sensitivity: "base" });
+          if (byTitle !== 0) return byTitle;
+          return new Date(b.uploadedAt || 0) - new Date(a.uploadedAt || 0);
+        });
+      } else {
+        filtered.sort((a, b) => new Date(b.uploadedAt || 0) - new Date(a.uploadedAt || 0));
+      }
+
       if (!filtered.length) {
-        listEl.innerHTML = `<p style="color:var(--muted); margin:0;">Henüz kayıt bulunmuyor.</p>`;
+        listEl.innerHTML = `<p style="color:var(--muted); margin:0;">Bu seçimde kayıt bulunmuyor.</p>`;
         return;
       }
 
-      listEl.innerHTML = filtered.map(raw => {
-        const r = normalizeRecord(raw);
-        return `
-          <div class="record-item">
-            <div class="record-meta">
-              <span class="badge">${escapeHtml(r.category)}</span>
-              <span class="badge">${escapeHtml(r.group)}</span>
-              <span class="badge user">Yükleyen Kişi: ${escapeHtml(r.uploadedBy)}</span>
-              <span>Yükleme Zamanı: ${formatDateTr(r.uploadedAt)}</span>
+      if (currentSortMode === "title_only") {
+        listEl.innerHTML = filtered.map(r => {
+          const isOpen = expandedTitleIds.has(r.id);
+          return `
+            <div>
+              <div class="title-only-item" onclick="toggleTitleExpand('${r.id}')">
+                <strong>${escapeHtml(r.title)}</strong>
+                <span class="badge">${isOpen ? "Açıklamayı Gizle" : "Açıklama"}</span>
+              </div>
+              ${isOpen ? `
+                <div class="record-item" style="margin-top:-4px;">
+                  <div class="record-meta">
+                    <span class="badge">${escapeHtml(r.category)}</span>
+                    <span class="badge">${escapeHtml(r.group)}</span>
+                    <span class="badge user">Yükleyen Kişi: ${escapeHtml(r.uploadedBy)}</span>
+                    <span>Tarih/Saat: ${formatDateTr(r.uploadedAt)}</span>
+                  </div>
+                  <pre style="white-space:pre-wrap; font-family:inherit; margin:8px 0 0;">${escapeHtml(r.content)}</pre>
+                  <div class="actions">
+                    <button type="button" class="danger" onclick="deleteRecordFromModal('${r.id}')">Sil</button>
+                  </div>
+                </div>
+              ` : ""}
             </div>
-            <strong>${escapeHtml(r.title)}</strong>
-            <pre style="white-space:pre-wrap; font-family:inherit; margin:8px 0 0;">${escapeHtml(r.content)}</pre>
-            <div class="actions">
-              <button type="button" class="danger" onclick="deleteRecordFromModal('${r.id}')">Sil</button>
-            </div>
+          `;
+        }).join("");
+        return;
+      }
+
+      listEl.innerHTML = filtered.map(r => `
+        <div class="record-item">
+          <div class="record-meta">
+            <span class="badge">${escapeHtml(r.category)}</span>
+            <span class="badge">${escapeHtml(r.group)}</span>
+            <span class="badge user">Yükleyen Kişi: ${escapeHtml(r.uploadedBy)}</span>
+            <span>Yükleme Zamanı: ${formatDateTr(r.uploadedAt)}</span>
           </div>
-        `;
-      }).join("");
+          <div style="font-size:1rem; color:#ffffff; margin-bottom:6px;">
+            <strong>Başlık:</strong> ${escapeHtml(r.title)}
+          </div>
+          <div style="font-size:0.84rem; color:var(--neon-cyan); margin-bottom:4px;">
+            <strong>Açıklama / Detay:</strong>
+          </div>
+          <pre style="white-space:pre-wrap; font-family:inherit; margin:0; color:var(--text);">${escapeHtml(r.content)}</pre>
+          <div class="actions">
+            <button type="button" class="danger" onclick="deleteRecordFromModal('${r.id}')">Sil</button>
+          </div>
+        </div>
+      `).join("");
     }
 
     window.deleteRecordFromModal = async function(id) {
@@ -878,61 +1246,9 @@
       renderRecordsModalList();
     };
 
-    function startVoiceInput(targetTextarea, buttonEl, statusEl) {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) {
-        if (statusEl) statusEl.textContent = "Bu tarayıcıda sesli konuşma desteklenmiyor.";
-        return;
-      }
-
-      const recognition = new SpeechRecognition();
-      recognition.lang = "tr-TR";
-      recognition.interimResults = false;
-      recognition.maxAlternatives = 1;
-
-      buttonEl.classList.add("recording");
-      const originalText = buttonEl.textContent;
-      buttonEl.textContent = "🔴 Dinleniyor...";
-      if (statusEl) statusEl.textContent = "Konuşmaya başlayabilirsiniz...";
-
-      recognition.onresult = (event) => {
-        const transcript = event.results?.[0]?.[0]?.transcript || "";
-        if (transcript) {
-          const current = targetTextarea.value.trim();
-          targetTextarea.value = current ? `${current} ${transcript}` : transcript;
-          if (statusEl) statusEl.textContent = `Algılandı: "${transcript}"`;
-        }
-      };
-
-      recognition.onerror = (event) => {
-        if (statusEl) statusEl.textContent = `Sesli konuşma hatası: ${event.error || "algılanamadı"}`;
-      };
-
-      recognition.onend = () => {
-        buttonEl.classList.remove("recording");
-        buttonEl.textContent = originalText;
-      };
-
-      recognition.start();
-    }
-
-    document.getElementById("askMicBtn").addEventListener("click", () => {
-      startVoiceInput(
-        document.getElementById("questionInput"),
-        document.getElementById("askMicBtn"),
-        document.getElementById("askStatus")
-      );
-    });
-
-    document.getElementById("manualMicBtn").addEventListener("click", () => {
-      startVoiceInput(
-        document.getElementById("manualContent"),
-        document.getElementById("manualMicBtn"),
-        document.getElementById("manualStatus")
-      );
-    });
-
     document.getElementById("saveManualBtn").addEventListener("click", async () => {
+      const category = normalizeCategory(document.getElementById("manualCategory").value);
+      const group = (document.getElementById("manualGroup").value || "Geneli").trim() || "Geneli";
       const title = (document.getElementById("manualTitle").value || "Manuel Bilgi Kaydı").trim();
       const content = document.getElementById("manualContent").value.trim();
       const statusEl = document.getElementById("manualStatus");
@@ -946,8 +1262,8 @@
       const uploader = currentSession?.user || "Bilinmiyor";
       const newRec = {
         id: "rec_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
-        category: "Süreçler",
-        group: "Geneli",
+        category,
+        group,
         title,
         content,
         uploadedBy: uploader,
@@ -956,6 +1272,7 @@
       };
 
       await commitRecord(newRec);
+      document.getElementById("manualGroup").value = "";
       document.getElementById("manualTitle").value = "";
       document.getElementById("manualContent").value = "";
       statusEl.textContent = `Kaydedildi — Yükleyen Kişi: ${uploader} (${formatDateTr(nowIso)})`;
@@ -1511,7 +1828,7 @@ Kategoriyi yalnızca şu iki seçenekten birine göre belirle: "Parça Kodları"
 Ardından yalnızca şu JSON formatında yanıt ver (başka açıklama yazma):
 {
   "category": "Parça Kodları" veya "Süreçler",
-  "group": "Varsa ürün modeli veya kısa alt grup (örn: V15, V11, V16, Geneli)",
+  "group": "Varsa ürün modeli veya türü (örn: Temizlik, Kişisel Bakım, V15, V11, Geneli)",
   "title": "İçeriği özetleyen kısa ve net otomatik başlık",
   "content": "Görseldeki metnin tam ve düzenli dökümü"
 }`;
@@ -1599,18 +1916,20 @@ Ardından yalnızca şu JSON formatında yanıt ver (başka açıklama yazma):
       const statusEl = document.getElementById("askStatus");
       const areaEl = document.getElementById("answerArea");
 
-      if (!question) {
-        statusEl.textContent = "Lütfen bir soru yazın veya sesli konuşun.";
+      if (!question && !attachedQuestionPhoto) {
+        statusEl.textContent = "Lütfen bir soru yazın veya sorunun fotoğrafını ekleyin.";
         return;
       }
 
       if (!state.records.length) {
-        areaEl.innerHTML = `<div class="fs-alert">FS desteği alınması gerekir</div>`;
+        areaEl.innerHTML = `<div class="fs-alert">FS Desteği alınmalı</div>`;
         statusEl.textContent = "Kayıtlı bilgi bulunamadı.";
         return;
       }
 
-      statusEl.textContent = "Kayıtlı bilgiler kontrol ediliyor...";
+      statusEl.textContent = attachedQuestionPhoto
+        ? "Fotoğraf ve kayıtlı bilgiler inceleniyor..."
+        : "Kayıtlı bilgiler kontrol ediliyor...";
       areaEl.innerHTML = "";
 
       const contextText = state.records.map((raw, idx) => {
@@ -1618,25 +1937,55 @@ Ardından yalnızca şu JSON formatında yanıt ver (başka açıklama yazma):
         return `[KAYIT #${idx + 1} | Kategori: ${r.category} | Grup: ${r.group} | Yükleyen Kişi: ${r.uploadedBy} | Yükleme Zamanı: ${formatDateTr(r.uploadedAt)} | Başlık: ${r.title}]\n${r.content}`;
       }).join("\n\n---\n\n");
 
-      const sysRule = `Sen bir teknik destek eşleştirme asistanısın.
-KESİN KURAL:
-1. Yalnızca sana aşağıda verilen KAYITLAR içindeki bilgilere dayan. Kendi genel bilginden veya tahmininden ASLA cevap üretme.
-2. Kullanıcının sorusu, modeli veya parça koduyla doğrudan ilgili bilgi KAYITLAR içinde YOKSA veya yetersizse, başka hiçbir şey yazmadan TAM OLARAK şu metni döndür:
-FS desteği alınması gerekir
-3. Kayıtlarda doğrudan karşılığı VARSA:
-- İlgili kayıt başlıklarını, yükleyen kişiyi, yükleme tarih/saatini ve ilgili bilgileri belirt.
-- En sonda yalnızca bu kayıtlara dayanan kısa (1-3 cümle) "Yapılması gereken" özeti yaz.`;
+      const sysRule = `Sen bir servis ve teknik destek kayıt eşleştirme asistanısın.
+KESİN KURALLAR:
+1. Yalnızca sana aşağıda verilen KAYITLAR içindeki bilgilere dayan. Genel dünyadaki bilginden veya uydurma bir tahminden ASLA yanıt üretme; sadece KAYITLAR içindeki seçeneklere dayan.
+2. Görsel verilmişse görseldeki metni, parça kodunu, hata kodunu veya soruyu dikkate al.
+3. KAYITLAR içinde konuyla ilgili hiçbir seçenek/bilgi yoksa, başka hiçbir şey yazmadan TAM OLARAK şu ifadeyi döndür:
+FS Desteği alınmalı
+4. KAYITLAR içinde net/güçlü eşleşme varsa:
+- İlgili kayıt başlıklarını, yükleyen kişiyi, yükleme tarih/saatini ve kayıttaki bilgileri açıkla.
+- En sonda yalnızca bu kayıtlara dayanan kısa "Yapılması gereken" özeti yaz.
+5. KAYITLAR içinde doğrudan tam eşleşme olmayıp yalnızca düşük ihtimalli bir seçenek varsa (örneğin %15-%45 arası ihtimal):
+- Uydurma bilgi üretmeden, kayıtlardaki o seçeneği seç ve TAM OLARAK şu yapıyla sun:
+Tahmin: (%XX ihtimal) — [İlgili Kayıt Başlığı / Yükleyen Kişi / Tarih-Saat]
+[Kayıttaki ilgili bilgi ve kısa özet]`;
+
+      const parts = [];
+      if (attachedQuestionPhoto && attachedQuestionPhoto.base64) {
+        parts.push({
+          inlineData: {
+            mimeType: attachedQuestionPhoto.mimeType || "image/jpeg",
+            data: attachedQuestionPhoto.base64
+          }
+        });
+      }
+      parts.push({
+        text: `KAYITLAR:\n${contextText}\n\nMÜŞTERİ SORUSU / İNCELEME:\n${question || "(Görseldeki soru/parça/hata incelensin)"}\n\nEğer görselde okunan bir metin veya kod varsa önce kısaca belirt, ardından kurallara göre yanıtla.`
+      });
 
       try {
-        const reply = await callGemini([
-          { text: `KAYITLAR:\n${contextText}\n\nSORU:\n${question}` }
-        ], sysRule);
-
+        const reply = await callGemini(parts, sysRule);
         const clean = reply.trim();
-        if (clean.includes("FS desteği alınması gerekir") && clean.length < 120) {
-          areaEl.innerHTML = `<div class="fs-alert">FS desteği alınması gerekir</div>`;
+
+        if (/^FS Desteği alınmalı$/i.test(clean) || (clean.includes("FS Desteği alınmalı") && clean.length < 60)) {
+          areaEl.innerHTML = `<div class="fs-alert">FS Desteği alınmalı</div>`;
+        } else if (/^Tahmin:/i.test(clean) || clean.includes("Tahmin:")) {
+          areaEl.innerHTML = `
+            <div class="card">
+              <h2>Düşük İhtimalli Eşleşme</h2>
+              <div class="guess-box">
+                <pre style="white-space:pre-wrap; font-family:inherit; margin:0; color:#fde68a;">${escapeHtml(clean)}</pre>
+              </div>
+            </div>`;
         } else {
-          areaEl.innerHTML = `<div class="card"><h2>Eşleşen Kayıtlar ve Yönlendirme</h2><div class="summary-box"><pre style="white-space:pre-wrap; font-family:inherit; margin:0;">${escapeHtml(clean)}</pre></div></div>`;
+          areaEl.innerHTML = `
+            <div class="card">
+              <h2>Eşleşen Kayıtlar ve Çözüm Yönlendirmesi</h2>
+              <div class="summary-box">
+                <pre style="white-space:pre-wrap; font-family:inherit; margin:0;">${escapeHtml(clean)}</pre>
+              </div>
+            </div>`;
         }
         statusEl.textContent = "Tamamlandı.";
       } catch (err) {
@@ -1646,6 +1995,7 @@ FS desteği alınması gerekir
 
     document.getElementById("clearAskBtn").addEventListener("click", () => {
       document.getElementById("questionInput").value = "";
+      clearQuestionPhoto();
       document.getElementById("answerArea").innerHTML = "";
       document.getElementById("askStatus").textContent = "";
     });
