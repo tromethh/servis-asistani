@@ -34,7 +34,7 @@
       position: sticky;
       top: 0;
       z-index: 20;
-      background: rgba(15, 17, 21, 0.92);
+      background: rgba(15, 17, 21, 0.94);
       backdrop-filter: blur(8px);
       border-bottom: 1px solid var(--border);
       padding: 12px 16px;
@@ -114,7 +114,36 @@
     main {
       max-width: 980px;
       margin: 18px auto;
-      padding: 0 16px 60px;
+      padding: 0 16px 120px;
+    }
+    .center-hero {
+      min-height: calc(100vh - 230px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 20px 12px;
+    }
+    .hero-prompt-btn {
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      color: #fff;
+      border: 1px solid rgba(147, 197, 253, 0.4);
+      border-radius: 999px;
+      padding: 16px 26px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      box-shadow: 0 12px 30px rgba(37, 99, 235, 0.35);
+      cursor: pointer;
+    }
+    .hero-prompt-btn:hover {
+      background: linear-gradient(135deg, #1d4ed8, #2563eb);
+    }
+    .hero-sub {
+      color: var(--muted);
+      font-size: 0.88rem;
+      margin-top: 10px;
+      max-width: 440px;
     }
     .gate-wrap {
       max-width: 520px;
@@ -182,6 +211,19 @@
     button.secondary:hover { background: #262d3a; }
     button.danger { background: var(--danger); color: #fff; }
     button.warn { background: #d97706; color: #fff; }
+    button.mic-btn {
+      background: var(--panel-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    button.mic-btn.recording {
+      background: var(--danger-bg);
+      color: #fca5a5;
+      border-color: var(--danger);
+    }
     .fs-alert {
       background: var(--danger-bg);
       border: 1px solid var(--danger);
@@ -271,6 +313,61 @@
     .hidden { display: none !important; }
     .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
 
+    .bottom-cam-dock {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      z-index: 35;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .cam-fab {
+      width: 62px;
+      height: 62px;
+      border-radius: 999px;
+      background: var(--accent);
+      color: #fff;
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      cursor: pointer;
+    }
+    .cam-fab:hover {
+      background: var(--accent-hover);
+    }
+    .cam-menu {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 8px;
+      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.6);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 200px;
+    }
+    .cam-menu-btn {
+      width: 100%;
+      text-align: left;
+      background: var(--panel-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .cam-menu-btn:hover {
+      background: #272f3d;
+    }
+
     .toast-stack {
       position: fixed;
       top: 72px;
@@ -331,7 +428,6 @@
         <span id="currentUserBadge" class="user-pill hidden">Kullanıcı: -</span>
         <span id="headerSyncStatus" class="sync-pill">Yerel mod</span>
         <button id="notifToggleBtn" type="button" class="notif-btn ok hidden">Bildirimler (0)</button>
-        <button id="logoutBtn" type="button" class="secondary hidden" style="padding:5px 10px; font-size:0.8rem;">Çıkış / Anahtar Değiştir</button>
       </div>
     </div>
     <nav id="appTabs" class="tabs hidden">
@@ -357,6 +453,37 @@
     </div>
   </div>
 
+  <div id="textEntryModal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px;">
+        <h2 style="margin:0;">Metin Yaz ve Kaydet</h2>
+        <button id="closeTextModalBtn" type="button" class="secondary">Kapat</button>
+      </div>
+      <div class="row">
+        <div>
+          <label for="manualCategory">Kategori</label>
+          <select id="manualCategory">
+            <option value="Parça Kodları">Parça Kodları</option>
+            <option value="Süreçler">Süreçler</option>
+          </select>
+        </div>
+        <div>
+          <label for="manualGroup">Model / Alt Grup</label>
+          <input id="manualGroup" type="text" placeholder="Örn: V15, Geneli..." />
+        </div>
+      </div>
+      <label for="manualTitle">Başlık</label>
+      <input id="manualTitle" type="text" placeholder="Kısa başlık girin..." style="margin-bottom:12px;" />
+      <label for="manualContent">Bilgi / Metin</label>
+      <textarea id="manualContent" placeholder="Kaydedilecek metni yazın veya sesli dikte kullanın..."></textarea>
+      <div class="actions">
+        <button id="manualMicBtn" type="button" class="mic-btn">🎤 Sesli Yaz</button>
+        <button id="saveManualBtn" type="button">Kaydet</button>
+      </div>
+      <div id="manualStatus" class="status-msg"></div>
+    </div>
+  </div>
+
   <div id="authGate" class="gate-wrap">
     <div class="gate-card">
       <h2 class="gate-title">Giriş Anahtarı Girilmesi Gerekmektedir</h2>
@@ -374,7 +501,14 @@
 
   <main id="appMain" class="hidden">
     <section id="tab-sor" class="tab-panel">
-      <div class="card">
+      <div id="centerAskHero" class="center-hero">
+        <button id="openAskBoxBtn" type="button" class="hero-prompt-btn">Buradan soru sorabilirsiniz</button>
+        <p class="hero-sub">
+          Yazarak veya sesli konuşarak soru sorabilir, alttaki kamera simgesinden fotoğraf çekebilir, yükleyebilir veya metin ekleyebilirsiniz.
+        </p>
+      </div>
+
+      <div id="askFormCard" class="card hidden">
         <h2>Müşteri / Çalışan Sorusu</h2>
         <div class="row">
           <div>
@@ -391,8 +525,9 @@
           </div>
         </div>
         <label for="questionInput">Soru / Model / Parça Kodu</label>
-        <textarea id="questionInput" placeholder="Soruyu, cihaz modelini veya parça kodunu yazın..."></textarea>
+        <textarea id="questionInput" placeholder="Soruyu, cihaz modelini veya parça kodunu yazın ya da mikrofona konuşun..."></textarea>
         <div class="actions">
+          <button id="askMicBtn" type="button" class="mic-btn">🎤 Sesli Konuş</button>
           <button id="askBtn" type="button">Kayıtlarda Ara ve Yanıtla</button>
           <button id="clearAskBtn" type="button" class="secondary">Temizle</button>
         </div>
@@ -477,6 +612,21 @@
     </section>
   </main>
 
+  <div id="bottomCamDock" class="bottom-cam-dock hidden">
+    <div id="camActionMenu" class="cam-menu hidden">
+      <button id="menuTakePhotoBtn" type="button" class="cam-menu-btn">📷 Fotoğraf Çek</button>
+      <button id="menuUploadPhotoBtn" type="button" class="cam-menu-btn">🖼️ Fotoğraf Yükle</button>
+      <button id="menuWriteTextBtn" type="button" class="cam-menu-btn">✍️ Metin Yaz</button>
+    </div>
+    <button id="camFabBtn" type="button" class="cam-fab" aria-label="Kamera ve Bilgi İşlemleri">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+        <circle cx="12" cy="13" r="4"></circle>
+      </svg>
+    </button>
+    <input id="cameraCaptureInput" type="file" accept="image/*" capture="environment" class="hidden" />
+  </div>
+
   <script>
     const GEMINI_FALLBACK_MODELS = [
       "gemini-2.5-flash",
@@ -539,7 +689,7 @@
       const tabs = document.getElementById("appTabs");
       const userBadge = document.getElementById("currentUserBadge");
       const notifBtn = document.getElementById("notifToggleBtn");
-      const logoutBtn = document.getElementById("logoutBtn");
+      const dock = document.getElementById("bottomCamDock");
 
       if (currentSession && currentSession.apiKey && currentSession.user) {
         gate.classList.add("hidden");
@@ -547,7 +697,7 @@
         tabs.classList.remove("hidden");
         userBadge.classList.remove("hidden");
         notifBtn.classList.remove("hidden");
-        logoutBtn.classList.remove("hidden");
+        dock.classList.remove("hidden");
         userBadge.textContent = `Kullanıcı: ${currentSession.user}`;
         updateNotifButton();
         syncFromCloud();
@@ -557,7 +707,7 @@
         tabs.classList.add("hidden");
         userBadge.classList.add("hidden");
         notifBtn.classList.add("hidden");
-        logoutBtn.classList.add("hidden");
+        dock.classList.add("hidden");
         closeFailedModal();
       }
     }
@@ -590,10 +740,167 @@
       }
     });
 
-    document.getElementById("logoutBtn").addEventListener("click", () => {
-      clearSession();
-      document.getElementById("gateError").textContent = "";
-      applyAuthState();
+    function switchTab(target) {
+      document.querySelectorAll(".tab-btn").forEach(b => {
+        b.classList.toggle("active", b.dataset.tab === target);
+      });
+      document.querySelectorAll(".tab-panel").forEach(p => p.classList.add("hidden"));
+      document.getElementById("tab-" + target).classList.remove("hidden");
+      if (target === "gruplar") {
+        syncFromCloud().then(renderRecords);
+      }
+    }
+
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+    });
+
+    const openAskBoxBtn = document.getElementById("openAskBoxBtn");
+    const askFormCard = document.getElementById("askFormCard");
+    const centerAskHero = document.getElementById("centerAskHero");
+
+    openAskBoxBtn.addEventListener("click", () => {
+      centerAskHero.classList.add("hidden");
+      askFormCard.classList.remove("hidden");
+      document.getElementById("questionInput").focus();
+    });
+
+    const camFabBtn = document.getElementById("camFabBtn");
+    const camActionMenu = document.getElementById("camActionMenu");
+    const cameraCaptureInput = document.getElementById("cameraCaptureInput");
+
+    camFabBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      camActionMenu.classList.toggle("hidden");
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!camActionMenu.classList.contains("hidden") && !e.target.closest("#bottomCamDock")) {
+        camActionMenu.classList.add("hidden");
+      }
+    });
+
+    document.getElementById("menuTakePhotoBtn").addEventListener("click", () => {
+      camActionMenu.classList.add("hidden");
+      cameraCaptureInput.click();
+    });
+
+    document.getElementById("menuUploadPhotoBtn").addEventListener("click", () => {
+      camActionMenu.classList.add("hidden");
+      switchTab("yukle");
+      document.getElementById("photoInput").click();
+    });
+
+    const textEntryModal = document.getElementById("textEntryModal");
+    document.getElementById("menuWriteTextBtn").addEventListener("click", () => {
+      camActionMenu.classList.add("hidden");
+      document.getElementById("manualStatus").textContent = "";
+      textEntryModal.classList.remove("hidden");
+      document.getElementById("manualTitle").focus();
+    });
+
+    document.getElementById("closeTextModalBtn").addEventListener("click", () => {
+      textEntryModal.classList.add("hidden");
+    });
+
+    cameraCaptureInput.addEventListener("change", async (e) => {
+      const files = e.target.files ? Array.from(e.target.files) : [];
+      if (!files.length) return;
+      switchTab("yukle");
+      await runImageBatch(files);
+      cameraCaptureInput.value = "";
+    });
+
+    function startVoiceInput(targetTextarea, buttonEl, statusEl) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        if (statusEl) statusEl.textContent = "Bu tarayıcıda sesli konuşma desteklenmiyor.";
+        return;
+      }
+
+      const recognition = new SpeechRecognition();
+      recognition.lang = "tr-TR";
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      buttonEl.classList.add("recording");
+      const originalText = buttonEl.textContent;
+      buttonEl.textContent = "🔴 Dinleniyor...";
+      if (statusEl) statusEl.textContent = "Konuşmaya başlayabilirsiniz...";
+
+      recognition.onresult = (event) => {
+        const transcript = event.results?.[0]?.[0]?.transcript || "";
+        if (transcript) {
+          const current = targetTextarea.value.trim();
+          targetTextarea.value = current ? `${current} ${transcript}` : transcript;
+          if (statusEl) statusEl.textContent = `Algılandı: "${transcript}"`;
+        }
+      };
+
+      recognition.onerror = (event) => {
+        if (statusEl) statusEl.textContent = `Sesli konuşma hatası: ${event.error || "algılanamadı"}`;
+      };
+
+      recognition.onend = () => {
+        buttonEl.classList.remove("recording");
+        buttonEl.textContent = originalText;
+      };
+
+      recognition.start();
+    }
+
+    document.getElementById("askMicBtn").addEventListener("click", () => {
+      startVoiceInput(
+        document.getElementById("questionInput"),
+        document.getElementById("askMicBtn"),
+        document.getElementById("askStatus")
+      );
+    });
+
+    document.getElementById("manualMicBtn").addEventListener("click", () => {
+      startVoiceInput(
+        document.getElementById("manualContent"),
+        document.getElementById("manualMicBtn"),
+        document.getElementById("manualStatus")
+      );
+    });
+
+    document.getElementById("saveManualBtn").addEventListener("click", async () => {
+      const category = normalizeCategory(document.getElementById("manualCategory").value);
+      const group = (document.getElementById("manualGroup").value || "Geneli").trim() || "Geneli";
+      const title = (document.getElementById("manualTitle").value || "Manuel Bilgi Kaydı").trim();
+      const content = document.getElementById("manualContent").value.trim();
+      const statusEl = document.getElementById("manualStatus");
+
+      if (!content) {
+        statusEl.textContent = "Lütfen kaydedilecek bilgi metnini yazın.";
+        return;
+      }
+
+      const nowIso = new Date().toISOString();
+      const uploader = currentSession?.user || "Bilinmiyor";
+      const newRec = {
+        id: "rec_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
+        category,
+        group,
+        title,
+        content,
+        uploadedBy: uploader,
+        uploadedAt: nowIso,
+        updatedAt: nowIso
+      };
+
+      await commitRecord(newRec);
+      document.getElementById("manualGroup").value = "";
+      document.getElementById("manualTitle").value = "";
+      document.getElementById("manualContent").value = "";
+      statusEl.textContent = `Kaydedildi (${uploader} — ${formatDateTr(nowIso)}).`;
+      if (!document.getElementById("tab-gruplar").classList.contains("hidden")) {
+        renderRecords();
+      }
+      setTimeout(() => {
+        textEntryModal.classList.add("hidden");
+      }, 600);
     });
 
     function renderUploadQueue() {
@@ -990,20 +1297,7 @@
 
     document.getElementById("refreshBtn").addEventListener("click", () => syncFromCloud().then(renderRecords));
 
-    document.querySelectorAll(".tab-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        const target = btn.dataset.tab;
-        document.querySelectorAll(".tab-panel").forEach(p => p.classList.add("hidden"));
-        document.getElementById("tab-" + target).classList.remove("hidden");
-        if (target === "gruplar") {
-          syncFromCloud().then(renderRecords);
-        }
-      });
-    });
-
-    function optimizeImageFile(file, maxSide = 1280, quality = 0.78) {
+    function optimizeImageFile(file, maxSide = 1152, quality = 0.75) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onerror = reject;
@@ -1037,10 +1331,12 @@
             ctx.drawImage(img, 0, 0, width, height);
             const compressedDataUrl = canvas.toDataURL("image/jpeg", quality);
             const base64 = compressedDataUrl.split(",")[1] || "";
+            const approxKb = Math.round((base64.length * 3) / 4 / 1024);
             resolve({
               dataUrl: compressedDataUrl,
               base64,
-              mimeType: "image/jpeg"
+              mimeType: "image/jpeg",
+              approxKb
             });
           };
           img.src = rawDataUrl;
@@ -1167,8 +1463,9 @@
       } catch {}
     }
 
-    async function processImagePayload(fileName, mimeType, base64, dataUrl, queueId = null) {
-      if (queueId) updateQueueItem(queueId, "processing", "OCR ve kategori ayrıştırma yapılıyor...");
+    async function processImagePayload(fileName, mimeType, base64, dataUrl, queueId = null, approxKb = null) {
+      const kbText = approxKb ? ` (~${approxKb} KB sıkıştırıldı)` : "";
+      if (queueId) updateQueueItem(queueId, "processing", `OCR ve kategori ayrıştırma yapılıyor${kbText}...`);
       try {
         const prompt = `Bu görseldeki tüm metni eksiksiz yazıya dök. Parça kodlarını, model adlarını ve soru-cevap yapısını koru.
 Kategoriyi yalnızca şu iki seçenekten birine göre belirle: "Parça Kodları" veya "Süreçler".
@@ -1212,11 +1509,8 @@ Ardından yalnızca şu JSON formatında yanıt ver (başka açıklama yazma):
       }
     }
 
-    document.getElementById("sendPhotosBtn").addEventListener("click", async () => {
-      const fileInput = document.getElementById("photoInput");
+    async function runImageBatch(files) {
       const statusEl = document.getElementById("uploadStatus");
-      const files = fileInput.files ? Array.from(fileInput.files) : [];
-
       if (!files.length) {
         statusEl.textContent = "Lütfen önce en az bir görsel seçin.";
         return;
@@ -1228,19 +1522,19 @@ Ardından yalnızca şu JSON formatında yanıt ver (başka açıklama yazma):
         queueId: addQueueItem(f.name)
       }));
 
-      statusEl.textContent = `${batchItems.length} görsel sıraya alındı, işleniyor...`;
-      fileInput.value = "";
+      statusEl.textContent = `${batchItems.length} görsel sıraya alındı, sıkıştırılıp işleniyor...`;
 
       for (const entry of batchItems) {
-        updateQueueItem(entry.queueId, "processing", "Görsel telefon ağına uygun boyuta getiriliyor...");
+        updateQueueItem(entry.queueId, "processing", "Fotoğraf sıkıştırılıyor...");
         try {
-          const { dataUrl, base64, mimeType } = await optimizeImageFile(entry.file, 1280, 0.78);
+          const { dataUrl, base64, mimeType, approxKb } = await optimizeImageFile(entry.file, 1152, 0.75);
           await processImagePayload(
             entry.file.name,
             mimeType,
             base64,
             dataUrl,
-            entry.queueId
+            entry.queueId,
+            approxKb
           );
         } catch (err) {
           recordFailure(entry.file.name, entry.file.type || "image/jpeg", "", "", err.message);
@@ -1254,10 +1548,17 @@ Ardından yalnızca şu JSON formatında yanıt ver (başka açıklama yazma):
       }).length;
 
       if (batchErrors === 0) {
-        statusEl.textContent = "Tüm görseller otomatik olarak kaydedildi.";
+        statusEl.textContent = "Tüm görseller sıkıştırılıp otomatik olarak kaydedildi.";
       } else {
         statusEl.textContent = `${batchErrors} görsel tamamlanamadı; Yükleme Sırası ve sağ üstteki bildirimden kontrol edebilirsiniz.`;
       }
+    }
+
+    document.getElementById("sendPhotosBtn").addEventListener("click", async () => {
+      const fileInput = document.getElementById("photoInput");
+      const files = fileInput.files ? Array.from(fileInput.files) : [];
+      fileInput.value = "";
+      await runImageBatch(files);
     });
 
     function renderRecords() {
