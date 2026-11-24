@@ -2724,6 +2724,47 @@ Kayıttaki "Yapılması gereken" adımlar.`;
     box-shadow: 0 0 18px rgba(0, 240, 255, 0.22);
   }
 
+  /* Sağ üstte diğer kişilerin aktif molalarını gösteren küçük rozet */
+  #vardiyaEkipMolaRozet {
+    position: fixed;
+    top: 58px;
+    right: 14px;
+    z-index: 42;
+    background: rgba(17, 15, 26, 0.94);
+    border: 1px solid var(--neon-purple-bright);
+    box-shadow: 0 0 14px rgba(157, 78, 221, 0.35);
+    border-radius: 999px;
+    padding: 5px 12px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--neon-cyan);
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+  }
+
+  #vardiyaEkipMolaRozet:hover {
+    transform: translateY(-1px);
+    border-color: var(--neon-cyan);
+  }
+
+  .vardiya-ekip-satir {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .vardiya-ekip-satir.expired {
+    animation: vardiyaBlinkRed 0.9s infinite;
+  }
+
   #vardiyaFloatingWidget {
     position: fixed;
     right: 14px;
@@ -2776,7 +2817,8 @@ Kayıttaki "Yapılması gereken" adımlar.`;
     font-variant-numeric: tabular-nums;
   }
 
-  #vardiyaSayacModalBackdrop {
+  #vardiyaSayacModalBackdrop,
+  #vardiyaEkipMolaModalBackdrop {
     position: fixed;
     inset: 0;
     background: rgba(4, 3, 8, 0.8);
@@ -2870,6 +2912,20 @@ Kayıttaki "Yapılması gereken" adımlar.`;
     font-size: 0.84rem;
   }
 </style>
+
+<div id="vardiyaEkipMolaRozet" class="hidden" title="Moladaki kişilerin kalan süresini görmek için tıklayın">
+  ☕ Molada: -
+</div>
+
+<div id="vardiyaEkipMolaModalBackdrop" class="hidden">
+  <div class="vardiya-plan-card" style="max-width:440px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px;">
+      <strong style="color:var(--neon-cyan); font-size:0.98rem;">Aktif Molalar & Kalan Süreler</strong>
+      <button id="vardiyaEkipMolaKapatBtn" type="button" class="secondary" style="padding:6px 10px; font-size:0.8rem;">Kapat</button>
+    </div>
+    <div id="vardiyaEkipMolaListe"></div>
+  </div>
+</div>
 
 <div id="vardiyaFloatingWidget" class="hidden" title="Büyütmek için tıklayın">
   <div class="vardiya-fw-label">
@@ -2967,12 +3023,15 @@ Kayıttaki "Yapılması gereken" adımlar.`;
 (function () {
   const VARDIYA_STORAGE_KEY = "servis_asistani_vardiyalar_v1";
   const SAYAC_STORAGE_KEY = "servis_asistani_aktif_mola_v1";
+  const EKIP_MOLA_STORAGE_KEY = "servis_asistani_ekip_molalar_v1";
   const YEMEK_SANIYE = 50 * 60;
   const MOLA_SANIYE = 10 * 60;
 
   let vardiyaKayitlari = [];
   let aktifSayac = null;
+  let ekipMolalar = [];
   let sayacInterval = null;
+  let syncTimer = null;
 
   function vardiyaAktifKullanici() {
     try {
@@ -3002,6 +3061,176 @@ Kayıttaki "Yapılması gereken" adımlar.`;
     try {
       localStorage.setItem(VARDIYA_STORAGE_KEY, JSON.stringify(vardiyaKayitlari));
     } catch {}
+  }
+
+  function ekipMolaYerelYukle() {
+    try {
+      const raw = localStorage.getItem(EKIP_MOLA_STORAGE_KEY);
+      const arr = raw ? JSON.parse(raw) : [];
+      ekipMolalar = Array.isArray(arr) ? arr : [];
+    } catch {
+      ekipMolalar = [];
+    }
+  }
+
+  function ekipMolaYerelKaydet() {
+    try {
+      localStorage.setItem(EKIP_MOLA_STORAGE_KEY, JSON.stringify(ekipMolalar));
+    } catch {}
+  }
+
+  async function aktifMolayiBulutaYaz(molaObj) {
+    ekipMolaYerelYukle();
+    ekipMolalar = ekipMolalar.filter(x => x.kisi !== molaObj.kisi);
+    ekipMolalar.push(molaObj);
+    ekipMolaYerelKaydet();
+    ekipMolaArayuzunuGuncelle();
+
+    if (typeof getSbConfig !== "function") return;
+    const cfg = getSbConfig();
+    if (!cfg) return;
+    const id = `aktif_mola_${molaObj.kisi}`;
+    const payload = [{
+      id,
+      category: "AktifMola",
+      group: molaObj.kisi,
+      title: `${molaObj.kisi} - ${molaObj.tur}`,
+      content: JSON.stringify(molaObj),
+      updated_at: new Date().toISOString()
+    }];
+    try {
+      await fetch(`${cfg.url}/rest/v1/records`, {
+        method: "POST",
+        headers: {
+          "apikey": cfg.key,
+          "Authorization": `Bearer ${cfg.key}`,
+          "Content-Type": "application/json",
+          "Prefer": "resolution=merge-duplicates"
+        },
+        body: JSON.stringify(payload)
+      });
+    } catch {}
+  }
+
+  async function aktifMolayiBuluttanSil(kisi) {
+    ekipMolaYerelYukle();
+    ekipMolalar = ekipMolalar.filter(x => x.kisi !== kisi);
+    ekipMolaYerelKaydet();
+    ekipMolaArayuzunuGuncelle();
+
+    if (typeof getSbConfig !== "function") return;
+    const cfg = getSbConfig();
+    if (!cfg) return;
+    const id = `aktif_mola_${kisi}`;
+    try {
+      await fetch(`${cfg.url}/rest/v1/records?id=eq.${encodeURIComponent(id)}`, {
+        method: "DELETE",
+        headers: {
+          "apikey": cfg.key,
+          "Authorization": `Bearer ${cfg.key}`
+        }
+      });
+    } catch {}
+  }
+
+  async function aktifMolalariBuluttanCek() {
+    if (typeof getSbConfig !== "function") {
+      ekipMolaArayuzunuGuncelle();
+      return;
+    }
+    const cfg = getSbConfig();
+    if (!cfg) {
+      ekipMolaArayuzunuGuncelle();
+      return;
+    }
+    try {
+      const res = await fetch(`${cfg.url}/rest/v1/records?category=eq.${encodeURIComponent("AktifMola")}&order=updated_at.desc`, {
+        headers: {
+          "apikey": cfg.key,
+          "Authorization": `Bearer ${cfg.key}`
+        }
+      });
+      if (!res.ok) return;
+      const rows = await res.json();
+      const simdi = Date.now();
+      const liste = [];
+      for (const row of rows) {
+        try {
+          const parsed = JSON.parse(row.content || "{}");
+          if (parsed && parsed.kisi && parsed.startMs && parsed.durationSec) {
+            const gecen = Math.max(0, Math.floor((simdi - parsed.startMs) / 1000));
+            // 4 saatten eski unutulmuş kayıtları temizle
+            if (gecen < parsed.durationSec + 4 * 3600) {
+              liste.push(parsed);
+            }
+          }
+        } catch {}
+      }
+      ekipMolalar = liste;
+      ekipMolaYerelKaydet();
+      ekipMolaArayuzunuGuncelle();
+    } catch {}
+  }
+
+  function molaSureDetayiHesapla(molaObj) {
+    const gecenToplam = Math.max(0, Math.floor((Date.now() - molaObj.startMs) / 1000));
+    const kalan = molaObj.durationSec - gecenToplam;
+    const suresiDoldu = kalan <= 0;
+    const fazlaGecen = suresiDoldu ? Math.abs(kalan) : 0;
+    return {
+      suresiDoldu,
+      kalanStr: formatMMSS(kalan),
+      gecenStr: formatMMSS(fazlaGecen)
+    };
+  }
+
+  function ekipMolaArayuzunuGuncelle() {
+    const rozet = document.getElementById("vardiyaEkipMolaRozet");
+    if (!rozet) return;
+
+    const digerMolalar = ekipMolalar.filter(m => m.kisi !== vardiyaAktifKullanici());
+    if (!digerMolalar.length) {
+      rozet.classList.add("hidden");
+    } else {
+      rozet.classList.remove("hidden");
+      const ozetler = digerMolalar.map(m => {
+        const d = molaSureDetayiHesapla(m);
+        return d.suresiDoldu
+          ? `${m.kisi} (${m.tur}: +${d.gecenStr} geçti)`
+          : `${m.kisi} (${m.tur}: ${d.kalanStr} kaldı)`;
+      });
+      rozet.textContent = `☕ Molada: ${ozetler.join(" • ")}`;
+    }
+
+    const modalAcik = !document.getElementById("vardiyaEkipMolaModalBackdrop").classList.contains("hidden");
+    if (modalAcik) {
+      ekipMolaModalListesiniCiz();
+    }
+  }
+
+  function ekipMolaModalListesiniCiz() {
+    const listeEl = document.getElementById("vardiyaEkipMolaListe");
+    if (!listeEl) return;
+
+    if (!ekipMolalar.length) {
+      listeEl.innerHTML = `<p class="status-msg" style="margin:0;">Şu an aktif molada olan kimse görünmüyor.</p>`;
+      return;
+    }
+
+    listeEl.innerHTML = ekipMolalar.map(m => {
+      const d = molaSureDetayiHesapla(m);
+      return `
+        <div class="vardiya-ekip-satir ${d.suresiDoldu ? "expired" : ""}">
+          <div>
+            <strong style="color:#ffffff;">${m.kisi}</strong>
+            <span class="badge" style="margin-left:6px;">${m.tur}</span>
+          </div>
+          <div style="font-weight:800; font-variant-numeric:tabular-nums; color:${d.suresiDoldu ? "#ffffff" : "var(--neon-cyan)"};">
+            ${d.suresiDoldu ? `Süre doldu • Geçen: +${d.gecenStr}` : `Kalan: ${d.kalanStr}`}
+          </div>
+        </div>
+      `;
+    }).join("");
   }
 
   async function vardiyaBuluttanSenkronizeEt() {
@@ -3131,19 +3360,23 @@ Kayıttaki "Yapılması gereken" adımlar.`;
     return null;
   }
 
-  function vardiyaSayacBaslat(tur, sureSaniye) {
+  async function vardiyaSayacBaslat(tur, sureSaniye) {
+    const kisi = vardiyaAktifKullanici();
     aktifSayac = {
+      kisi,
       tur,
       durationSec: sureSaniye,
       startMs: Date.now()
     };
     sayacKaydet();
+    await aktifMolayiBulutaYaz(aktifSayac);
     sayacTick();
     if (sayacInterval) clearInterval(sayacInterval);
     sayacInterval = setInterval(sayacTick, 500);
   }
 
-  function vardiyaSayacBitir() {
+  async function vardiyaSayacBitir() {
+    const kisi = aktifSayac?.kisi || vardiyaAktifKullanici();
     aktifSayac = null;
     sayacKaydet();
     if (sayacInterval) {
@@ -3154,9 +3387,12 @@ Kayıttaki "Yapılması gereken" adımlar.`;
     document.getElementById("vardiyaFloatingWidget").classList.remove("expired");
     document.getElementById("vardiyaSayacModalBackdrop").classList.add("hidden");
     document.getElementById("vardiyaSayacModalCard").classList.remove("expired");
+    await aktifMolayiBuluttanSil(kisi);
   }
 
   function sayacTick() {
+    ekipMolaArayuzunuGuncelle();
+
     const fw = document.getElementById("vardiyaFloatingWidget");
     const mc = document.getElementById("vardiyaSayacModalCard");
     if (!aktifSayac) {
@@ -3245,13 +3481,29 @@ Kayıttaki "Yapılması gereken" adımlar.`;
   document.addEventListener("DOMContentLoaded", () => {
     vardiyaAnaEkranaYerlestir();
     vardiyaYerelYukle();
+    ekipMolaYerelYukle();
     vardiyaBuluttanSenkronizeEt();
+    aktifMolalariBuluttanCek();
 
     aktifSayac = sayacYukle();
     if (aktifSayac) {
       sayacTick();
       sayacInterval = setInterval(sayacTick, 500);
+    } else {
+      ekipMolaArayuzunuGuncelle();
     }
+
+    syncTimer = setInterval(aktifMolalariBuluttanCek, 5000);
+
+    document.getElementById("vardiyaEkipMolaRozet").addEventListener("click", async () => {
+      await aktifMolalariBuluttanCek();
+      ekipMolaModalListesiniCiz();
+      document.getElementById("vardiyaEkipMolaModalBackdrop").classList.remove("hidden");
+    });
+
+    document.getElementById("vardiyaEkipMolaKapatBtn").addEventListener("click", () => {
+      document.getElementById("vardiyaEkipMolaModalBackdrop").classList.add("hidden");
+    });
 
     document.getElementById("vardiyaFloatingWidget").addEventListener("click", () => {
       sayacTick();
@@ -3262,8 +3514,8 @@ Kayıttaki "Yapılması gereken" adımlar.`;
       document.getElementById("vardiyaSayacModalBackdrop").classList.add("hidden");
     });
 
-    document.getElementById("vardiyaErkenBitirBtn").addEventListener("click", () => {
-      vardiyaSayacBitir();
+    document.getElementById("vardiyaErkenBitirBtn").addEventListener("click", async () => {
+      await vardiyaSayacBitir();
     });
 
     document.getElementById("vardiyaPlanKapatBtn").addEventListener("click", () => {
