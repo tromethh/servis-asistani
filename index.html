@@ -3689,3 +3689,246 @@ Kayıttaki "Yapılması gereken" adımlar.`;
   setInterval(ikiDakikaKontrolEt, 500);
 })();
 </script>
+<style id="son-bilgi-kart-style">
+  #sonBilgiUstKart {
+    width: 100%;
+    max-width: 440px;
+    background: linear-gradient(155deg, rgba(17, 15, 26, 0.96), rgba(25, 22, 38, 0.94));
+    border: 1.5px solid var(--neon-cyan);
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.22), inset 0 0 14px rgba(157, 78, 221, 0.14);
+    border-radius: 16px;
+    padding: 12px 15px;
+    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    user-select: none;
+  }
+
+  #sonBilgiUstKart:hover {
+    transform: translateY(-2px);
+    border-color: var(--neon-purple-bright);
+    box-shadow: 0 0 26px rgba(0, 240, 255, 0.36), 0 0 24px rgba(157, 78, 221, 0.28);
+  }
+
+  .son-bilgi-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 0.76rem;
+  }
+
+  .son-bilgi-etiket {
+    color: var(--neon-cyan);
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+
+  .son-bilgi-ipucu {
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  .son-bilgi-baslik {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0 0 8px;
+    word-break: break-word;
+  }
+
+  .son-bilgi-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  #sonBilgiDetayBackdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(4, 3, 8, 0.8);
+    backdrop-filter: blur(5px);
+    z-index: 70;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+
+  #sonBilgiDetayCard {
+    background: var(--panel);
+    border: 1.5px solid var(--neon-cyan);
+    box-shadow: 0 0 30px rgba(0, 240, 255, 0.28);
+    border-radius: 16px;
+    max-width: 620px;
+    width: 100%;
+    max-height: 86vh;
+    overflow-y: auto;
+    padding: 18px;
+  }
+</style>
+
+<div id="sonBilgiDetayBackdrop" class="hidden">
+  <div id="sonBilgiDetayCard">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px;">
+      <strong style="color:var(--neon-cyan); font-size:1rem;">Son Eklenen Bilgi Detayı</strong>
+      <button id="sonBilgiDetayKapatBtn" type="button" class="secondary" style="padding:6px 12px; font-size:0.82rem;">Kapat</button>
+    </div>
+    <div id="sonBilgiDetayIcerik"></div>
+  </div>
+</div>
+
+<script id="son-bilgi-kart-script">
+(function () {
+  let guncelSonKayit = null;
+
+  function enSonKaydiBul() {
+    if (!window.state || !Array.isArray(window.state.records) || !window.state.records.length) {
+      return null;
+    }
+    const normal = window.state.records.map(r =>
+      typeof normalizeRecord === "function" ? normalizeRecord(r) : r
+    );
+    normal.sort((a, b) => {
+      const tA = new Date(a.uploadedAt || a.updatedAt || 0).getTime() || 0;
+      const tB = new Date(b.uploadedAt || b.updatedAt || 0).getTime() || 0;
+      return tB - tA;
+    });
+    return normal[0] || null;
+  }
+
+  function formatTarihSaat(rec) {
+    const raw = rec?.uploadedAt || rec?.updatedAt;
+    if (typeof formatDateTr === "function") {
+      return formatDateTr(raw);
+    }
+    try {
+      return new Date(raw || Date.now()).toLocaleString("tr-TR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    } catch {
+      return "";
+    }
+  }
+
+  function esc(str) {
+    if (typeof escapeHtml === "function") return escapeHtml(str ?? "");
+    return String(str ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function sonBilgiKartiniYerlestirVeGuncelle() {
+    const stage = document.getElementById("centerHomeStage");
+    const pair = stage ? stage.querySelector(".square-pair") : null;
+    if (!stage || !pair) return;
+
+    let kart = document.getElementById("sonBilgiUstKart");
+    if (!kart) {
+      kart = document.createElement("div");
+      kart.id = "sonBilgiUstKart";
+      kart.title = "Açıklamasını görmek için tıklayın";
+      kart.addEventListener("click", () => {
+        if (!guncelSonKayit) return;
+        sonBilgiModalAc(guncelSonKayit);
+      });
+      stage.insertBefore(kart, pair);
+    }
+
+    const sonKayit = enSonKaydiBul();
+    guncelSonKayit = sonKayit;
+
+    if (!sonKayit) {
+      kart.innerHTML = `
+        <div class="son-bilgi-top">
+          <span class="son-bilgi-etiket">Son Eklenen Bilgi</span>
+          <span class="son-bilgi-ipucu">Kayıt bekleniyor</span>
+        </div>
+        <div class="son-bilgi-baslik">Henüz eklenmiş bir bilgi yok</div>
+        <div class="son-bilgi-meta">
+          <span>Yeni bilgi eklendiğinde burada anlık görünür.</span>
+        </div>
+      `;
+      return;
+    }
+
+    const kisi = sonKayit.uploadedBy || "Bilinmiyor";
+    const tarihSaat = formatTarihSaat(sonKayit);
+
+    kart.innerHTML = `
+      <div class="son-bilgi-top">
+        <span class="son-bilgi-etiket">Son Eklenen Bilgi</span>
+        <span class="son-bilgi-ipucu">Açıklama için tıkla ↗</span>
+      </div>
+      <div class="son-bilgi-baslik">${esc(sonKayit.title || "Başlıksız Kayıt")}</div>
+      <div class="son-bilgi-meta">
+        <span class="badge user">Ekleyen: ${esc(kisi)}</span>
+        <span>🕒 ${esc(tarihSaat)}</span>
+      </div>
+    `;
+  }
+
+  function sonBilgiModalAc(rec) {
+    const backdrop = document.getElementById("sonBilgiDetayBackdrop");
+    const icerik = document.getElementById("sonBilgiDetayIcerik");
+    if (!backdrop || !icerik || !rec) return;
+
+    const kisi = rec.uploadedBy || "Bilinmiyor";
+    const tarihSaat = formatTarihSaat(rec);
+
+    icerik.innerHTML = `
+      <div class="record-meta" style="margin-bottom:10px;">
+        <span class="badge">${esc(rec.category || "Genel")}</span>
+        <span class="badge">${esc(rec.group || "Geneli")}</span>
+        <span class="badge user">Ekleyen: ${esc(kisi)}</span>
+        <span>🕒 ${esc(tarihSaat)}</span>
+      </div>
+      <div style="font-size:1.12rem; font-weight:800; color:#ffffff; margin-bottom:10px;">
+        ${esc(rec.title || "Başlıksız Kayıt")}
+      </div>
+      <div style="font-size:0.84rem; color:var(--neon-cyan); font-weight:700; margin-bottom:6px;">
+        Açıklama / İçerik
+      </div>
+      <div class="record-item" style="margin-bottom:0;">
+        <pre style="white-space:pre-wrap; font-family:inherit; margin:0; color:var(--text);">${esc(rec.content || "Açıklama bulunmuyor.")}</pre>
+      </div>
+    `;
+
+    backdrop.classList.remove("hidden");
+  }
+
+  function sonBilgiModalKapat() {
+    const backdrop = document.getElementById("sonBilgiDetayBackdrop");
+    if (backdrop) backdrop.classList.add("hidden");
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    sonBilgiKartiniYerlestirVeGuncelle();
+
+    document.getElementById("sonBilgiDetayKapatBtn")?.addEventListener("click", sonBilgiModalKapat);
+    document.getElementById("sonBilgiDetayBackdrop")?.addEventListener("click", (e) => {
+      if (e.target.id === "sonBilgiDetayBackdrop") {
+        sonBilgiModalKapat();
+      }
+    });
+
+    // Kayıt eklendiğinde veya buluttan çekildiğinde anlık yakalamak için periyodik + DOM gözlemi
+    setInterval(sonBilgiKartiniYerlestirVeGuncelle, 600);
+  });
+
+  const sonBilgiObserver = new MutationObserver(() => {
+    sonBilgiKartiniYerlestirVeGuncelle();
+  });
+  sonBilgiObserver.observe(document.body, { childList: true, subtree: true });
+})();
+</script>
