@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Servis Bilgi & FS Asistanı</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --panel: #171a21;
+      --panel-2: #1f242e;
+      --text: #eef1f6;
+      --muted: #9aa3b2;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --danger: #ef4444;
+      --danger-bg: rgba(239, 68, 68, 0.14);
+      --warn: #f59e0b;
+      --warn-bg: rgba(245, 158, 11, 0.14);
+      --ok: #22c55e;
+      --border: #2b3240;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(15, 17, 21, 0.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 16px;
+    }
+    .header-top {
+      max-width: 980px;
+      margin: 0 auto 10px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    h1 { font-size: 1.05rem; margin: 0; }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .sync-pill {
+      font-size: 0.8rem;
+      color: var(--muted);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 5px 10px;
+      border-radius: 999px;
+    }
+    .notif-btn {
+      background: var(--danger-bg);
+      color: #fca5a5;
+      border: 1px solid var(--danger);
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .notif-btn.ok {
+      background: var(--panel-2);
+      color: var(--muted);
+      border-color: var(--border);
+      font-weight: 600;
+    }
+    .tabs {
+      max-width: 980px;
+      margin: 0 auto;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+    }
+    .tab-btn {
+      background: var(--panel);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 8px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      white-space: nowrap;
+    }
+    .tab-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    main {
+      max-width: 980px;
+      margin: 18px auto;
+      padding: 0 16px 60px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .card h2 { font-size: 1rem; margin: 0 0 12px; }
+    label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    input, select, textarea {
+      width: 100%;
+      background: var(--panel-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      font-family: inherit;
+    }
+    textarea { min-height: 100px; resize: vertical; }
+    .row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    button {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    button:hover { background: var(--accent-hover); }
+    button.secondary {
+      background: var(--panel-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    button.secondary:hover { background: #262d3a; }
+    button.danger { background: var(--danger); color: #fff; }
+    button.warn { background: #d97706; color: #fff; }
+    .fs-alert {
+      background: var(--danger-bg);
+      border: 1px solid var(--danger);
+      color: #fca5a5;
+      padding: 16px;
+      border-radius: var(--radius);
+      font-weight: 700;
+      font-size: 1.05rem;
+    }
+    .summary-box {
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.4);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-top: 12px;
+    }
+    .record-item {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+    .record-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .badge {
+      background: rgba(59, 130, 246, 0.18);
+      color: #93c5fd;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+    .badge.err {
+      background: var(--danger-bg);
+      color: #fca5a5;
+    }
+    .status-msg { font-size: 0.85rem; color: var(--muted); margin-top: 8px; }
+    .hidden { display: none !important; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+
+    .toast-stack {
+      position: fixed;
+      top: 72px;
+      right: 16px;
+      z-index: 40;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-width: 340px;
+    }
+    .toast-box {
+      background: var(--panel);
+      border: 1px solid var(--danger);
+      border-left: 4px solid var(--danger);
+      border-radius: 10px;
+      padding: 12px 14px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.45);
+      cursor: pointer;
+    }
+    .toast-title { font-weight: 700; color: #fca5a5; font-size: 0.92rem; }
+    .toast-sub { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.65);
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      max-width: 560px;
+      width: 100%;
+      max-height: 88vh;
+      overflow-y: auto;
+      padding: 18px;
+    }
+    .preview-img {
+      max-width: 100%;
+      max-height: 260px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      margin-top: 8px;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-top">
+      <h1>Servis Bilgi & FS Asistanı</h1>
+      <div class="header-right">
+        <span id="headerSyncStatus" class="sync-pill">Yerel mod</span>
+        <button id="notifToggleBtn" type="button" class="notif-btn ok">Bildirimler (0)</button>
+      </div>
+    </div>
+    <nav class="tabs">
+      <button class="tab-btn active" data-tab="sor">Soru Sor</button>
+      <button class="tab-btn" data-tab="yukle">Görsel Gönder</button>
+      <button class="tab-btn" data-tab="gruplar">Gruplar & Kayıtlar</button>
+      <button class="tab-btn" data-tab="yedek">Yedekleme</button>
+    </nav>
+  </header>
+
+  <div id="toastStack" class="toast-stack"></div>
+
+  <div id="failedModal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+        <h2 style="margin:0;">Tamamlanamayan İşlemler</h2>
+        <button id="closeModalBtn" type="button" class="secondary">Kapat</button>
+      </div>
+      <div class="actions" style="margin-bottom:12px;">
+        <button id="modalBulkDeleteBtn" type="button" class="danger">İşleme Alınamayanları Toplu Sil</button>
+      </div>
+      <div id="failedList"></div>
+    </div>
+  </div>
+
+  <main>
+    <section id="tab-sor" class="tab-panel">
+      <div class="card">
+        <h2>Müşteri / Çalışan Sorusu</h2>
+        <div class="row">
+          <div>
+            <label for="askCategory">Kategori Filtresi (İsteğe Bağlı)</label>
+            <select id="askCategory">
+              <option value="">Tüm Kategoriler</option>
+              <option value="Parça Kodları">Parça Kodları</option>
+              <option value="Süreçler">Süreçler</option>
+            </select>
+          </div>
+          <div>
+            <label for="askGroup">Model / Alt Grup (İsteğe Bağlı, örn. V15)</label>
+            <input id="askGroup" type="text" placeholder="Örn: V15, V11, V16..." />
+          </div>
+        </div>
+        <label for="questionInput">Soru / Model / Parça Kodu</label>
+        <textarea id="questionInput" placeholder="Soruyu, cihaz modelini veya parça kodunu yazın..."></textarea>
+        <div class="actions">
+          <button id="askBtn" type="button">Kayıtlarda Ara ve Yanıtla</button>
+          <button id="clearAskBtn" type="button" class="secondary">Temizle</button>
+        </div>
+        <div id="askStatus" class="status-msg"></div>
+      </div>
+
+      <div id="answerArea"></div>
+    </section>
+
+    <section id="tab-yukle" class="tab-panel hidden">
+      <div class="card">
+        <h2>Görsel Yükle ve Gönder</h2>
+        <p style="color:var(--muted); font-size:0.88rem; margin-top:0;">
+          Görseli seçip <strong>Gönder</strong> butonuna basın. Kategori (<strong>Parça Kodları</strong> veya <strong>Süreçler</strong>), başlık ve metin ayrıştırma arka planda otomatik tamamlanıp doğrudan kaydedilir.
+        </p>
+
+        <label for="photoInput">Görsel Seç (Birden fazla seçebilirsiniz)</label>
+        <input id="photoInput" type="file" accept="image/*" multiple />
+
+        <div class="actions">
+          <button id="sendPhotosBtn" type="button">Gönder</button>
+          <button id="bulkDeleteFailedYukleBtn" type="button" class="danger">İşleme Alınamayanları Toplu Sil</button>
+        </div>
+        <div id="uploadStatus" class="status-msg"></div>
+      </div>
+    </section>
+
+    <section id="tab-gruplar" class="tab-panel hidden">
+      <div class="card">
+        <h2>Kayıtlı Gruplar ve Bilgiler</h2>
+        <div class="row">
+          <div>
+            <label for="filterCategory">Kategori</label>
+            <select id="filterCategory">
+              <option value="">Tümü</option>
+              <option value="Parça Kodları">Parça Kodları</option>
+              <option value="Süreçler">Süreçler</option>
+            </select>
+          </div>
+          <div>
+            <label for="filterGroup">Alt Grup / Model</label>
+            <input id="filterGroup" type="text" placeholder="Örn: V15" />
+          </div>
+          <div>
+            <label for="filterSearch">Kelime Ara</label>
+            <input id="filterSearch" type="text" placeholder="Parça kodu, kelime..." />
+          </div>
+        </div>
+        <div class="actions">
+          <button id="refreshBtn" type="button" class="secondary">Kayıtları Yenile</button>
+          <button id="bulkDeleteFailedGruplarBtn" type="button" class="danger">İşleme Alınamayanları Toplu Sil</button>
+        </div>
+      </div>
+      <div id="recordsList"></div>
+    </section>
+
+    <section id="tab-yedek" class="tab-panel hidden">
+      <div class="card">
+        <h2>Veri Yedekleme ve Geri Yükleme</h2>
+        <p style="color:var(--muted); font-size:0.9rem;">
+          Kayıtlarınız sabit şema (<code>v1</code>) ile tutulur. Düzenli JSON yedeği alarak güvenliği artırabilirsiniz.
+        </p>
+        <div class="actions">
+          <button id="exportBtn" type="button" class="secondary">JSON Yedeği İndir</button>
+          <label class="secondary" style="padding:10px 14px; border-radius:8px; cursor:pointer; margin:0;">
+            JSON Yedeği Yükle
+            <input id="importInput" type="file" accept="application/json" style="display:none;" />
+          </label>
+        </div>
+        <div id="backupStatus" class="status-msg"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // =========================================================================
+    // KOD İÇİ AYARLAR VE ANAHTARLAR (Değişiklik gerektiğinde buradan güncelleyin)
+    // =========================================================================
+    const GEMINI_API_KEY = "AQ.Ab8RN6LWkKWJoluirxCAo6CuAHKrejOQRdSGpn-pFLnbMVqHAA";
+
+    const GEMINI_FALLBACK_MODELS = [
+      "gemini-3.5-flash-lite",
+      "gemini-3.8-flash",
+      "gemini-3.5-flash",
+      "gemini-2.5-flash",
+      "gemini-2.5-flash-lite",
+      "gemini-2.0-flash",
+      "gemini-2.0-flash-lite"
+    ];
+
+    const SUPABASE_URL = "https://oojtiixfmwdnvpimbtlm.supabase.co";
+    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_0LCNWLQnZflockS_Jaaquw_cgSS5Suv";
+    // =========================================================================
+
+    const STORAGE_KEY = "servis_asistani_v1";
+    const FAILED_STORAGE_KEY = "servis_asistani_failed_v1";
+
+    function normalizeCategory(cat) {
+      if (cat === "Parça Kodları") return "Parça Kodları";
+      return "Süreçler";
+    }
+
+    function formatDateTr(isoStr) {
+      try {
+        return new Date(isoStr || Date.now()).toLocaleString("tr-TR");
+      } catch {
+        return "";
+      }
+    }
+
+    function loadLocalState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return { schemaVersion: 1, records: [] };
+        const parsed = JSON.parse(raw);
+        const recs = Array.isArray(parsed.records)
+          ? parsed.records.map(r => ({ ...r, category: normalizeCategory(r.category) }))
+          : [];
+        return { schemaVersion: 1, records: recs };
+      } catch {
+        return { schemaVersion: 1, records: [] };
+      }
+    }
+
+    function saveLocalState(s) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        schemaVersion: 1,
+        records: s.records
+      }));
+    }
+
+    function loadFailedJobs() {
+      try {
+        const raw = localStorage.getItem(FAILED_STORAGE_KEY);
+        const arr = raw ? JSON.parse(raw) : [];
+        return Array.isArray(arr) ? arr.filter(j => j && j.id) : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveFailedJobs(jobs) {
+      try {
+        localStorage.setItem(FAILED_STORAGE_KEY, JSON.stringify(jobs));
+      } catch {
+        const slim = jobs.map(j => ({ ...j, imageDataUrl: "" }));
+        localStorage.setItem(FAILED_STORAGE_KEY, JSON.stringify(slim));
+      }
+      updateNotifButton();
+    }
+
+    let state = loadLocalState();
+    let failedJobs = loadFailedJobs();
+
+    function updateNotifButton() {
+      const btn = document.getElementById("notifToggleBtn");
+      if (!btn) return;
+      const count = failedJobs.length;
+      btn.textContent = count > 0 ? `İşlem tamamlanamadı (${count})` : "Bildirimler (0)";
+      btn.classList.toggle("ok", count === 0);
+    }
+
+    function pushTopRightToast(job) {
+      const stack = document.getElementById("toastStack");
+      if (!stack) return;
+      const div = document.createElement("div");
+      div.className = "toast-box";
+      div.innerHTML = `
+        <div class="toast-title">İşlem tamamlanamadı</div>
+        <div class="toast-sub">${escapeHtml(job.fileName || "Görsel")} — Detay ve seçenekler için tıklayın</div>
+      `;
+      div.addEventListener("click", () => {
+        div.remove();
+        openFailedModal(job.id, true);
+      });
+      stack.prepend(div);
+      setTimeout(() => {
+        if (div.parentNode) div.remove();
+      }, 9000);
+    }
+
+    function recordFailure(fileName, mimeType, base64, dataUrl, reason) {
+      const job = {
+        id: "fail_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
+        fileName,
+        mimeType: mimeType || "image/jpeg",
+        base64,
+        imageDataUrl: dataUrl || "",
+        reason: reason || "İşlem tamamlanamadı.",
+        createdAt: new Date().toISOString()
+      };
+      failedJobs.unshift(job);
+      saveFailedJobs(failedJobs);
+      pushTopRightToast(job);
+    }
+
+    function renderFailedListHtml(focusId = null) {
+      if (!failedJobs.length) {
+        return `<p style="color:var(--muted); margin:0;">Tamamlanamayan işlem bulunmuyor.</p>`;
+      }
+      return failedJobs.map(j => `
+        <div class="record-item" style="${focusId === j.id ? 'border-color:var(--danger);' : ''}">
+          <div class="record-meta">
+            <span class="badge err">İşlem Tamamlanamadı</span>
+            <span>${escapeHtml(j.fileName || "Görsel")}</span>
+            <span>${formatDateTr(j.createdAt)}</span>
+          </div>
+          <div style="font-size:0.88rem; color:#fca5a5; margin-top:6px;">
+            <strong>Neden:</strong> ${escapeHtml(j.reason)}
+          </div>
+          ${j.imageDataUrl ? `<img class="preview-img" src="${j.imageDataUrl}" alt="Yüklenen görsel" />` : ""}
+          <div class="actions">
+            <button type="button" class="warn" onclick="retryFailedJob('${j.id}')">Tekrar Dene</button>
+            <button type="button" class="danger" onclick="deleteFailedJob('${j.id}')">Sil</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function openFailedModal(focusId = null, forceOpen = false) {
+      if (!failedJobs.length && !forceOpen) return;
+      const modal = document.getElementById("failedModal");
+      const list = document.getElementById("failedList");
+      list.innerHTML = renderFailedListHtml(focusId);
+      modal.classList.remove("hidden");
+    }
+
+    function closeFailedModal() {
+      document.getElementById("failedModal").classList.add("hidden");
+    }
+
+    document.getElementById("notifToggleBtn").addEventListener("click", () => {
+      if (!failedJobs.length) return;
+      openFailedModal(null, false);
+    });
+    document.getElementById("closeModalBtn").addEventListener("click", closeFailedModal);
+
+    window.deleteFailedJob = function(id) {
+      failedJobs = failedJobs.filter(j => j.id !== id);
+      saveFailedJobs(failedJobs);
+      if (!failedJobs.length) {
+        closeFailedModal();
+      } else {
+        document.getElementById("failedList").innerHTML = renderFailedListHtml();
+      }
+      if (!document.getElementById("tab-gruplar").classList.contains("hidden")) {
+        renderRecords();
+      }
+    };
+
+    window.retryFailedJob = async function(id) {
+      const job = failedJobs.find(j => j.id === id);
+      if (!job || !job.base64) {
+        alert("Bu kayıt için görsel verisi bulunamadı.");
+        return;
+      }
+      failedJobs = failedJobs.filter(j => j.id !== id);
+      saveFailedJobs(failedJobs);
+      closeFailedModal();
+      await processImagePayload(job.fileName, job.mimeType, job.base64, job.imageDataUrl);
+    };
+
+    async function bulkDeleteUnprocessed() {
+      failedJobs = [];
+      saveFailedJobs(failedJobs);
+      const errorIds = state.records
+        .filter(r => r.category === "İşleme Alınamayanlar" || /işlem tamamlanamadı|hiçbir model işlemi tamamlayamadı/i.test(r.content || ""))
+        .map(r => r.id);
+
+      if (errorIds.length > 0) {
+        state.records = state.records.filter(r => !errorIds.includes(r.id));
+        saveLocalState(state);
+        for (const id of errorIds) {
+          try { await sbDeleteRecord(id); } catch {}
+        }
+      }
+
+      document.getElementById("uploadStatus").textContent = "İşleme alınamayan tüm kayıtlar ve bildirimler silindi.";
+      closeFailedModal();
+      if (!document.getElementById("tab-gruplar").classList.contains("hidden")) {
+        renderRecords();
+      }
+    }
+
+    document.getElementById("modalBulkDeleteBtn").addEventListener("click", bulkDeleteUnprocessed);
+    document.getElementById("bulkDeleteFailedYukleBtn").addEventListener("click", bulkDeleteUnprocessed);
+    document.getElementById("bulkDeleteFailedGruplarBtn").addEventListener("click", bulkDeleteUnprocessed);
+
+    function getSbConfig() {
+      const url = (SUPABASE_URL || "").trim().replace(/\/+$/, "");
+      const key = (SUPABASE_PUBLISHABLE_KEY || "").trim();
+      return (url && key) ? { url, key } : null;
+    }
+
+    function setSyncBadge(text) {
+      const el = document.getElementById("headerSyncStatus");
+      if (el) el.textContent = text;
+    }
+
+    async function sbFetchRecords() {
+      const cfg = getSbConfig();
+      if (!cfg) return null;
+      const res = await fetch(`${cfg.url}/rest/v1/records?select=*&order=updated_at.desc`, {
+        headers: {
+          "apikey": cfg.key,
+          "Authorization": `Bearer ${cfg.key}`
+        }
+      });
+      if (!res.ok) throw new Error(`Supabase okuma hatası (${res.status})`);
+      const rows = await res.json();
+      return rows.map(row => ({
+        id: row.id,
+        category: normalizeCategory(row.category),
+        group: row.group,
+        title: row.title,
+        content: row.content,
+        updatedAt: row.updated_at || new Date().toISOString()
+      }));
+    }
+
+    async function sbUpsertRecords(recs) {
+      const cfg = getSbConfig();
+      if (!cfg || !recs.length) return;
+      const payload = recs.map(r => ({
+        id: r.id,
+        category: normalizeCategory(r.category),
+        group: r.group,
+        title: r.title,
+        content: r.content,
+        updated_at: r.updatedAt
+      }));
+      const res = await fetch(`${cfg.url}/rest/v1/records`, {
+        method: "POST",
+        headers: {
+          "apikey": cfg.key,
+          "Authorization": `Bearer ${cfg.key}`,
+          "Content-Type": "application/json",
+          "Prefer": "resolution=merge-duplicates"
+        },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error(`Supabase yazma hatası (${res.status})`);
+    }
+
+    async function sbDeleteRecord(id) {
+      const cfg = getSbConfig();
+      if (!cfg) return;
+      const res = await fetch(`${cfg.url}/rest/v1/records?id=eq.${encodeURIComponent(id)}`, {
+        method: "DELETE",
+        headers: {
+          "apikey": cfg.key,
+          "Authorization": `Bearer ${cfg.key}`
+        }
+      });
+      if (!res.ok) throw new Error(`Supabase silme hatası (${res.status})`);
+    }
+
+    async function syncFromCloud() {
+      const cfg = getSbConfig();
+      if (!cfg) {
+        setSyncBadge("Yerel mod");
+        return;
+      }
+      try {
+        const remote = await sbFetchRecords();
+        state.records = remote;
+        saveLocalState(state);
+        setSyncBadge(`Ortak DB bağlı (${remote.length})`);
+        if (!document.getElementById("tab-gruplar").classList.contains("hidden")) {
+          renderRecords();
+        }
+      } catch {
+        setSyncBadge("Yerel yedek aktif");
+      }
+    }
+
+    document.getElementById("refreshBtn").addEventListener("click", () => syncFromCloud().then(renderRecords));
+
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        const target = btn.dataset.tab;
+        document.querySelectorAll(".tab-panel").forEach(p => p.classList.add("hidden"));
+        document.getElementById("tab-" + target).classList.remove("hidden");
+        if (target === "gruplar") {
+          syncFromCloud().then(renderRecords);
+        }
+      });
+    });
+
+    function readFileAsDataUrlAndBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const dataUrl = reader.result;
+          const base64 = String(dataUrl).split(",")[1];
+          resolve({ dataUrl, base64 });
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function trySingleModel(apiKey, modelName, parts, systemInstruction) {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelName)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+      const body = {
+        contents: [{ role: "user", parts }],
+        systemInstruction: systemInstruction ? { parts: [{ text: systemInstruction }] } : undefined
+      };
+
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error?.message || `API hatası (${res.status})`);
+      }
+      const text = data.candidates?.[0]?.content?.parts?.map(p => p.text || "").join("") || "";
+      if (!text.trim()) {
+        throw new Error("Boş yanıt döndü.");
+      }
+      return text;
+    }
+
+    async function callGemini(parts, systemInstruction) {
+      const apiKey = (GEMINI_API_KEY || "").trim();
+      if (!apiKey) throw new Error("Kod içindeki GEMINI_API_KEY alanı boş.");
+
+      const models = Array.isArray(GEMINI_FALLBACK_MODELS) && GEMINI_FALLBACK_MODELS.length
+        ? GEMINI_FALLBACK_MODELS
+        : ["gemini-3.5-flash-lite", "gemini-3.8-flash"];
+
+      const errors = [];
+      for (let i = 0; i < models.length; i++) {
+        const modelName = models[i];
+        try {
+          return await trySingleModel(apiKey, modelName, parts, systemInstruction);
+        } catch (err) {
+          const isHighDemand = /high demand|overloaded|429|503/i.test(err.message);
+          if (isHighDemand) {
+            await sleep(1500);
+            try {
+              return await trySingleModel(apiKey, modelName, parts, systemInstruction);
+            } catch (retryErr) {
+              errors.push(`${modelName}: ${retryErr.message}`);
+            }
+          } else {
+            errors.push(`${modelName}: ${err.message}`);
+          }
+        }
+      }
+
+      throw new Error(`Hiçbir model işlemi tamamlayamadı. ${errors.join(" | ")}`);
+    }
+
+    function parseAutoClassification(rawText, fallbackFileName) {
+      const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        try {
+          const obj = JSON.parse(jsonMatch[0]);
+          const category = normalizeCategory(obj.category);
+          const group = String(obj.group || "Geneli").trim() || "Geneli";
+          const title = String(obj.title || fallbackFileName || "Otomatik Kayıt").trim();
+          const content = String(obj.content || rawText).trim();
+          return { category, group, title, content };
+        } catch {}
+      }
+      return {
+        category: "Süreçler",
+        group: "Geneli",
+        title: (fallbackFileName || "Kayıt").replace(/\.[^.]+$/, ""),
+        content: rawText.trim()
+      };
+    }
+
+    async function commitRecord(newRec) {
+      const normalizedRec = { ...newRec, category: normalizeCategory(newRec.category) };
+      state.records.unshift(normalizedRec);
+      saveLocalState(state);
+      try {
+        await sbUpsertRecords([normalizedRec]);
+      } catch {}
+    }
+
+    async function processImagePayload(fileName, mimeType, base64, dataUrl) {
+      try {
+        const prompt = `Bu görseldeki tüm metni eksiksiz yazıya dök. Parça kodlarını, model adlarını ve soru-cevap yapısını koru.
+Kategoriyi yalnızca şu iki seçenekten birine göre belirle: "Parça Kodları" veya "Süreçler".
+Ardından yalnızca şu JSON formatında yanıt ver (başka açıklama yazma):
+{
+  "category": "Parça Kodları" veya "Süreçler",
+  "group": "Varsa ürün modeli veya kısa alt grup (örn: V15, V11, V16, Geneli)",
+  "title": "İçeriği özetleyen kısa ve net otomatik başlık",
+  "content": "Görseldeki metnin tam ve düzenli dökümü"
+}`;
+
+        const rawReply = await callGemini([
+          { inlineData: { mimeType: mimeType || "image/jpeg", data: base64 } },
+          { text: prompt }
+        ]);
+
+        const parsed = parseAutoClassification(rawReply, fileName);
+        const newRec = {
+          id: "rec_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
+          category: parsed.category,
+          group: parsed.group,
+          title: parsed.title,
+          content: parsed.content,
+          updatedAt: new Date().toISOString()
+        };
+
+        await commitRecord(newRec);
+      } catch (err) {
+        recordFailure(fileName, mimeType, base64, dataUrl, err.message);
+      }
+    }
+
+    document.getElementById("sendPhotosBtn").addEventListener("click", async () => {
+      const fileInput = document.getElementById("photoInput");
+      const statusEl = document.getElementById("uploadStatus");
+      const files = fileInput.files ? Array.from(fileInput.files) : [];
+
+      if (!files.length) {
+        statusEl.textContent = "Lütfen önce en az bir görsel seçin.";
+        return;
+      }
+
+      statusEl.textContent = "Gönderildi, otomatik işlenip kaydediliyor...";
+      fileInput.value = "";
+
+      for (const file of files) {
+        const { dataUrl, base64 } = await readFileAsDataUrlAndBase64(file);
+        await processImagePayload(file.name, file.type || "image/jpeg", base64, dataUrl);
+      }
+
+      if (failedJobs.length === 0) {
+        statusEl.textContent = "Tüm görseller otomatik olarak kaydedildi.";
+      } else {
+        statusEl.textContent = "Bazı görseller kaydedilemedi; sağ üstteki bildirime tıklayabilirsiniz.";
+      }
+    });
+
+    function renderRecords() {
+      const cat = document.getElementById("filterCategory").value;
+      const grp = document.getElementById("filterGroup").value.trim().toLowerCase();
+      const q = document.getElementById("filterSearch").value.trim().toLowerCase();
+      const listEl = document.getElementById("recordsList");
+
+      const filtered = state.records.filter(r => {
+        const recCat = normalizeCategory(r.category);
+        if (cat && recCat !== cat) return false;
+        if (grp && !r.group.toLowerCase().includes(grp)) return false;
+        if (q && !(r.title.toLowerCase().includes(q) || r.content.toLowerCase().includes(q) || r.group.toLowerCase().includes(q))) return false;
+        return true;
+      });
+
+      if (!filtered.length) {
+        listEl.innerHTML = `<div class="card"><p style="color:var(--muted); margin:0;">Filtreye uygun kayıt bulunamadı.</p></div>`;
+        return;
+      }
+
+      listEl.innerHTML = filtered.map(r => `
+        <div class="record-item">
+          <div class="record-meta">
+            <span class="badge">${escapeHtml(normalizeCategory(r.category))}</span>
+            <span class="badge">${escapeHtml(r.group)}</span>
+            <span>Yükleme Tarihi: ${formatDateTr(r.updatedAt)}</span>
+          </div>
+          <strong>${escapeHtml(r.title)}</strong>
+          <pre style="white-space:pre-wrap; font-family:inherit; margin:8px 0 0;">${escapeHtml(r.content)}</pre>
+          <div class="actions">
+            <button type="button" class="danger" onclick="deleteRecord('${r.id}')">Sil</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    window.deleteRecord = async function(id) {
+      state.records = state.records.filter(r => r.id !== id);
+      saveLocalState(state);
+      try { await sbDeleteRecord(id); } catch {}
+      renderRecords();
+    };
+
+    ["filterCategory", "filterGroup", "filterSearch"].forEach(id => {
+      document.getElementById(id).addEventListener("input", renderRecords);
+      document.getElementById(id).addEventListener("change", renderRecords);
+    });
+
+    document.getElementById("askBtn").addEventListener("click", async () => {
+      await syncFromCloud();
+      const question = document.getElementById("questionInput").value.trim();
+      const catFilter = document.getElementById("askCategory").value;
+      const grpFilter = document.getElementById("askGroup").value.trim().toLowerCase();
+      const statusEl = document.getElementById("askStatus");
+      const areaEl = document.getElementById("answerArea");
+
+      if (!question) {
+        statusEl.textContent = "Lütfen bir soru, model veya parça kodu girin.";
+        return;
+      }
+
+      const pool = state.records.filter(r => {
+        const recCat = normalizeCategory(r.category);
+        if (catFilter && recCat !== catFilter) return false;
+        if (grpFilter && !r.group.toLowerCase().includes(grpFilter)) return false;
+        return true;
+      });
+
+      if (!pool.length) {
+        areaEl.innerHTML = `<div class="fs-alert">FS desteği alınması gerekir</div>`;
+        statusEl.textContent = "Seçili filtrelerde kayıt bulunamadı.";
+        return;
+      }
+
+      statusEl.textContent = "Kayıtlı bilgiler kontrol ediliyor...";
+      areaEl.innerHTML = "";
+
+      const contextText = pool.map((r, idx) =>
+        `[KAYIT #${idx + 1} | Kategori: ${normalizeCategory(r.category)} | Grup: ${r.group} | Yükleme Tarihi: ${formatDateTr(r.updatedAt)} | Başlık: ${r.title}]\n${r.content}`
+      ).join("\n\n---\n\n");
+
+      const sysRule = `Sen bir teknik destek eşleştirme asistanısın.
+KESİN KURAL:
+1. Yalnızca sana aşağıda verilen KAYITLAR içindeki bilgilere dayan. Kendi genel bilginden veya tahmininden ASLA cevap üretme.
+2. Kullanıcının sorusu, modeli veya parça koduyla doğrudan ilgili bilgi KAYITLAR içinde YOKSA veya yetersizse, başka hiçbir şey yazmadan TAM OLARAK şu metni döndür:
+FS desteği alınması gerekir
+3. Kayıtlarda doğrudan karşılığı VARSA:
+- İlgili kayıt başlıklarını, yükleme tarihlerini ve ilgili bilgileri belirt.
+- En sonda yalnızca bu kayıtlara dayanan kısa (1-3 cümle) "Yapılması gereken" özeti yaz.`;
+
+      try {
+        const reply = await callGemini([
+          { text: `KAYITLAR:\n${contextText}\n\nSORU / ARAMA:\n${question}` }
+        ], sysRule);
+
+        const clean = reply.trim();
+        if (clean.includes("FS desteği alınması gerekir") && clean.length < 120) {
+          areaEl.innerHTML = `<div class="fs-alert">FS desteği alınması gerekir</div>`;
+        } else {
+          areaEl.innerHTML = `<div class="card"><h2>Eşleşen Kayıtlar ve Yönlendirme</h2><div class="summary-box"><pre style="white-space:pre-wrap; font-family:inherit; margin:0;">${escapeHtml(clean)}</pre></div></div>`;
+        }
+        statusEl.textContent = "Tamamlandı.";
+      } catch (err) {
+        statusEl.textContent = "Hata: " + err.message;
+      }
+    });
+
+    document.getElementById("clearAskBtn").addEventListener("click", () => {
+      document.getElementById("questionInput").value = "";
+      document.getElementById("answerArea").innerHTML = "";
+      document.getElementById("askStatus").textContent = "";
+    });
+
+    document.getElementById("exportBtn").addEventListener("click", () => {
+      const blob = new Blob([JSON.stringify({ schemaVersion: 1, records: state.records }, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `servis-yedek-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      document.getElementById("backupStatus").textContent = "JSON yedeği indirildi.";
+    });
+
+    document.getElementById("importInput").addEventListener("change", async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      try {
+        const parsed = JSON.parse(await file.text());
+        if (!Array.isArray(parsed.records)) throw new Error("Geçersiz yedek dosyası.");
+        state = {
+          schemaVersion: 1,
+          records: parsed.records.map(r => ({ ...r, category: normalizeCategory(r.category) }))
+        };
+        saveLocalState(state);
+        try { await sbUpsertRecords(state.records); } catch {}
+        document.getElementById("backupStatus").textContent = `${state.records.length} kayıt geri yüklendi.`;
+      } catch (err) {
+        document.getElementById("backupStatus").textContent = "Yükleme hatası: " + err.message;
+      }
+    });
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    closeFailedModal();
+    updateNotifButton();
+    syncFromCloud();
+  </script>
+</body>
+</html>
