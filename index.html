@@ -595,6 +595,34 @@
       margin-top: 8px;
       display: block;
     }
+
+    /* Yeni eklenen alanlar için stil ekleri */
+    .ext-panel-box {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .ext-inline-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .ext-inline-row input {
+      flex: 1 1 180px;
+    }
+
+    .ext-triple-box {
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 10px;
+      background: rgba(0, 240, 255, 0.07);
+      border: 1px solid rgba(0, 240, 255, 0.4);
+    }
   </style>
 </head>
 <body>
@@ -623,6 +651,16 @@
           <button id="pickSureclerBtn" type="button" class="cat-choice-btn">Süreçler</button>
           <button id="pickParcaKodlariBtn" type="button" class="cat-choice-btn cyan">Parça Kodları</button>
         </div>
+
+        <!-- Eklenen: Yeni Kategori Oluşturma Alanı -->
+        <div id="extCustomMainCatArea" class="ext-panel-box">
+          <strong style="color:var(--neon-cyan); font-size:0.88rem;">+ Yeni Kategori Oluştur</strong>
+          <div class="ext-inline-row">
+            <input id="extNewMainCatInput" type="text" placeholder="Örn: Garanti Süreci, İade Süreci..." />
+            <button id="extAddMainCatBtn" type="button">Kategori Ekle</button>
+          </div>
+          <div id="extCustomMainCatButtons" class="sort-bar" style="margin-top:10px; margin-bottom:0;"></div>
+        </div>
       </div>
 
       <div id="stepPartSubType" class="hidden">
@@ -640,7 +678,36 @@
       <div id="stepRecordsList" class="hidden">
         <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px; flex-wrap:wrap;">
           <span id="activePathBadge" class="badge">Seçim</span>
-          <button id="changeCategoryBtn" type="button" class="secondary" style="padding:6px 10px; font-size:0.8rem;">Kategori Değiştir</button>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <!-- Eklenen: Alt Kategori Oluştur Butonu -->
+            <button id="extToggleSubCatBtn" type="button" class="cyan-outline" style="padding:6px 10px; font-size:0.8rem;">+ Alt Kategori Oluştur</button>
+            <button id="changeCategoryBtn" type="button" class="secondary" style="padding:6px 10px; font-size:0.8rem;">Kategori Değiştir</button>
+          </div>
+        </div>
+
+        <!-- Eklenen: Alt Kategori Formu & Seçici -->
+        <div id="extSubCatBox" class="ext-panel-box hidden">
+          <strong style="color:var(--neon-cyan); font-size:0.86rem;">Bu Kategori Altında Alt Kategori Oluştur</strong>
+          <div class="ext-inline-row">
+            <input id="extNewSubCatInput" type="text" placeholder="Alt kategori adı yazın..." />
+            <button id="extSaveSubCatBtn" type="button">Oluştur</button>
+          </div>
+        </div>
+        <div id="extSubCatChips" class="sort-bar"></div>
+
+        <!-- Eklenen: Kategori İçinden Fotoğraf Yükle / Çek ve Sayfada Bütünleşik Araştırma -->
+        <div id="extCategoryActionsBox" class="ext-panel-box">
+          <strong style="color:#ffffff; font-size:0.88rem;">Bu Bölüme Fotoğraf Yükle / Çek</strong>
+          <div class="actions" style="margin-top:8px; margin-bottom:10px;">
+            <button id="extCatCamBtn" type="button" class="cyan-outline" style="padding:7px 11px; font-size:0.82rem;">📷 Fotoğraf Çek</button>
+            <button id="extCatImgBtn" type="button" class="cyan-outline" style="padding:7px 11px; font-size:0.82rem;">🖼️ Fotoğraf Yükle</button>
+          </div>
+          <strong style="color:var(--ok); font-size:0.88rem;">Bu Sayfada / Kategoride Bütünleşik Araştırma</strong>
+          <div class="ext-inline-row">
+            <input id="extPageResearchInput" type="text" placeholder="Bu bölümdeki tüm yüklenmiş sayfa parçalarında araştır..." />
+            <button id="extPageResearchBtn" type="button" class="ok-btn">Sayfada Araştır</button>
+          </div>
+          <div id="extPageResearchOutput" class="status-msg"></div>
         </div>
 
         <div class="sort-bar">
@@ -1051,6 +1118,10 @@
       selectedPartSub = null;
       expandedTitleIds.clear();
       recordsModalSearch.value = "";
+      document.getElementById("extPageResearchOutput").innerHTML = "";
+      document.getElementById("extPageResearchInput").value = "";
+      document.getElementById("extSubCatBox").classList.add("hidden");
+      extRenderCustomMainButtons();
       document.getElementById("recordsModalTitle").textContent = "Kayıtlar — Bölüm Seçin";
       showRecordsStep("main");
       recordsModal.classList.remove("hidden");
@@ -1068,6 +1139,7 @@
       expandedTitleIds.clear();
       document.getElementById("recordsModalTitle").textContent = "Kayıtlar — Süreçler";
       document.getElementById("activePathBadge").textContent = "Süreçler";
+      extRenderSubCatChips();
       showRecordsStep("list");
       renderRecordsModalList();
     });
@@ -1091,6 +1163,7 @@
       expandedTitleIds.clear();
       document.getElementById("recordsModalTitle").textContent = "Parça Kodları — Temizlik";
       document.getElementById("activePathBadge").textContent = "Parça Kodları / Temizlik";
+      extRenderSubCatChips();
       showRecordsStep("list");
       renderRecordsModalList();
     });
@@ -1100,6 +1173,7 @@
       expandedTitleIds.clear();
       document.getElementById("recordsModalTitle").textContent = "Parça Kodları — Kişisel Bakım";
       document.getElementById("activePathBadge").textContent = "Parça Kodları / Kişisel Bakım";
+      extRenderSubCatChips();
       showRecordsStep("list");
       renderRecordsModalList();
     });
@@ -1107,6 +1181,7 @@
     document.getElementById("changeCategoryBtn").addEventListener("click", () => {
       selectedMainCat = null;
       selectedPartSub = null;
+      extRenderCustomMainButtons();
       document.getElementById("recordsModalTitle").textContent = "Kayıtlar — Bölüm Seçin";
       showRecordsStep("main");
     });
@@ -1178,6 +1253,8 @@
         if (selectedMainCat && r.category !== selectedMainCat) return false;
         if (selectedMainCat === "Parça Kodları" && selectedPartSub) {
           if (!matchesPartSubType(r, selectedPartSub)) return false;
+        } else if (selectedMainCat && selectedMainCat !== "Süreçler" && selectedPartSub && selectedPartSub !== "Geneli") {
+          if (r.group !== selectedPartSub) return false;
         }
         if (!q) return true;
         return (
@@ -1362,8 +1439,9 @@
     });
 
     function normalizeCategory(cat) {
-      if (cat === "Parça Kodları") return "Parça Kodları";
-      return "Süreçler";
+      const clean = String(cat || "").trim();
+      if (!clean) return "Süreçler";
+      return clean;
     }
 
     function formatDateTr(isoStr) {
@@ -1838,18 +1916,19 @@
       } catch {}
     }
 
-    async function processImagePayload(fileName, mimeType, base64, dataUrl, queueId = null, approxKb = null) {
+    async function processImagePayload(fileName, mimeType, base64, dataUrl, queueId = null, approxKb = null, extOverride = null) {
       const kbText = approxKb ? ` (~${approxKb} KB sıkıştırıldı)` : "";
       if (queueId) updateQueueItem(queueId, "processing", `OCR ve kategori ayrıştırma yapılıyor${kbText}...`);
       try {
         const prompt = `Bu görseldeki tüm metni eksiksiz yazıya dök. Parça kodlarını, model adlarını ve soru-cevap yapısını koru.
-Kategoriyi yalnızca şu iki seçenekten birine göre belirle: "Parça Kodları" veya "Süreçler".
+Görselde yer alan tik işareti (✓), çarpı (✕), uyarı ikonu veya cihaz/yedek parça görsellerini mutlaka algıla ve hangi satırın/parçanın yanında bulunduğunu metin içinde "[Görsel İşaret: ...]" şeklinde açıkça yaz.
+Kategoriyi şu seçeneklerden uygun olana göre belirle: "Parça Kodları", "Süreçler" veya mevcut özel kategoriler.
 Ardından yalnızca şu JSON formatında yanıt ver (başka açıklama yazma):
 {
-  "category": "Parça Kodları" veya "Süreçler",
-  "group": "Varsa ürün modeli veya türü (örn: Temizlik, Kişisel Bakım, V15, V11, Geneli)",
+  "category": "${extOverride?.category || "Süreçler"}",
+  "group": "${extOverride?.group || "Geneli"}",
   "title": "İçeriği özetleyen kısa ve net otomatik başlık",
-  "content": "Görseldeki metnin tam ve düzenli dökümü"
+  "content": "Görseldeki metnin ve [Görsel İşaret: ...] notlarının tam ve düzenli dökümü"
 }`;
 
         const rawReply = await callGemini([
@@ -1858,6 +1937,9 @@ Ardından yalnızca şu JSON formatında yanıt ver (başka açıklama yazma):
         ]);
 
         const parsed = parseAutoClassification(rawReply, fileName);
+        if (extOverride?.category) parsed.category = extOverride.category;
+        if (extOverride?.group) parsed.group = extOverride.group;
+
         const nowIso = new Date().toISOString();
         const uploader = currentSession?.user || "Bilinmiyor";
 
@@ -1884,7 +1966,7 @@ Ardından yalnızca şu JSON formatında yanıt ver (başka açıklama yazma):
       }
     }
 
-    async function runImageBatch(files) {
+    async function runImageBatch(files, extOverride = null) {
       const statusEl = document.getElementById("uploadStatus");
       if (!files.length) {
         statusEl.textContent = "Lütfen önce en az bir görsel seçin.";
@@ -1909,7 +1991,8 @@ Ardından yalnızca şu JSON formatında yanıt ver (başka açıklama yazma):
             base64,
             dataUrl,
             entry.queueId,
-            approxKb
+            approxKb,
+            extOverride
           );
         } catch (err) {
           recordFailure(entry.file.name, entry.file.type || "image/jpeg", "", "", err.message);
@@ -1936,8 +2019,29 @@ Ardından yalnızca şu JSON formatında yanıt ver (başka açıklama yazma):
       }).join("\n\n---\n\n");
     }
 
+    function extParseTriple(rawText) {
+      const a = rawText.match(/\[ARTFLOW_CEVABI\]:?\s*([\s\S]*?)(?=\n?\[FS_CEVABI\]:?|\n?\[YUZDE_ORAN\]:?|$)/i);
+      const f = rawText.match(/\[FS_CEVABI\]:?\s*([\s\S]*?)(?=\n?\[YUZDE_ORAN\]:?|$)/i);
+      const y = rawText.match(/\[YUZDE_ORAN\]:?\s*([\s\S]*?)$/i);
+      if (!a && !f && !y) return null;
+      return {
+        artflow: (a?.[1] || "-").trim(),
+        fs: (f?.[1] || "-").trim(),
+        yuzde: (y?.[1] || rawText).trim()
+      };
+    }
+
     function renderMatchedAnswer(clean) {
       const areaEl = document.getElementById("answerArea");
+      const triple = extParseTriple(clean);
+      const tripleHtml = triple ? `
+        <div class="ext-triple-box">
+          <div style="margin-bottom:8px;"><strong style="color:var(--neon-purple-bright);">ArtFlow Cevabı:</strong><pre style="white-space:pre-wrap; font-family:inherit; margin:4px 0 0;">${escapeHtml(triple.artflow)}</pre></div>
+          <div style="margin-bottom:8px;"><strong style="color:var(--neon-cyan);">FS Cevabı:</strong><pre style="white-space:pre-wrap; font-family:inherit; margin:4px 0 0;">${escapeHtml(triple.fs)}</pre></div>
+          <div><strong style="color:var(--ok);">% Oranla Yapılması Gereken:</strong><pre style="white-space:pre-wrap; font-family:inherit; margin:4px 0 0;">${escapeHtml(triple.yuzde)}</pre></div>
+        </div>
+      ` : "";
+
       areaEl.innerHTML = `
         <div class="card">
           <h2>Eşleşen Kayıt ve Öneri</h2>
@@ -1946,6 +2050,7 @@ Ardından yalnızca şu JSON formatında yanıt ver (başka açıklama yazma):
               Demek istediğiniz bu muydu?
             </div>
             <pre style="white-space:pre-wrap; font-family:inherit; margin:0; color:var(--text);">${escapeHtml(clean)}</pre>
+            ${tripleHtml}
           </div>
           <div class="followup-box">
             <div style="font-size:0.94rem; font-weight:700; color:#ffffff; margin-bottom:8px;">
@@ -2038,11 +2143,18 @@ KESİN KURALLAR:
 KESİN KURALLAR:
 1. Yalnızca sana aşağıda verilen KAYITLAR içindeki bilgilere dayan. Kayıtlarda hiç geçmeyen uydurma bilgi üretme.
 2. Görsel verilmişse görseldeki metni, parça kodunu, hata kodunu veya soruyu dikkate al.
-3. KAYITLAR içinde soruya yakın veya uzak ilgili tek bir kayıt bile varsa (örneğin batarya şarj / %75 / batarya koruma modu / iade / yırtık kutu gibi):
-- İlgili kayıt başlığını, yükleyen kişiyi, yükleme tarih/saatini ve kayıttaki bilgileri net şekilde açıkla.
-- En sonda kayıttaki "Yapılması gereken" adımları yaz.
-4. KAYITLAR içinde konuyla uzaktan yakından ilgili hiçbir kayıt yoksa, başka hiçbir şey yazmadan TAM OLARAK şu ifadeyi döndür:
-FS Desteği alınmalı`;
+3. KAYITLAR içinde konuyla uzaktan yakından ilgili hiçbir kayıt yoksa, başka hiçbir şey yazmadan TAM OLARAK şu ifadeyi döndür:
+FS Desteği alınmalı
+4. KAYITLAR içinde ilgili kayıt varsa (bir kategorinin birden fazla yüklenmiş fotoğrafı varsa hepsini birlikte değerlendirerek ve [Görsel İşaret: ...] notlarını dikkate alarak) yanıtını şu üç bölümü içerecek şekilde ver:
+[ARTFLOW_CEVABI]:
+Kayıtlardaki ilgili akış/süreç/iade/uygulama bilgisi.
+
+[FS_CEVABI]:
+Kayıtlardaki ilgili servis/parça/garanti/ücretsiz-ücretli/tik-ikon bilgisi.
+
+[YUZDE_ORAN]:
+Eşleşme Oranı: %XX
+Kayıttaki "Yapılması gereken" adımlar.`;
 
       const parts = [];
       if (attachedQuestionPhoto && attachedQuestionPhoto.base64) {
@@ -2093,6 +2205,202 @@ FS Desteği alınmalı`;
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;");
     }
+
+    /* ==================== EKLENEN ÖZELLİKLERİN JS KODU ==================== */
+    const EXT_CAT_STORAGE_KEY = "servis_asistani_ext_cats_v1";
+    let extCatTree = extLoadCatTree();
+    let extPendingUpload = null;
+
+    function extLoadCatTree() {
+      try {
+        const raw = localStorage.getItem(EXT_CAT_STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : {};
+        return parsed && typeof parsed === "object" ? parsed : {};
+      } catch {
+        return {};
+      }
+    }
+
+    function extSaveCatTree() {
+      try {
+        localStorage.setItem(EXT_CAT_STORAGE_KEY, JSON.stringify(extCatTree));
+      } catch {}
+      extSyncSelectOptions();
+    }
+
+    function extEnsureCat(mainCat, subCat = null) {
+      if (!mainCat) return;
+      if (!Array.isArray(extCatTree[mainCat])) extCatTree[mainCat] = [];
+      if (subCat && !extCatTree[mainCat].includes(subCat)) {
+        extCatTree[mainCat].push(subCat);
+      }
+      extSaveCatTree();
+    }
+
+    function extSyncSelectOptions() {
+      const sel = document.getElementById("manualCategory");
+      if (!sel) return;
+      const base = ["Süreçler", "Parça Kodları"];
+      const all = Array.from(new Set([...base, ...Object.keys(extCatTree)]));
+      const cur = sel.value;
+      sel.innerHTML = all.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join("");
+      if (all.includes(cur)) sel.value = cur;
+    }
+
+    function extRenderCustomMainButtons() {
+      const box = document.getElementById("extCustomMainCatButtons");
+      if (!box) return;
+      for (const r of state.records) {
+        if (r.category && r.category !== "Süreçler" && r.category !== "Parça Kodları") {
+          if (!Array.isArray(extCatTree[r.category])) extCatTree[r.category] = [];
+          if (r.group && r.group !== "Geneli" && !extCatTree[r.category].includes(r.group)) {
+            extCatTree[r.category].push(r.group);
+          }
+        }
+      }
+      extSaveCatTree();
+      const customCats = Object.keys(extCatTree);
+      if (!customCats.length) {
+        box.innerHTML = "";
+        return;
+      }
+      box.innerHTML = customCats.map(cat => `
+        <button type="button" class="sort-btn" data-ext-cat="${escapeHtml(cat)}">${escapeHtml(cat)}</button>
+      `).join("");
+      box.querySelectorAll("[data-ext-cat]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          selectedMainCat = btn.getAttribute("data-ext-cat");
+          selectedPartSub = null;
+          expandedTitleIds.clear();
+          document.getElementById("recordsModalTitle").textContent = `Kayıtlar — ${selectedMainCat}`;
+          document.getElementById("activePathBadge").textContent = selectedMainCat;
+          extRenderSubCatChips();
+          showRecordsStep("list");
+          renderRecordsModalList();
+        });
+      });
+    }
+
+    function extRenderSubCatChips() {
+      const chips = document.getElementById("extSubCatChips");
+      if (!chips || !selectedMainCat) return;
+      const subs = Array.isArray(extCatTree[selectedMainCat]) ? extCatTree[selectedMainCat] : [];
+      if (!subs.length) {
+        chips.innerHTML = "";
+        return;
+      }
+      chips.innerHTML = `
+        <button type="button" class="sort-btn ${!selectedPartSub ? "active" : ""}" data-ext-sub="">Tümü</button>
+        ${subs.map(s => `
+          <button type="button" class="sort-btn ${selectedPartSub === s ? "active" : ""}" data-ext-sub="${escapeHtml(s)}">${escapeHtml(s)}</button>
+        `).join("")}
+      `;
+      chips.querySelectorAll("[data-ext-sub]").forEach(b => {
+        b.addEventListener("click", () => {
+          const val = b.getAttribute("data-ext-sub");
+          selectedPartSub = val || null;
+          document.getElementById("activePathBadge").textContent = selectedPartSub
+            ? `${selectedMainCat} / ${selectedPartSub}`
+            : selectedMainCat;
+          extRenderSubCatChips();
+          renderRecordsModalList();
+        });
+      });
+    }
+
+    document.getElementById("extAddMainCatBtn").addEventListener("click", () => {
+      const inp = document.getElementById("extNewMainCatInput");
+      const name = inp.value.trim();
+      if (!name) return;
+      extEnsureCat(name);
+      inp.value = "";
+      extRenderCustomMainButtons();
+    });
+
+    document.getElementById("extToggleSubCatBtn").addEventListener("click", () => {
+      document.getElementById("extSubCatBox").classList.toggle("hidden");
+      document.getElementById("extNewSubCatInput").focus();
+    });
+
+    document.getElementById("extSaveSubCatBtn").addEventListener("click", () => {
+      if (!selectedMainCat) return;
+      const inp = document.getElementById("extNewSubCatInput");
+      const sub = inp.value.trim();
+      if (!sub) return;
+      extEnsureCat(selectedMainCat, sub);
+      selectedPartSub = sub;
+      document.getElementById("activePathBadge").textContent = `${selectedMainCat} / ${selectedPartSub}`;
+      inp.value = "";
+      document.getElementById("extSubCatBox").classList.add("hidden");
+      extRenderSubCatChips();
+      renderRecordsModalList();
+    });
+
+    document.getElementById("extCatCamBtn").addEventListener("click", () => {
+      if (!selectedMainCat) return;
+      extPendingUpload = { category: selectedMainCat, group: selectedPartSub || "Geneli" };
+      closeRecordsModal();
+      cameraCaptureInput.click();
+    });
+
+    document.getElementById("extCatImgBtn").addEventListener("click", () => {
+      if (!selectedMainCat) return;
+      extPendingUpload = { category: selectedMainCat, group: selectedPartSub || "Geneli" };
+      closeRecordsModal();
+      photoFileInput.click();
+    });
+
+    cameraCaptureInput.addEventListener("change", async (e) => {
+      if (!extPendingUpload) return;
+      const files = e.target.files ? Array.from(e.target.files) : [];
+      if (!files.length) { extPendingUpload = null; return; }
+      const ov = extPendingUpload;
+      extPendingUpload = null;
+      centerHomeStage.classList.add("hidden");
+      askWindowCard.classList.add("hidden");
+      uploadQueueCard.classList.remove("hidden");
+      await runImageBatch(files, ov);
+    }, true);
+
+    photoFileInput.addEventListener("change", async (e) => {
+      if (!extPendingUpload) return;
+      const files = e.target.files ? Array.from(e.target.files) : [];
+      if (!files.length) { extPendingUpload = null; return; }
+      const ov = extPendingUpload;
+      extPendingUpload = null;
+      centerHomeStage.classList.add("hidden");
+      askWindowCard.classList.add("hidden");
+      uploadQueueCard.classList.remove("hidden");
+      await runImageBatch(files, ov);
+    }, true);
+
+    document.getElementById("extPageResearchBtn").addEventListener("click", async () => {
+      if (!selectedMainCat) return;
+      const out = document.getElementById("extPageResearchOutput");
+      const q = document.getElementById("extPageResearchInput").value.trim();
+      const pageRecs = state.records.map(normalizeRecord).filter(r => {
+        if (r.category !== selectedMainCat) return false;
+        if (selectedPartSub && r.group !== selectedPartSub) return false;
+        return true;
+      });
+      if (!pageRecs.length) {
+        out.innerHTML = `<div class="error-msg">Bu bölümde kayıt bulunmuyor.</div>`;
+        return;
+      }
+      const label = selectedPartSub ? `${selectedMainCat} / ${selectedPartSub}` : selectedMainCat;
+      out.innerHTML = `<div class="status-msg">${escapeHtml(label)} içindeki ${pageRecs.length} kayıt bütünleşik olarak inceleniyor...</div>`;
+      const merged = pageRecs.map((r, i) => `[PARÇA #${i + 1} | Grup: ${r.group} | Başlık: ${r.title}]\n${r.content}`).join("\n\n---\n\n");
+      const sys = `Sen bir süreç ve parça sayfa araştırma asistanısın. "${label}" sayfasına yüklenmiş tüm parçaları/fotoğrafları bütünleşik tek bir sayfa gibi incele, [Görsel İşaret: ...] notlarını dikkate al ve soruyu yanıtla. Kayıtlarda yoksa "FS Desteği alınmalı" de.`;
+      try {
+        const res = await callGemini([{ text: `SAYFA: ${label}\n\nBÜTÜNLEŞİK KAYITLAR:\n${merged}\n\nSORU: ${q || "Bu sayfadaki tüm kuralları, tik/ikon notlarını ve parça/garanti/iade detaylarını birleştirerek özetle."}` }], sys);
+        out.innerHTML = `<div class="summary-box"><pre style="white-space:pre-wrap; font-family:inherit; margin:0;">${escapeHtml(res.trim())}</pre></div>`;
+      } catch (err) {
+        out.innerHTML = `<div class="error-msg">Hata: ${escapeHtml(err.message)}</div>`;
+      }
+    });
+
+    extSyncSelectOptions();
+    /* ==================================================================== */
 
     closeFailedModal();
     closeRecordsModal();
