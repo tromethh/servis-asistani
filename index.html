@@ -3577,3 +3577,115 @@ Kayıttaki "Yapılması gereken" adımlar.`;
   observer.observe(document.body, { childList: true, subtree: true });
 })();
 </script>
+<script id="mola-2dk-10bip-script">
+(function () {
+  const SAYAC_KEY = "servis_asistani_aktif_mola_v1";
+  const UYARI_ATILAN_KEY = "servis_asistani_2dk_bip_atildi_v1";
+  let audioCtx = null;
+  let bipTimer = null;
+  let sonKontrolStartMs = null;
+
+  function sesBaglaminiHazirla() {
+    try {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return null;
+      if (!audioCtx) {
+        audioCtx = new Ctx();
+      }
+      if (audioCtx.state === "suspended") {
+        audioCtx.resume().catch(() => {});
+      }
+      return audioCtx;
+    } catch {
+      return null;
+    }
+  }
+
+  function tekBipCal(ctx, baslangicZamani) {
+    try {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(920, baslangicZamani);
+
+      gain.gain.setValueAtTime(0.0001, baslangicZamani);
+      gain.gain.exponentialRampToValueAtTime(0.25, baslangicZamani + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, baslangicZamani + 0.14);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(baslangicZamani);
+      osc.stop(baslangicZamani + 0.15);
+    } catch {}
+  }
+
+  function onKezBipBipCal() {
+    if (bipTimer) {
+      clearInterval(bipTimer);
+      bipTimer = null;
+    }
+    const ctx = sesBaglaminiHazirla();
+    let sayac = 0;
+
+    function birCiftBip() {
+      sayac++;
+      if (ctx) {
+        const now = ctx.currentTime;
+        tekBipCal(ctx, now);
+        tekBipCal(ctx, now + 0.19);
+      }
+      if (sayac >= 10 && bipTimer) {
+        clearInterval(bipTimer);
+        bipTimer = null;
+      }
+    }
+
+    birCiftBip();
+    if (sayac < 10) {
+      bipTimer = setInterval(birCiftBip, 450);
+    }
+  }
+
+  function aktifMolayiOku() {
+    try {
+      const raw = localStorage.getItem(SAYAC_KEY);
+      if (!raw) return null;
+      const p = JSON.parse(raw);
+      if (p && p.startMs && p.durationSec) return p;
+    } catch {}
+    return null;
+  }
+
+  function ikiDakikaKontrolEt() {
+    const mola = aktifMolayiOku();
+    if (!mola) {
+      sonKontrolStartMs = null;
+      return;
+    }
+
+    if (sonKontrolStartMs !== mola.startMs) {
+      sonKontrolStartMs = mola.startMs;
+    }
+
+    const gecenSn = Math.max(0, Math.floor((Date.now() - mola.startMs) / 1000));
+    const kalanSn = mola.durationSec - gecenSn;
+
+    const atilanStartMs = Number(localStorage.getItem(UYARI_ATILAN_KEY) || "0");
+    if (kalanSn <= 120 && kalanSn > 0 && atilanStartMs !== mola.startMs) {
+      localStorage.setItem(UYARI_ATILAN_KEY, String(mola.startMs));
+      onKezBipBipCal();
+    }
+  }
+
+  document.addEventListener("click", () => {
+    sesBaglaminiHazirla();
+  }, { passive: true });
+
+  document.addEventListener("touchstart", () => {
+    sesBaglaminiHazirla();
+  }, { passive: true });
+
+  setInterval(ikiDakikaKontrolEt, 500);
+})();
+</script>
