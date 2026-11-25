@@ -1081,11 +1081,11 @@
 <body>
   <header>
     <div class="header-inner">
-      <div class="app-brand"><span class="brand-mark">S</span><span><strong>Servis Asistanı</strong><small>Bilgi merkezi & FS destek</small></span></div>
+      
       <div id="vardiyaTeamMini" class="vardiya-team-mini hidden" aria-label="Ekip vardiya durumları"></div>
       <div class="header-left">
-        <span id="currentUserBadge" class="user-pill hidden">Kullanıcı: -</span>
-        <button id="recordsBtn" type="button" class="records-top-btn hidden">Kayıtlar</button>
+        <span id="currentUserBadge" class="user-pill hidden">-</span>
+        <button id="recordsBtn" type="button" class="records-top-btn hidden">Bilgi Bankası</button>
       </div>
       <button id="notifToggleBtn" type="button" class="notif-btn ok hidden" aria-label="Bildirimler" title="Bildirimler"><span class="notif-bell" aria-hidden="true">🔔</span><span id="notifCountBadge" class="notif-count-badge">0</span></button>
     </div>
@@ -1138,14 +1138,14 @@
         <button id="vardiyaPlanKapatBtn" type="button" class="secondary">Kapat</button>
       </div>
       <div id="vardiyaWizardStep1" class="vardiya-wizard-step">
-        <p class="vardiya-step-note">Önce ayı, haftayı, çalışma saatlerini ve izin günlerini belirle.</p>
+        <p class="vardiya-step-note">Tarih aralığını seç. Her günün vardiya saatini ayrı ayrı belirleyebilirsin.</p>
         <div class="vardiya-form-grid">
-          <div><label for="vardiyaAyInput">Hangi ay?</label><input id="vardiyaAyInput" type="month" /></div>
-          <div><label for="vardiyaHaftaSelect">Hangi hafta?</label><select id="vardiyaHaftaSelect"><option value="1">1. Hafta (1–7)</option><option value="2">2. Hafta (8–14)</option><option value="3">3. Hafta (15–21)</option><option value="4">4. Hafta (22–28)</option><option value="5">5. Hafta (29–31)</option></select></div>
+          <div><label for="vardiyaTarihBasInput">Başlangıç tarihi</label><input id="vardiyaTarihBasInput" type="date" /></div>
+          <div><label for="vardiyaTarihBitInput">Bitiş tarihi</label><input id="vardiyaTarihBitInput" type="date" /></div>
           <div><label for="vardiyaBaslangicSaat">Vardiya başlangıç saati</label><input id="vardiyaBaslangicSaat" type="time" value="09:00" /></div>
           <div><label for="vardiyaBitisSaat">Vardiya bitiş saati</label><input id="vardiyaBitisSaat" type="time" value="19:00" /></div>
         </div>
-        <div class="vardiya-offdays-wrap"><strong>Bu hafta hangi günler izinlisin?</strong><div id="vardiyaIzinGunleri" class="vardiya-weekday-picks">
+        <div class="vardiya-offdays-wrap"><strong>Bu tarih aralığında hangi günler izinli?</strong><div id="vardiyaIzinGunleri" class="vardiya-weekday-picks">
           <label><input type="checkbox" value="1"> Pazartesi</label><label><input type="checkbox" value="2"> Salı</label><label><input type="checkbox" value="3"> Çarşamba</label><label><input type="checkbox" value="4"> Perşembe</label><label><input type="checkbox" value="5"> Cuma</label><label><input type="checkbox" value="6"> Cumartesi</label><label><input type="checkbox" value="0"> Pazar</label>
         </div></div>
         <button id="vardiyaHaftaDevamBtn" type="button" class="vardiya-primary-wide">Çalışma günlerinin mola saatlerini ekle <span>→</span></button>
@@ -1154,7 +1154,7 @@
         <div class="vardiya-step2-head"><div><strong id="vardiyaHaftaBaslik">1. Hafta</strong><p class="vardiya-step-note">Her çalışma günü için dört kısa mola ve bir yemek molası saati gir.</p></div><button id="vardiyaGeriBtn" type="button" class="secondary">← Geri</button></div>
         <div id="vardiyaGunMolaFormlari"></div>
         <div class="vardiya-day-nav"><button id="vardiyaOncekiGunBtn" type="button" class="secondary">← Önceki gün</button><span id="vardiyaGunSayaci"></span><button id="vardiyaSonrakiGunBtn" type="button" class="secondary">Sonraki gün →</button></div>
-        <button id="vardiyaHaftaKaydetBtn" type="button" class="vardiya-primary-wide">Haftayı Kaydet</button>
+        <button id="vardiyaHaftaKaydetBtn" type="button" class="vardiya-primary-wide">Vardiya Planını Kaydet</button>
         <div id="vardiyaDurumMesaj" class="status-msg"></div>
       </div>
     </div>
@@ -1402,6 +1402,8 @@
 
   <main id="appMain" class="hidden">
     <div id="centerHomeStage" class="center-stage">
+      <div id="homeClock" class="home-clock"><div id="homeClockTime">--:--:--</div><div id="homeClockDate">Yükleniyor...</div></div>
+      <div class="home-shortcuts"><button type="button" id="homePartsShortcut">⌕ <span>Parça Kodları</span></button><button type="button" id="homeArticlesShortcut">▤ <span>Makale</span></button></div>
       <div class="home-intro"><div class="eyebrow">SERVİS BİLGİ MERKEZİ</div><h1>Nasıl yardımcı olabilirim?</h1><p>Soru çöz, yeni bilgi ekle veya kayıtlarına göz at.</p></div>
       <div class="square-pair">
         <button id="squareAskBtn" type="button" class="neon-square-btn">
@@ -1575,7 +1577,7 @@
         userBadge.classList.remove("hidden");
         recordsBtn.classList.remove("hidden");
         notifBtn.classList.remove("hidden");
-        userBadge.textContent = `Kullanıcı: ${currentSession.user}`;
+        userBadge.textContent = `${currentSession.user}`;
         updateNotifButton();
         syncFromCloud();
       } else {
@@ -4129,8 +4131,10 @@ Yapılması gereken adımlar...`;
         home.appendChild(bar);
         document.getElementById("vardiyaPlanBtn").addEventListener("click", async () => {
           const now = new Date();
-          const ay = document.getElementById("vardiyaAyInput");
-          if (!ay.value) ay.value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
+          const basInput = document.getElementById("vardiyaTarihBasInput");
+          const bitInput = document.getElementById("vardiyaTarihBitInput");
+          if (!basInput.value) basInput.value = tarihLocal(now);
+          if (!bitInput.value) { const end = new Date(now); end.setDate(end.getDate()+6); bitInput.value = tarihLocal(end); }
           document.getElementById("vardiyaWizardStep1").classList.remove("hidden");
           document.getElementById("vardiyaWizardStep2").classList.add("hidden");
           document.getElementById("vardiyaDurumMesaj").textContent = "";
@@ -4268,14 +4272,13 @@ Yapılması gereken adımlar...`;
       function vardiyaEkipMiniyiCiz() {
         const el = document.getElementById("vardiyaTeamMini");
         if (!el) return;
-        const names = [...new Set(vardiyaKayitlari.map(x => x.kisi).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"tr"));
-        if (!names.length) { el.classList.add("hidden"); el.innerHTML=""; return; }
+        const names = [...new Set(["Arda", "Görkem", ...(currentSession?.user ? [currentSession.user] : []), ...vardiyaKayitlari.map(x => x.kisi).filter(Boolean)])].sort((a,b)=>a.localeCompare(b,"tr"));
         el.classList.remove("hidden");
         const today = tarihLocal(new Date());
         el.innerHTML = `<span class="vardiya-mini-label">EKİP</span>` + names.map(name => {
           const item = vardiyaKayitlari.find(x => x.kisi === name && x.tarih === today);
           const st = vardiyaDurum(item);
-          return `<button type="button" class="vardiya-person-pill ${st.cls}" data-vardiya-person="${escapeHtml(name)}"><strong>${escapeHtml(name)}</strong><small>${st.text}</small></button>`;
+          return `<button type="button" class="vardiya-person-pill ${st.cls}" data-vardiya-person="${escapeHtml(name)}"><strong>${escapeHtml(name)}</strong><small>${st.text === "Plan girilmedi" ? "Vardiya girilmedi" : st.text}</small></button>`;
         }).join("");
         el.querySelectorAll("[data-vardiya-person]").forEach(btn => btn.addEventListener("click", () => {
           vardiyaDetayKisiSecili = btn.getAttribute("data-vardiya-person");
@@ -4301,28 +4304,25 @@ Yapılması gereken adımlar...`;
         box.innerHTML = `<div class="vardiya-detail-date">${escapeHtml(vardiyaTarihFormat(tarih))}</div><div class="vardiya-detail-status work">ÇALIŞMA GÜNÜ</div><div class="vardiya-detail-line"><span>Vardiya saati</span><strong>${escapeHtml(vardiyaSaatAraligi(item))}</strong></div><div class="vardiya-detail-line"><span>Yemek molası · 50 dk</span><strong>${escapeHtml(item.yemek || "-")}</strong></div>${molalar.map((v,i)=>`<div class="vardiya-detail-line"><span>${i+1}. mola · 10 dk</span><strong>${escapeHtml(v || "-")}</strong></div>`).join("")}<p class="vardiya-readonly-note">Bu ekran görüntüleme amaçlıdır; vardiya bilgileri buradan değiştirilemez.</p>`;
       }
       function vardiyaHaftaGunleriniHazirla() {
-        const ay = document.getElementById("vardiyaAyInput").value;
-        const hafta = Number(document.getElementById("vardiyaHaftaSelect").value);
+        const basTarih = document.getElementById("vardiyaTarihBasInput").value;
+        const bitTarih = document.getElementById("vardiyaTarihBitInput").value;
         const bas = document.getElementById("vardiyaBaslangicSaat").value;
         const bit = document.getElementById("vardiyaBitisSaat").value;
-        if (!ay || !bas || !bit || bas >= bit) { alert("Lütfen ayı ve geçerli vardiya başlangıç/bitiş saatlerini seç."); return false; }
-        const [y,m] = ay.split("-").map(Number);
-        const startDay = (hafta-1)*7+1;
-        const lastDay = new Date(y,m,0).getDate();
-        const endDay = Math.min(hafta*7,lastDay);
+        if (!basTarih || !bitTarih || basTarih > bitTarih || !bas || !bit || bas >= bit) { alert("Lütfen geçerli tarih aralığı ve varsayılan vardiya saatlerini seç."); return false; }
+        const ilk = new Date(`${basTarih}T12:00:00`), son = new Date(`${bitTarih}T12:00:00`);
+        const gunSayisi = Math.round((son-ilk)/86400000)+1;
+        if (gunSayisi > 62) { alert("Tek seferde en fazla 62 günlük vardiya planı oluşturabilirsin."); return false; }
         const off = new Set([...document.querySelectorAll("#vardiyaIzinGunleri input:checked")].map(x=>Number(x.value)));
         vardiyaHaftaTaslak = [];
-        for (let d=startDay; d<=endDay; d++) {
-          const date = new Date(y,m-1,d);
-          const tarih = tarihLocal(date);
-          const izinli = off.has(date.getDay());
+        for (let d = new Date(ilk); d <= son; d.setDate(d.getDate()+1)) {
+          const date = new Date(d), tarih = tarihLocal(date), izinli = off.has(date.getDay());
           vardiyaHaftaTaslak.push({tarih, gun:vardiyaGunAdlari[date.getDay()], izinli, baslangic:bas, bitis:bit});
         }
         const calisma = vardiyaHaftaTaslak.filter(x=>!x.izinli);
-        if (!calisma.length) { alert("Seçtiğin haftada çalışma günü kalmadı. İzin günlerini kontrol et."); return false; }
-        document.getElementById("vardiyaHaftaBaslik").textContent = `${hafta}. Hafta · ${ay}`;
+        if (!calisma.length) { alert("Seçtiğin tarih aralığında çalışma günü kalmadı. İzin günlerini kontrol et."); return false; }
+        document.getElementById("vardiyaHaftaBaslik").textContent = `${basTarih.split("-").reverse().join(".")} – ${bitTarih.split("-").reverse().join(".")}`;
         vardiyaAktifGunIndex = 0;
-        document.getElementById("vardiyaGunMolaFormlari").innerHTML = calisma.map((day,i)=>`<section class="vardiya-workday-card ${i===0?"":"hidden"}" data-workday="${day.tarih}" data-day-index="${i}"><div class="vardiya-workday-title"><strong>${day.gun}</strong><span>${day.tarih.split("-").reverse().join(".")}</span></div><div class="vardiya-workday-shift">Vardiya: ${bas} – ${bit}</div><div class="vardiya-break-grid"><label>1. mola · 10 dakika<input type="time" data-field="mola1" required></label><label>2. mola · 10 dakika<input type="time" data-field="mola2" required></label><label>3. mola · 10 dakika<input type="time" data-field="mola3" required></label><label>4. mola · 10 dakika<input type="time" data-field="mola4" required></label><label class="meal-field">Yemek molası · 50 dakika<input type="time" data-field="yemek" required></label></div></section>`).join("");
+        document.getElementById("vardiyaGunMolaFormlari").innerHTML = calisma.map((day,i)=>`<section class="vardiya-workday-card ${i===0?"":"hidden"}" data-workday="${day.tarih}" data-day-index="${i}"><div class="vardiya-workday-title"><strong>${day.gun}</strong><span>${day.tarih.split("-").reverse().join(".")}</span></div><div class="vardiya-mini-inputs" style="margin:8px 0;"><label>Başlangıç<input type="time" data-field="baslangic" value="${bas}" required></label><label>Bitiş<input type="time" data-field="bitis" value="${bit}" required></label></div><div class="vardiya-break-grid"><label>1. mola · 10 dakika<input type="time" data-field="mola1" required></label><label>2. mola · 10 dakika<input type="time" data-field="mola2" required></label><label>3. mola · 10 dakika<input type="time" data-field="mola3" required></label><label>4. mola · 10 dakika<input type="time" data-field="mola4" required></label><label class="meal-field">Yemek molası · 50 dakika<input type="time" data-field="yemek" required></label></div></section>`).join("");
         vardiyaGunFormunuGoster(0);
         document.getElementById("vardiyaWizardStep1").classList.add("hidden");
         document.getElementById("vardiyaWizardStep2").classList.remove("hidden");
@@ -4351,7 +4351,9 @@ Yapılması gereken adımlar...`;
           }
           const card = cards.find(c=>c.dataset.workday===day.tarih);
           const val = field => card?.querySelector(`[data-field="${field}"]`)?.value || "";
-          const record = {tarih:day.tarih, izinli:false, baslangic:day.baslangic, bitis:day.bitis, vardiya:`${day.baslangic} / ${day.bitis}`, yemek:val("yemek"), mola1:val("mola1"), mola2:val("mola2"), mola3:val("mola3"), mola4:val("mola4")};
+          const baslangic = val("baslangic"), bitis = val("bitis");
+          if (!baslangic || !bitis || baslangic >= bitis) { durum.textContent = `${day.gun} için geçerli başlangıç ve bitiş saati gir.`; return; }
+          const record = {tarih:day.tarih, izinli:false, baslangic, bitis, vardiya:`${baslangic} / ${bitis}`, yemek:val("yemek"), mola1:val("mola1"), mola2:val("mola2"), mola3:val("mola3"), mola4:val("mola4")};
           if ([record.yemek,record.mola1,record.mola2,record.mola3,record.mola4].some(x=>!x)) { durum.textContent = `${day.gun} için tüm mola saatlerini doldur.`; return; }
           entries.push(record);
         }
@@ -4845,16 +4847,10 @@ Yapılması gereken adımlar...`;
           const saatStr = formatDateTr(r.uploadedAt || r.updatedAt);
           return `
             <div class="record-item" style="margin-bottom:8px; padding:10px;">
-              <div class="record-meta" style="margin-bottom:4px;">
-                <span class="badge">${escapeHtml(r.category || "Genel")}</span>
-                <span class="badge">${escapeHtml(r.group || "Geneli")}</span>
-                <span class="badge user">${escapeHtml(r.uploadedBy || "Bilinmiyor")}</span>
-                <span>${escapeHtml(saatStr)}</span>
+              <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+                <div style="font-weight:800; color:#ffffff; font-size:0.9rem; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(r.title || "Başlıksız Kayıt")}</div>
+                <span class="badge user" style="flex-shrink:0;">${escapeHtml(r.uploadedBy || "Bilinmiyor")}</span>
               </div>
-              <div style="font-weight:800; color:#ffffff; font-size:0.92rem; margin-bottom:4px;">
-                ${escapeHtml(r.title || "Başlıksız Kayıt")}
-              </div>
-              <pre style="white-space:pre-wrap; font-family:inherit; margin:0; font-size:0.84rem; color:var(--text);">${escapeHtml(r.content || "")}</pre>
             </div>
           `;
         }).join("");
@@ -4933,6 +4929,40 @@ Yapılması gereken adımlar...`;
   #sonBilgiUstKart{padding:9px 11px!important;border-radius:12px!important}
 </style>
 
+
+<style id="ui-polish-v3">
+  header .app-brand{display:none!important}
+  .header-inner{justify-content:flex-end!important}
+  #currentUserBadge{font-size:.88rem!important;padding:6px 12px!important}
+  #recordsBtn{font-size:.82rem!important}
+  #bilgileriGuncelleBtn{width:34px!important;height:34px!important;padding:0!important;display:inline-grid!important;place-items:center!important;font-size:1.35rem!important;line-height:1!important;border-radius:50%!important}
+  #bilgileriGuncelleBtn:disabled{opacity:.7}
+  #appBottomNav{position:fixed!important;left:0!important;right:0!important;bottom:0!important;z-index:90!important;width:100%!important;margin:0!important;background:rgba(12,14,22,.97)!important;backdrop-filter:blur(16px)!important;border-top:1px solid rgba(160,170,190,.18)!important;transform:none!important}
+  #appMain{padding-bottom:calc(104px + env(safe-area-inset-bottom))!important}
+  .home-clock{width:100%;text-align:center;padding:8px 0 2px;margin:0 auto}
+  #homeClockTime{font-size:clamp(2.5rem,11vw,4.5rem);font-weight:900;line-height:1.05;letter-spacing:.035em;font-variant-numeric:tabular-nums;color:#fff;text-shadow:0 0 24px rgba(0,240,255,.24)}
+  #homeClockDate{font-size:.82rem;color:var(--muted);margin-top:6px;text-transform:capitalize}
+  .home-shortcuts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;width:100%;max-width:480px}
+  .home-shortcuts button{background:linear-gradient(145deg,rgba(33,39,55,.96),rgba(19,23,34,.96));border:1px solid rgba(126,145,177,.25);border-radius:13px;padding:12px 10px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:1rem;color:#e8edfa}
+  .home-shortcuts button span{font-size:.86rem}
+  #hatirlatmaKartBox{overflow:visible!important}
+  .hatirlatma-soru{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;line-height:1.4!important}
+  .hatirlatma-cevap{white-space:normal!important;overflow-y:auto!important;overflow-x:hidden!important;text-overflow:clip!important;max-height:120px!important;line-height:1.45!important;display:block!important;overflow-wrap:anywhere!important}
+  #bugunEklenenlerListe .record-item{background:rgba(31,37,52,.72)!important}
+  #bugunEklenenlerListe .record-item pre{display:none!important}
+  #vardiyaTeamMini{max-width:100%!important;width:100%!important;position:static!important;order:3!important;overflow-x:auto!important}
+  #centerHomeStage{padding-bottom:12px!important}
+  @media(max-width:600px){#appBottomNav{min-height:78px!important}#appMain{padding-bottom:calc(112px + env(safe-area-inset-bottom))!important}.home-clock{padding-top:8px}.home-shortcuts button{padding:10px 7px}}
+</style>
+<script id="home-ui-polish-v3">
+(function(){
+  const tick=()=>{const n=new Date();const t=document.getElementById('homeClockTime'),d=document.getElementById('homeClockDate');if(t)t.textContent=n.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});if(d)d.textContent=n.toLocaleDateString('tr-TR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});};
+  tick();setInterval(tick,1000);
+  const records=()=>document.getElementById('recordsBtn')?.click();
+  document.getElementById('homePartsShortcut')?.addEventListener('click',()=>{records();setTimeout(()=>document.getElementById('pickParcaKodlariBtn')?.click(),80);});
+  document.getElementById('homeArticlesShortcut')?.addEventListener('click',()=>{records();setTimeout(()=>document.getElementById('extPickMakaleBtn')?.click(),80);});
+})();
+</script>
 </body>
 </html>
 <!-- ==================== HATIRLATMA KARTI & KENDİNİ TEST ET MODÜLÜ ==================== -->
@@ -5486,15 +5516,15 @@ ${kaynak}`;
       const btn = document.createElement("button");
       btn.id = "bilgileriGuncelleBtn";
       btn.type = "button";
-      btn.textContent = "↻ Bilgileri Güncelle";
-      btn.title = "Buluttaki verileri tazeler ve yeni sürüm için sayfayı yeniler";
+      btn.textContent = "↻";
+      btn.title = "Bilgileri güncelle";
 
       recordsBtn.insertAdjacentElement("afterend", btn);
 
       btn.addEventListener("click", async () => {
         btn.disabled = true;
         const oncekiMetin = btn.textContent;
-        btn.textContent = "Güncelleniyor...";
+        btn.textContent = "↻";
 
         try {
           if (typeof syncFromCloud === "function") {
