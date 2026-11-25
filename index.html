@@ -5923,3 +5923,512 @@ ${kaynak}`;
     setInterval(anaMenuDurumKartiniGuncelle, 1000);
   })();
 </script>
+<!-- ==================== KOLAY VARDİYA AYAR PANELİ ==================== -->
+<style>
+  #kolayVardiyaPanelKutu {
+    background: linear-gradient(160deg, rgba(157, 78, 221, 0.14), rgba(0, 240, 255, 0.06));
+    border: 1px solid rgba(157, 78, 221, 0.55);
+    border-radius: 14px;
+    padding: 12px;
+    margin: 12px 0;
+  }
+
+  .kv-baslik-satir {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+
+  .kv-baslik {
+    font-size: 0.92rem;
+    font-weight: 800;
+    color: var(--neon-cyan);
+  }
+
+  .kv-alt-not {
+    font-size: 0.76rem;
+    color: var(--muted);
+  }
+
+  .kv-sablon-satir {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+
+  .kv-sablon-btn {
+    padding: 7px 11px;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 240, 255, 0.45);
+    background: rgba(0, 240, 255, 0.1);
+    color: #ffffff;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .kv-sablon-btn:hover {
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.25);
+  }
+
+  .kv-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  @media (min-width: 640px) {
+    .kv-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .kv-field label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .kv-field input,
+  .kv-field select {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--panel-2);
+    color: var(--text);
+    font-size: 0.84rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .kv-gun-chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+
+  .kv-gun-btn {
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--panel-2);
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .kv-gun-btn.secili {
+    background: rgba(0, 240, 255, 0.18);
+    border-color: var(--neon-cyan);
+    color: var(--neon-cyan);
+  }
+
+  .kv-aksiyon-satir {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+
+  .kv-btn-ana {
+    flex: 1 1 170px;
+    padding: 10px 12px;
+    border-radius: 11px;
+    border: 1px solid var(--ok);
+    background: rgba(46, 229, 157, 0.16);
+    color: var(--ok);
+    font-size: 0.84rem;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .kv-btn-izin {
+    flex: 1 1 140px;
+    padding: 10px 12px;
+    border-radius: 11px;
+    border: 1px solid var(--warn);
+    background: rgba(255, 190, 92, 0.14);
+    color: var(--warn);
+    font-size: 0.84rem;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  #kvDurumMesaji {
+    margin-top: 8px;
+    font-size: 0.8rem;
+    color: var(--neon-cyan);
+    min-height: 18px;
+  }
+
+  .vardiya-satir-tiklanabilir {
+    cursor: pointer;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+  }
+
+  .vardiya-satir-tiklanabilir:hover {
+    border-color: var(--neon-cyan);
+    transform: translateY(-1px);
+  }
+</style>
+
+<script>
+  (function () {
+    const VARDIYA_KEY = "servis_asistani_vardiyalar_v1";
+
+    // Varsayılan şablonlar (saatleri ihtiyacına göre buradan kolayca değiştirebilirsin)
+    const SABLONLAR = {
+      sabah: {
+        vardiya: "09:00 / 19:00",
+        yemek: "13:00",
+        mola1: "11:00",
+        mola2: "15:00",
+        mola3: "16:30",
+        mola4: "18:00"
+      },
+      aksam: {
+        vardiya: "11:00 / 21:00",
+        yemek: "15:00",
+        mola1: "13:00",
+        mola2: "17:00",
+        mola3: "18:30",
+        mola4: "20:00"
+      }
+    };
+
+    // Hafta içi 2 gün izin düzenine uygun olarak varsayılan 5 gün seçili gelir
+    let aktifGunler = new Set([1, 2, 3, 4, 5]);
+
+    function bugunISO() {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    }
+
+    function aySonuISO() {
+      const d = new Date();
+      const son = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+      return `${son.getFullYear()}-${String(son.getMonth() + 1).padStart(2, "0")}-${String(son.getDate()).padStart(2, "0")}`;
+    }
+
+    function aktifKullaniciAdi() {
+      if (typeof currentSession !== "undefined" && currentSession && currentSession.user) {
+        return currentSession.user;
+      }
+      const kisiSelect = document.getElementById("vardiyaKisiSelect");
+      if (kisiSelect && kisiSelect.value && kisiSelect.value !== "ALL") {
+        return kisiSelect.value;
+      }
+      return "Kullanıcı";
+    }
+
+    function sablonuKutularaDoldur(tip) {
+      const s = SABLONLAR[tip];
+      if (!s) return;
+      document.getElementById("kvVardiya").value = s.vardiya;
+      document.getElementById("kvYemek").value = s.yemek;
+      document.getElementById("kvMola1").value = s.mola1;
+      document.getElementById("kvMola2").value = s.mola2;
+      document.getElementById("kvMola3").value = s.mola3;
+      document.getElementById("kvMola4").value = s.mola4;
+      document.getElementById("kvDurumMesaji").textContent = `${s.vardiya} şablonu kutulara dolduruldu. İstediğin saati değiştirebilirsin.`;
+    }
+
+    function mevcutVardiyalariOku() {
+      try {
+        const raw = localStorage.getItem(VARDIYA_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+
+    async function kayitlariKaydetVePaylas(kayitlar, durumMetni) {
+      const mevcut = mevcutVardiyalariOku();
+      const map = new Map(mevcut.map(item => [item.id, item]));
+      for (const kayit of kayitlar) {
+        map.set(kayit.id, kayit);
+      }
+
+      const sirali = Array.from(map.values()).sort((a, b) =>
+        String(a.tarih || "").localeCompare(String(b.tarih || ""))
+      );
+
+      try {
+        localStorage.setItem(VARDIYA_KEY, JSON.stringify(sirali));
+      } catch {}
+
+      const cfg = typeof getSbConfig === "function" ? getSbConfig() : null;
+      if (cfg && kayitlar.length) {
+        try {
+          const payload = kayitlar.map(item => ({
+            id: item.id,
+            category: "VardiyaPlanı",
+            group: item.kisi || "Genel",
+            title: `${item.tarih} (${item.vardiya}) - ${item.kisi}`,
+            content: JSON.stringify(item),
+            updated_at: new Date().toISOString()
+          }));
+
+          await fetch(`${cfg.url}/rest/v1/records`, {
+            method: "POST",
+            headers: {
+              "apikey": cfg.key,
+              "Authorization": `Bearer ${cfg.key}`,
+              "Content-Type": "application/json",
+              "Prefer": "resolution=merge-duplicates"
+            },
+            body: JSON.stringify(payload)
+          });
+        } catch {}
+      }
+
+      const durumEl = document.getElementById("kvDurumMesaji");
+      if (durumEl) durumEl.textContent = durumMetni;
+
+      document.getElementById("vardiyaYenileBtn")?.click();
+    }
+
+    function araliktakiTarihleriGetir(basStr, bitStr, sadeceSeciliGunler) {
+      const bas = new Date(`${basStr}T00:00:00`);
+      const bit = new Date(`${bitStr}T00:00:00`);
+      if (Number.isNaN(bas.getTime()) || Number.isNaN(bit.getTime()) || bas > bit) {
+        return null;
+      }
+
+      const sonuc = [];
+      const cur = new Date(bas);
+      while (cur <= bit) {
+        if (!sadeceSeciliGunler || aktifGunler.has(cur.getDay())) {
+          const y = cur.getFullYear();
+          const m = String(cur.getMonth() + 1).padStart(2, "0");
+          const g = String(cur.getDate()).padStart(2, "0");
+          sonuc.push(`${y}-${m}-${g}`);
+        }
+        cur.setDate(cur.getDate() + 1);
+      }
+      return sonuc;
+    }
+
+    async function seciliGunlereUygula(izinModu) {
+      const basStr = document.getElementById("kvBaslangic").value;
+      const bitStr = document.getElementById("kvBitis").value;
+      const durumEl = document.getElementById("kvDurumMesaji");
+
+      if (!basStr || !bitStr) {
+        durumEl.textContent = "Lütfen başlangıç ve bitiş tarihini seç.";
+        return;
+      }
+
+      const tarihler = araliktakiTarihleriGetir(basStr, bitStr, true);
+      if (!tarihler) {
+        durumEl.textContent = "Bitiş tarihi başlangıç tarihinden önce olamaz.";
+        return;
+      }
+      if (!tarihler.length) {
+        durumEl.textContent = "Seçili tarih aralığında işaretli gün yok.";
+        return;
+      }
+
+      const kisi = aktifKullaniciAdi();
+      const vardiya = izinModu ? "İzinli" : document.getElementById("kvVardiya").value;
+      const yemek = izinModu ? "" : document.getElementById("kvYemek").value;
+      const mola1 = izinModu ? "" : document.getElementById("kvMola1").value;
+      const mola2 = izinModu ? "" : document.getElementById("kvMola2").value;
+      const mola3 = izinModu ? "" : document.getElementById("kvMola3").value;
+      const mola4 = izinModu ? "" : document.getElementById("kvMola4").value;
+
+      const kayitlar = tarihler.map(tarih => ({
+        id: `vardiya_${tarih}_${kisi}`,
+        tarih,
+        vardiya,
+        yemek,
+        mola1,
+        mola2,
+        mola3,
+        mola4,
+        kisi,
+        updatedAt: new Date().toISOString()
+      }));
+
+      const mesaj = izinModu
+        ? `${kayitlar.length} gün (${kisi}) için izinli/boş olarak kaydedildi.`
+        : `${kayitlar.length} gün (${vardiya} - ${kisi}) toplu olarak kaydedildi.`;
+
+      await kayitlariKaydetVePaylas(kayitlar, mesaj);
+    }
+
+    function gunSatirlarinaTiklamaEkle() {
+      const liste = document.getElementById("vardiyaListeAlani");
+      if (!liste) return;
+
+      const mevcutKayitlar = mevcutVardiyalariOku();
+      const kayitMap = new Map(mevcutKayitlar.map(k => [k.id, k]));
+
+      liste.querySelectorAll(".vardiya-gun-satir, .vardiya-kayit-satir, [data-vardiya-id]").forEach(satir => {
+        if (satir.dataset.kvBaglandi === "1") return;
+        satir.dataset.kvBaglandi = "1";
+        satir.classList.add("vardiya-satir-tiklanabilir");
+
+        satir.addEventListener("click", () => {
+          const id = satir.getAttribute("data-vardiya-id");
+          let veri = id ? kayitMap.get(id) : null;
+
+          if (!veri) {
+            const metin = satir.textContent || "";
+            const tarihEslesme = metin.match(/\b(\d{4}-\d{2}-\d{2})\b/);
+            if (tarihEslesme) {
+              veri = mevcutKayitlar.find(x => x.tarih === tarihEslesme[1]) || null;
+            }
+          }
+
+          if (!veri) return;
+          if (veri.tarih) {
+            document.getElementById("kvBaslangic").value = veri.tarih;
+            document.getElementById("kvBitis").value = veri.tarih;
+          }
+          if (veri.vardiya && veri.vardiya !== "İzinli") {
+            document.getElementById("kvVardiya").value = veri.vardiya;
+          }
+          document.getElementById("kvYemek").value = veri.yemek || "";
+          document.getElementById("kvMola1").value = veri.mola1 || "";
+          document.getElementById("kvMola2").value = veri.mola2 || "";
+          document.getElementById("kvMola3").value = veri.mola3 || "";
+          document.getElementById("kvMola4").value = veri.mola4 || "";
+
+          const durumEl = document.getElementById("kvDurumMesaji");
+          if (durumEl) {
+            durumEl.textContent = `${veri.tarih} (${veri.kisi}) saatleri forma çekildi; düzenleyip kaydedebilirsin.`;
+          }
+        });
+      });
+    }
+
+    function paneliKur() {
+      const kart = document.querySelector("#vardiyaPlanModalBackdrop .vardiya-plan-card");
+      const listeAlani = document.getElementById("vardiyaListeAlani");
+      if (!kart || !listeAlani || document.getElementById("kolayVardiyaPanelKutu")) return;
+
+      const gunler = [
+        { d: 1, ad: "Pzt" },
+        { d: 2, ad: "Sal" },
+        { d: 3, ad: "Çar" },
+        { d: 4, ad: "Per" },
+        { d: 5, ad: "Cum" },
+        { d: 6, ad: "Cmt" },
+        { d: 0, ad: "Paz" }
+      ];
+
+      const kutu = document.createElement("div");
+      kutu.id = "kolayVardiyaPanelKutu";
+      kutu.innerHTML = `
+        <div class="kv-baslik-satir">
+          <span class="kv-baslik">⚡ Kolay Vardiya Paneli</span>
+          <span class="kv-alt-not">Tek tek gün girmek yerine aralık & gün seç</span>
+        </div>
+
+        <div class="kv-sablon-satir">
+          <button type="button" class="kv-sablon-btn" data-sablon="sabah">09:00 / 19:00 Şablonu</button>
+          <button type="button" class="kv-sablon-btn" data-sablon="aksam">11:00 / 21:00 Şablonu</button>
+        </div>
+
+        <div class="kv-grid">
+          <div class="kv-field">
+            <label for="kvBaslangic">Başlangıç</label>
+            <input id="kvBaslangic" type="date" value="${bugunISO()}" />
+          </div>
+          <div class="kv-field">
+            <label for="kvBitis">Bitiş</label>
+            <input id="kvBitis" type="date" value="${aySonuISO()}" />
+          </div>
+          <div class="kv-field">
+            <label for="kvVardiya">Vardiya</label>
+            <select id="kvVardiya">
+              <option value="09:00 / 19:00">09:00 / 19:00</option>
+              <option value="11:00 / 21:00">11:00 / 21:00</option>
+            </select>
+          </div>
+          <div class="kv-field">
+            <label for="kvYemek">Yemek (50 dk)</label>
+            <input id="kvYemek" type="time" />
+          </div>
+          <div class="kv-field">
+            <label for="kvMola1">10dk Mola 1</label>
+            <input id="kvMola1" type="time" />
+          </div>
+          <div class="kv-field">
+            <label for="kvMola2">10dk Mola 2</label>
+            <input id="kvMola2" type="time" />
+          </div>
+          <div class="kv-field">
+            <label for="kvMola3">10dk Mola 3</label>
+            <input id="kvMola3" type="time" />
+          </div>
+          <div class="kv-field">
+            <label for="kvMola4">10dk Mola 4</label>
+            <input id="kvMola4" type="time" />
+          </div>
+        </div>
+
+        <div class="kv-gun-chips" id="kvGunChips">
+          ${gunler.map(g => `
+            <button type="button" class="kv-gun-btn ${aktifGunler.has(g.d) ? "secili" : ""}" data-gun="${g.d}">${g.ad}</button>
+          `).join("")}
+          <button type="button" class="kv-gun-btn" id="kvHaftaIciBtn">5 Gün Seç</button>
+          <button type="button" class="kv-gun-btn" id="kvTumunuSecBtn">7 Gün Seç</button>
+        </div>
+
+        <div class="kv-aksiyon-satir">
+          <button type="button" class="kv-btn-ana" id="kvTopluKaydetBtn">Seçili Günlere Kaydet</button>
+          <button type="button" class="kv-btn-izin" id="kvIzinKaydetBtn">Seçili Günleri İzinli Yap</button>
+        </div>
+
+        <div id="kvDurumMesaji"></div>
+      `;
+
+      kart.insertBefore(kutu, listeAlani);
+
+      kutu.querySelectorAll("[data-sablon]").forEach(btn => {
+        btn.addEventListener("click", () => sablonuKutularaDoldur(btn.getAttribute("data-sablon")));
+      });
+
+      kutu.querySelectorAll("#kvGunChips .kv-gun-btn[data-gun]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const d = Number(btn.getAttribute("data-gun"));
+          if (aktifGunler.has(d)) aktifGunler.delete(d);
+          else aktifGunler.add(d);
+          btn.classList.toggle("secili", aktifGunler.has(d));
+        });
+      });
+
+      document.getElementById("kvHaftaIciBtn").addEventListener("click", () => {
+        aktifGunler = new Set([1, 2, 3, 4, 5]);
+        kutu.querySelectorAll("#kvGunChips .kv-gun-btn[data-gun]").forEach(b => {
+          b.classList.toggle("secili", aktifGunler.has(Number(b.getAttribute("data-gun"))));
+        });
+      });
+
+      document.getElementById("kvTumunuSecBtn").addEventListener("click", () => {
+        aktifGunler = new Set([0, 1, 2, 3, 4, 5, 6]);
+        kutu.querySelectorAll("#kvGunChips .kv-gun-btn[data-gun]").forEach(b => b.classList.add("secili"));
+      });
+
+      document.getElementById("kvTopluKaydetBtn").addEventListener("click", () => seciliGunlereUygula(false));
+      document.getElementById("kvIzinKaydetBtn").addEventListener("click", () => seciliGunlereUygula(true));
+
+      gunSatirlarinaTiklamaEkle();
+      const gozlemci = new MutationObserver(gunSatirlarinaTiklamaEkle);
+      gozlemci.observe(listeAlani, { childList: true, subtree: true });
+    }
+
+    paneliKur();
+  })();
+</script>
