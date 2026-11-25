@@ -3140,15 +3140,35 @@ Kayıttaki "Yapılması gereken" adımlar.`;
       const canvas = document.getElementById("kirpmaCanvas");
       const ctx = canvas.getContext("2d");
       const siraBilgi = document.getElementById("kirpmaSiraBilgi");
+      const onayBtn = document.getElementById("kirpmaOnaylaBtn");
+      const tumAlanBtn = document.getElementById("kirpmaTumAlanBtn");
+      const kirpmadanBtn = document.getElementById("kirpmaKirpmadanBtn");
+      const iptalBtn = document.getElementById("kirpmaIptalBtn");
+
+      if (!backdrop || !canvas || !ctx) return;
 
       let bekleyenKuyruk = [];
       let islenmisDosyalar = [];
       let aktifCallback = null;
       let aktifImg = null;
+      let modalAcilisZamani = 0;
 
-      let secim = { x: 0, y: 0, w: 0, h: 0 };
+      let secim = null;
+      let elleSecimYapildi = false;
       let surukleniyor = false;
       let baslangicNokta = { x: 0, y: 0 };
+
+      function uyariGoster(mesaj) {
+        let uyariEl = document.getElementById("kirpmaUyariMetni");
+        if (!uyariEl) {
+          uyariEl = document.createElement("div");
+          uyariEl.id = "kirpmaUyariMetni";
+          uyariEl.className = "error-msg";
+          uyariEl.style.marginTop = "8px";
+          onayBtn.parentElement.insertAdjacentElement("afterend", uyariEl);
+        }
+        uyariEl.textContent = mesaj || "";
+      }
 
       function dosyayiResmeCevir(file) {
         return new Promise((resolve, reject) => {
@@ -3166,6 +3186,11 @@ Kayıttaki "Yapılması gereken" adımlar.`;
 
       function sahneyiHazirla(img) {
         aktifImg = img;
+        elleSecimYapildi = false;
+        surukleniyor = false;
+        secim = null;
+        uyariGoster("");
+
         const maxW = Math.min(670, window.innerWidth - 56);
         const maxH = Math.min(460, Math.floor(window.innerHeight * 0.6));
         const natW = img.naturalWidth || img.width || 800;
@@ -3175,14 +3200,6 @@ Kayıttaki "Yapılması gereken" adımlar.`;
         canvas.width = Math.max(120, Math.round(natW * oran));
         canvas.height = Math.max(120, Math.round(natH * oran));
 
-        const padX = Math.round(canvas.width * 0.12);
-        const padY = Math.round(canvas.height * 0.12);
-        secim = {
-          x: padX,
-          y: padY,
-          w: Math.max(40, canvas.width - padX * 2),
-          h: Math.max(40, canvas.height - padY * 2)
-        };
         sahneyiCiz();
       }
 
@@ -3191,7 +3208,27 @@ Kayıttaki "Yapılması gereken" adımlar.`;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(aktifImg, 0, 0, canvas.width, canvas.height);
 
-        ctx.fillStyle = "rgba(4, 3, 8, 0.58)";
+        if (!secim || secim.w < 4 || secim.h < 4) {
+          ctx.fillStyle = "rgba(4, 3, 8, 0.35)";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.fillStyle = "rgba(17, 15, 26, 0.85)";
+          const boxW = Math.min(canvas.width - 24, 300);
+          const boxH = 44;
+          const bx = Math.round((canvas.width - boxW) / 2);
+          const by = Math.round((canvas.height - boxH) / 2);
+          ctx.fillRect(bx, by, boxW, boxH);
+          ctx.strokeStyle = "#00f0ff";
+          ctx.lineWidth = 1.5;
+          ctx.strokeRect(bx, by, boxW, boxH);
+          ctx.fillStyle = "#ffffff";
+          ctx.font = "bold 13px system-ui, sans-serif";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText("Soru alanını parmak/fare ile sürükleyip seçin", canvas.width / 2, by + boxH / 2);
+          return;
+        }
+
+        ctx.fillStyle = "rgba(4, 3, 8, 0.62)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         const x = Math.max(0, Math.min(secim.x, canvas.width));
@@ -3231,6 +3268,7 @@ Kayıttaki "Yapılması gereken" adımlar.`;
       }
 
       function baslaCizim(clientX, clientY) {
+        uyariGoster("");
         surukleniyor = true;
         baslangicNokta = canvasKoordinatiAl(clientX, clientY);
         secim = { x: baslangicNokta.x, y: baslangicNokta.y, w: 0, h: 0 };
@@ -3252,33 +3290,48 @@ Kayıttaki "Yapılması gereken" adımlar.`;
       function bitirCizim() {
         if (!surukleniyor) return;
         surukleniyor = false;
-        if (secim.w < 16 || secim.h < 16) {
-          secim = { x: 0, y: 0, w: canvas.width, h: canvas.height };
+        if (!secim || secim.w < 16 || secim.h < 16) {
+          secim = null;
+          elleSecimYapildi = false;
+          uyariGoster("Çok küçük dokunuş algılandı. Lütfen soru kısmının üzerinde sürükleyerek bir dikdörtgen çizin.");
           sahneyiCiz();
+          return;
         }
+        elleSecimYapildi = true;
+        uyariGoster("");
+        sahneyiCiz();
       }
 
-      canvas.addEventListener("mousedown", (e) => baslaCizim(e.clientX, e.clientY));
-      window.addEventListener("mousemove", (e) => ilerleCizim(e.clientX, e.clientY));
-      window.addEventListener("mouseup", bitirCizim);
-
-      canvas.addEventListener("touchstart", (e) => {
-        if (!e.touches.length) return;
+      canvas.addEventListener("pointerdown", (e) => {
         e.preventDefault();
-        baslaCizim(e.touches[0].clientX, e.touches[0].clientY);
-      }, { passive: false });
+        e.stopPropagation();
+        if (canvas.setPointerCapture) {
+          try { canvas.setPointerCapture(e.pointerId); } catch {}
+        }
+        baslaCizim(e.clientX, e.clientY);
+      });
 
-      window.addEventListener("touchmove", (e) => {
-        if (!surukleniyor || !e.touches.length) return;
+      canvas.addEventListener("pointermove", (e) => {
+        if (!surukleniyor) return;
         e.preventDefault();
-        ilerleCizim(e.touches[0].clientX, e.touches[0].clientY);
-      }, { passive: false });
+        e.stopPropagation();
+        ilerleCizim(e.clientX, e.clientY);
+      });
 
-      window.addEventListener("touchend", bitirCizim);
+      canvas.addEventListener("pointerup", (e) => {
+        if (!surukleniyor) return;
+        e.preventDefault();
+        e.stopPropagation();
+        bitirCizim();
+      });
 
-      function kirpilmisDosyaUret(orijinalDosya, tamAlan = false) {
+      canvas.addEventListener("pointercancel", () => {
+        surukleniyor = false;
+      });
+
+      function kirpilmisDosyaUret(orijinalDosya) {
         return new Promise((resolve) => {
-          if (!aktifImg || tamAlan || secim.w < 16 || secim.h < 16) {
+          if (!aktifImg || !secim || secim.w < 16 || secim.h < 16) {
             resolve(orijinalDosya);
             return;
           }
@@ -3328,6 +3381,7 @@ Kayıttaki "Yapılması gereken" adımlar.`;
         try {
           const img = await dosyayiResmeCevir(dosya);
           sahneyiHazirla(img);
+          modalAcilisZamani = Date.now();
           backdrop.classList.remove("hidden");
         } catch {
           bekleyenKuyruk.shift();
@@ -3344,30 +3398,43 @@ Kayıttaki "Yapılması gereken" adımlar.`;
         siradakiFotografiAc();
       };
 
-      document.getElementById("kirpmaTumAlanBtn").addEventListener("click", () => {
+      tumAlanBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
         secim = { x: 0, y: 0, w: canvas.width, h: canvas.height };
+        elleSecimYapildi = true;
+        uyariGoster("");
         sahneyiCiz();
       });
 
-      document.getElementById("kirpmaOnaylaBtn").addEventListener("click", async () => {
+      onayBtn.addEventListener("click", async (e) => {
+        e.stopPropagation();
+        if (Date.now() - modalAcilisZamani < 250) return;
+        if (!elleSecimYapildi || !secim || secim.w < 16 || secim.h < 16) {
+          uyariGoster("Önce fotoğraf üzerinde kırpmak istediğiniz soru alanını sürükleyerek seçin (veya 'Tüm Alanı Seç' / 'Kırpmadan Yükle' kullanın).");
+          return;
+        }
         const dosya = bekleyenKuyruk.shift();
         if (!dosya) return;
-        const kirpilmis = await kirpilmisDosyaUret(dosya, false);
+        const kirpilmis = await kirpilmisDosyaUret(dosya);
         islenmisDosyalar.push(kirpilmis);
         await siradakiFotografiAc();
       });
 
-      document.getElementById("kirpmaKirpmadanBtn").addEventListener("click", async () => {
+      kirpmadanBtn.addEventListener("click", async (e) => {
+        e.stopPropagation();
+        if (Date.now() - modalAcilisZamani < 250) return;
         const dosya = bekleyenKuyruk.shift();
         if (!dosya) return;
         islenmisDosyalar.push(dosya);
         await siradakiFotografiAc();
       });
 
-      document.getElementById("kirpmaIptalBtn").addEventListener("click", () => {
+      iptalBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
         bekleyenKuyruk = [];
         islenmisDosyalar = [];
         aktifCallback = null;
+        uyariGoster("");
         backdrop.classList.add("hidden");
       });
     })();
