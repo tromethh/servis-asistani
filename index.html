@@ -4049,6 +4049,7 @@ Yapılması gereken adımlar...`;
         if (!document.getElementById("vardiyaEkipMolaModalBackdrop").classList.contains("hidden")) {
           ekipMolaModalListesiniCiz();
         }
+        if (typeof vardiyaEkipMiniyiCiz === "function") vardiyaEkipMiniyiCiz();
       }
 
       function ekipMolaModalListesiniCiz() {
@@ -4127,8 +4128,28 @@ Yapılması gereken adımlar...`;
         if (!home || document.getElementById("vardiyaAnaBar")) return;
         const bar = document.createElement("div");
         bar.id = "vardiyaAnaBar";
-        bar.innerHTML = `<button id="vardiyaPlanBtn" type="button">＋ Kolay Vardiya Ekle</button>`;
+        bar.innerHTML = `
+          <div class="vardiya-top-actions">
+            <button id="vardiyaMolaBaslatBtn" type="button">⏱️ Mola Başlat</button>
+            <button id="vardiyaPlanBtn" type="button">＋ Kolay Vardiya Ekle</button>
+          </div>
+          <div id="vardiyaMolaSecimBox" class="hidden">
+            <button id="vardiyaYemekBaslatBtn" type="button" class="cyan-outline">🍽️ Yemek Molası · 50 dk</button>
+            <button id="vardiyaKisaMolaBaslatBtn" type="button">☕ Mola · 10 dk</button>
+          </div>`;
         home.appendChild(bar);
+        document.getElementById("vardiyaMolaBaslatBtn").addEventListener("click", () => {
+          sesBaglaminiHazirla();
+          document.getElementById("vardiyaMolaSecimBox").classList.toggle("hidden");
+        });
+        document.getElementById("vardiyaYemekBaslatBtn").addEventListener("click", () => {
+          document.getElementById("vardiyaMolaSecimBox").classList.add("hidden");
+          vardiyaSayacBaslat("Yemek", YEMEK_SANIYE);
+        });
+        document.getElementById("vardiyaKisaMolaBaslatBtn").addEventListener("click", () => {
+          document.getElementById("vardiyaMolaSecimBox").classList.add("hidden");
+          vardiyaSayacBaslat("Mola", MOLA_SANIYE);
+        });
         document.getElementById("vardiyaPlanBtn").addEventListener("click", async () => {
           const now = new Date();
           const basInput = document.getElementById("vardiyaTarihBasInput");
@@ -4259,7 +4280,13 @@ Yapılması gereken adımlar...`;
         if (item.baslangic && item.bitis) return `${item.baslangic} / ${item.bitis}`;
         return item.vardiya || "-";
       }
-      function vardiyaDurum(item) {
+      function vardiyaDurum(item, kisi) {
+        const aktifMola = ekipMolalar.find(m => m.kisi === kisi);
+        if (aktifMola) {
+          const gecen = Math.max(0, Math.floor((Date.now() - aktifMola.startMs) / 1000));
+          const gecenStr = formatMMSS(gecen);
+          return { text:`${aktifMola.tur === "Yemek" ? "Yemekte" : "Molada"} · ${gecenStr}`, cls:"break" };
+        }
         if (!item) return { text:"Plan girilmedi", cls:"muted" };
         if (item.izinli || item.vardiya === "İzinli") return { text:"İzinli", cls:"leave" };
         const range = vardiyaSaatAraligi(item).match(/(\d{2}:\d{2})\s*\/\s*(\d{2}:\d{2})/);
@@ -4275,9 +4302,9 @@ Yapılması gereken adımlar...`;
         const names = [...new Set(["Arda", "Görkem", ...(currentSession?.user ? [currentSession.user] : []), ...vardiyaKayitlari.map(x => x.kisi).filter(Boolean)])].sort((a,b)=>a.localeCompare(b,"tr"));
         el.classList.remove("hidden");
         const today = tarihLocal(new Date());
-        el.innerHTML = `<span class="vardiya-mini-label">EKİP</span>` + names.map(name => {
+        el.innerHTML = `<span class="vardiya-mini-label">Ekip:</span>` + names.map(name => {
           const item = vardiyaKayitlari.find(x => x.kisi === name && x.tarih === today);
-          const st = vardiyaDurum(item);
+          const st = vardiyaDurum(item, name);
           return `<button type="button" class="vardiya-person-pill ${st.cls}" data-vardiya-person="${escapeHtml(name)}"><strong>${escapeHtml(name)}</strong><small>${st.text === "Plan girilmedi" ? "Vardiya girilmedi" : st.text}</small></button>`;
         }).join("");
         el.querySelectorAll("[data-vardiya-person]").forEach(btn => btn.addEventListener("click", () => {
@@ -6713,8 +6740,12 @@ ${kaynak}`;
 <style id="home-navigation-header-marquee-v4">
   /* Header: only user, refresh and notifications, centered as one compact group. */
   header{padding:10px 12px!important}
-  .header-inner{display:flex!important;justify-content:center!important;align-items:center!important;gap:12px!important;min-height:42px!important;flex-wrap:nowrap!important}
-  #vardiyaTeamMini{display:none!important}
+  .header-inner{display:flex!important;justify-content:center!important;align-items:center!important;gap:8px 12px!important;min-height:42px!important;flex-wrap:wrap!important}
+  #vardiyaTeamMini{display:flex!important;flex:1 0 100%!important;order:3!important;align-items:center!important;justify-content:flex-start!important;gap:7px!important;max-width:100%!important;width:100%!important;position:static!important;overflow-x:auto!important;padding:5px 2px 2px!important;border-top:1px solid rgba(255,255,255,.07)!important;scrollbar-width:thin!important}
+  .vardiya-mini-label{flex:0 0 auto!important;color:#aeb8ca!important;font-size:.72rem!important;font-weight:850!important;letter-spacing:.04em!important}
+  .vardiya-person-pill{flex:0 0 auto!important;min-width:92px!important;padding:5px 9px!important;border-radius:10px!important;background:#1a2030!important;border:1px solid rgba(255,255,255,.12)!important;color:#e8edfa!important;display:flex!important;flex-direction:column!important;gap:1px!important;text-align:left!important}
+  .vardiya-person-pill strong{font-size:.74rem!important}.vardiya-person-pill small{font-size:.65rem!important;color:#aeb8ca!important;white-space:nowrap!important}
+  .vardiya-person-pill.work{border-color:rgba(72,223,154,.35)!important}.vardiya-person-pill.break{border-color:rgba(255,190,90,.55)!important;background:rgba(255,170,60,.1)!important}.vardiya-person-pill.break small{color:#ffc477!important}.vardiya-person-pill.leave,.vardiya-person-pill.muted{opacity:.78!important}
   .header-left{display:flex!important;align-items:center!important;justify-content:center!important;gap:10px!important;flex:0 0 auto!important}
   #recordsBtn{display:none!important}
   #currentUserBadge{display:inline-flex!important;align-items:center!important;justify-content:center!important;margin:0!important}
@@ -6725,6 +6756,13 @@ ${kaynak}`;
   .home-shortcuts{grid-template-columns:repeat(3,minmax(0,1fr))!important;max-width:620px!important}
   .home-shortcuts button{min-width:0!important;padding:12px 6px!important}
   .home-shortcuts button span{font-size:clamp(.72rem,2.8vw,.88rem)!important}
+  #vardiyaAnaBar{width:100%!important;max-width:480px!important;margin:12px auto 4px!important;padding:10px!important;border-radius:14px!important;background:rgba(26,32,48,.72)!important;border:1px solid rgba(169,149,255,.18)!important}
+  .vardiya-top-actions{display:flex!important;gap:8px!important;justify-content:center!important;flex-wrap:wrap!important}
+  #vardiyaMolaBaslatBtn,#vardiyaPlanBtn{flex:1 1 145px!important;min-height:42px!important;border-radius:11px!important;padding:9px 12px!important;font-weight:800!important;background:#20283a!important;border:1px solid rgba(169,149,255,.28)!important;color:#e8edfa!important}
+  #vardiyaMolaBaslatBtn{border-color:rgba(85,214,207,.42)!important;color:#78e4dc!important}
+  #vardiyaMolaSecimBox{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:9px;padding:9px;background:#111520;border:1px solid rgba(85,214,207,.22);border-radius:11px}
+  #vardiyaMolaSecimBox.hidden{display:none!important}
+  #vardiyaMolaSecimBox button{flex:1 1 145px;min-height:40px;border-radius:10px;padding:8px 10px;font-weight:750}
   /* Smooth ticker: keep the full reminder readable over time rather than clipping it. */
   #hatirlatmaKartBox{overflow:hidden!important}
   .hatirlatma-soru,.hatirlatma-cevap{display:block!important;max-width:100%!important;overflow:hidden!important;white-space:nowrap!important;text-overflow:clip!important;overflow-wrap:normal!important}
