@@ -340,6 +340,88 @@
       color: #fff;
     }
 
+    /* Tatlı Yükleme Ekranı / Kutusu */
+    @keyframes spinRing {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 20px rgba(0, 240, 255, 0.22), 0 0 36px rgba(157, 78, 221, 0.18); }
+      50% { box-shadow: 0 0 30px rgba(0, 240, 255, 0.42), 0 0 48px rgba(157, 78, 221, 0.34); }
+    }
+
+    .sweet-loader-box {
+      background: linear-gradient(155deg, rgba(17, 15, 26, 0.96), rgba(25, 22, 38, 0.94));
+      border: 1.5px solid var(--neon-cyan);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      animation: pulseGlow 2s infinite ease-in-out;
+    }
+
+    .sweet-loader-top {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .sweet-spinner {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 3px solid rgba(0, 240, 255, 0.2);
+      border-top-color: var(--neon-cyan);
+      border-right-color: var(--neon-purple-bright);
+      animation: spinRing 0.85s linear infinite;
+      flex-shrink: 0;
+    }
+
+    .sweet-loader-title {
+      font-size: 1.04rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin: 0;
+    }
+
+    .sweet-loader-sub {
+      font-size: 0.84rem;
+      color: var(--muted);
+      margin: 2px 0 0;
+    }
+
+    .sweet-steps {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .sweet-step-pill {
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      background: var(--panel-2);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      transition: all 0.2s ease;
+    }
+
+    .sweet-step-pill.active {
+      background: rgba(0, 240, 255, 0.16);
+      color: var(--neon-cyan);
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
+    }
+
+    .sweet-step-pill.done {
+      background: rgba(0, 245, 160, 0.14);
+      color: var(--ok);
+      border-color: var(--ok);
+    }
+
     .cat-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(130px, 1fr));
@@ -1375,7 +1457,7 @@
     <div id="askWindowCard" class="card hidden">
       <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px;">
         <h2 style="margin:0;">Soru Sor</h2>
-        <button id="backHomeFromAskBtn" type="button" class="secondary">Kutucuklara Dön</button>
+        <button id="backHomeFromAskBtn" type="button" class="secondary">Ana Sayfa</button>
       </div>
       <label for="questionInput">Müşterinin sorusunu yazın veya sorunun fotoğrafını ekleyin</label>
       <textarea id="questionInput" placeholder="Soruyu veya parça/hata kodunu yazın..."></textarea>
@@ -1403,7 +1485,7 @@
       <div class="queue-header">
         <h2 style="margin:0;">Yükleme Durumu <span id="queueCountBadge" class="badge">0</span></h2>
         <div style="display:flex; gap:8px; flex-wrap:wrap;">
-          <button id="backHomeFromUploadBtn" type="button" class="secondary">Kutucuklara Dön</button>
+          <button id="backHomeFromUploadBtn" type="button" class="secondary">Ana Sayfa</button>
           <button id="clearFinishedQueueBtn" type="button" class="secondary">Tamamlananları Temizle</button>
           <button id="bulkDeleteFailedBtn" type="button" class="danger">İşleme Alınamayanları Toplu Sil</button>
         </div>
@@ -2628,11 +2710,71 @@ Ardından yalnızca şu JSON formatında yanıt ver (başka açıklama yazma):
       }
     }
 
+    const SISTEM_KAYIT_KATEGORILERI = new Set([
+      "VardiyaPlanı",
+      "AktifMola",
+      "VardiyaDevirNotu",
+      "İşleme Alınamayanlar"
+    ]);
+
+    function isMakaleCategory(cat) {
+      const c = String(cat || "").trim();
+      if (!c) return false;
+      if (c === "Süreçler" || c === "Parça Kodları") return false;
+      if (SISTEM_KAYIT_KATEGORILERI.has(c)) return false;
+      return true;
+    }
+
+    function formatRecordBlock(raw, idx) {
+      const r = normalizeRecord(raw);
+      return `[KAYIT #${idx + 1} | Kategori: ${r.category} | Grup: ${r.group} | Yükleyen Kişi: ${r.uploadedBy} | Yükleme Zamanı: ${formatDateTr(r.uploadedAt)} | Başlık: ${r.title}]\n${r.content}`;
+    }
+
+    function buildMakaleContextText() {
+      const items = state.records.map(normalizeRecord).filter(r => isMakaleCategory(r.category));
+      if (!items.length) return "(Makale bölümünde kayıt bulunmuyor.)";
+      return items.map((r, i) => formatRecordBlock(r, i)).join("\n\n---\n\n");
+    }
+
+    function buildSureclerContextText() {
+      const items = state.records.map(normalizeRecord).filter(r => r.category === "Süreçler");
+      if (!items.length) return "(Süreçler bölümünde kayıt bulunmuyor.)";
+      return items.map((r, i) => formatRecordBlock(r, i)).join("\n\n---\n\n");
+    }
+
+    function buildParcaKodlariContextText() {
+      const items = state.records.map(normalizeRecord).filter(r => r.category === "Parça Kodları");
+      if (!items.length) return "(Parça Kodları bölümünde kayıt bulunmuyor.)";
+      return items.map((r, i) => formatRecordBlock(r, i)).join("\n\n---\n\n");
+    }
+
     function buildContextText() {
-      return state.records.map((raw, idx) => {
-        const r = normalizeRecord(raw);
-        return `[KAYIT #${idx + 1} | Kategori: ${r.category} | Grup: ${r.group} | Yükleyen Kişi: ${r.uploadedBy} | Yükleme Zamanı: ${formatDateTr(r.uploadedAt)} | Başlık: ${r.title}]\n${r.content}`;
-      }).join("\n\n---\n\n");
+      return state.records.map((raw, idx) => formatRecordBlock(raw, idx)).join("\n\n---\n\n");
+    }
+
+    function renderSweetLoadingBox(stageText, subText, stepState) {
+      const s1Class = stepState === 1 ? "active" : (stepState > 1 ? "done" : "");
+      const s2Class = stepState === 2 ? "active" : (stepState > 2 ? "done" : "");
+      const s1Icon = stepState > 1 ? "✓ " : "";
+      const s2Icon = stepState > 2 ? "✓ " : "";
+
+      return `
+        <div class="card">
+          <div class="sweet-loader-box">
+            <div class="sweet-loader-top">
+              <div class="sweet-spinner"></div>
+              <div>
+                <p class="sweet-loader-title">${escapeHtml(stageText)}</p>
+                <p class="sweet-loader-sub">${escapeHtml(subText)}</p>
+              </div>
+            </div>
+            <div class="sweet-steps">
+              <span class="sweet-step-pill ${s1Class}">${s1Icon}1. Makale</span>
+              <span class="sweet-step-pill ${s2Class}">${s2Icon}2. Süreçler & Parça Kodları</span>
+            </div>
+          </div>
+        </div>
+      `;
     }
 
     function extParseTriple(rawText) {
@@ -2687,6 +2829,7 @@ Ardından yalnızca şu JSON formatında yanıt ver (başka açıklama yazma):
 
       for (const raw of state.records) {
         const r = normalizeRecord(raw);
+        if (SISTEM_KAYIT_KATEGORILERI.has(r.category)) continue;
         let score = 0;
         const titleLow = String(r.title || "").toLowerCase().trim();
         const contentLow = String(r.content || "").toLowerCase();
@@ -2828,44 +2971,93 @@ KESİN KURALLAR:
         return;
       }
 
-      statusEl.textContent = "Kayıtlı bilgiler kontrol ediliyor...";
-      areaEl.innerHTML = "";
+      const qLabel = question || "(Görseldeki soru/parça/hata incelensin)";
 
-      const contextText = buildContextText();
+      // 1. AŞAMA: Önce Makale araştırılır
+      statusEl.textContent = "Makale araştırılıyor...";
+      areaEl.innerHTML = renderSweetLoadingBox(
+        "Makale araştırılıyor...",
+        "Önce Makale bölümündeki kayıtlar inceleniyor.",
+        1
+      );
 
-      const sysRule = `Sen bir servis ve teknik destek kayıt eşleştirme asistanısın.
+      const makaleText = buildMakaleContextText();
+      const makaleSysRule = `Sen yalnızca MAKALE kategorisindeki kayıtları inceleyen bir asistansın.
 KESİN KURALLAR:
-1. Yalnızca sana aşağıda verilen KAYITLAR içindeki bilgilere dayan. Kayıtlarda hiç geçmeyen uydurma bilgi üretme.
-2. Görsel verilmişse görseldeki metni, parça kodunu, hata kodunu veya soruyu dikkate al.
-3. KAYITLAR içinde konuyla uzaktan yakından ilgili hiçbir kayıt yoksa, başka hiçbir şey yazmadan TAM OLARAK şu ifadeyi döndür:
-FS Desteği alınmalı
-4. KAYITLAR içinde ilgili kayıt varsa (bir kategorinin birden fazla yüklenmiş fotoğrafı varsa hepsini birlikte değerlendirerek ve [Görsel İşaret: ...] notlarını dikkate alarak) yanıtını şu üç bölümü içerecek şekilde ver:
-[ARTFLOW_CEVABI]:
-Kayıtlardaki ilgili akış/süreç/iade/uygulama bilgisi.
+1. Yalnızca aşağıda verilen MAKALE KAYITLARI içindeki bilgilere dayan. Süreçler veya Parça Kodları'ndan bilgi katma, uydurma bilgi üretme.
+2. Soruya/görsele Makale kayıtlarında ilgili bir karşılık varsa net ve öz şekilde özetle.
+3. Makale kayıtlarında konuyla ilgili bilgi yoksa TAM OLARAK "MAKALE_KAYDI_YOK" yaz.`;
 
-[FS_CEVABI]:
-Kayıtlardaki ilgili servis/parça/garanti/ücretsiz-ücretli/tik-ikon bilgisi.
-
-[YUZDE_ORAN]:
-Eşleşme Oranı: %XX
-Kayıttaki "Yapılması gereken" adımlar.`;
-
-      const parts = [];
+      const makaleParts = [];
       if (attachedQuestionPhoto && attachedQuestionPhoto.base64) {
-        parts.push({
+        makaleParts.push({
           inlineData: {
             mimeType: attachedQuestionPhoto.mimeType || "image/jpeg",
             data: attachedQuestionPhoto.base64
           }
         });
       }
-      parts.push({
-        text: `KAYITLAR:\n${contextText}\n\nMÜŞTERİ SORUSU / İNCELEME:\n${question || "(Görseldeki soru/parça/hata incelensin)"}\n\nEğer görselde okunan bir metin veya kod varsa önce kısaca belirt, ardından kurallara göre yanıtla.`
+      makaleParts.push({
+        text: `MAKALE KAYITLARI:\n${makaleText}\n\nSORU / İNCELEME:\n${qLabel}`
+      });
+
+      let makaleSonuc = "MAKALE_KAYDI_YOK";
+      try {
+        makaleSonuc = (await callGemini(makaleParts, makaleSysRule, (modelName) => {
+          statusEl.textContent = `Makale araştırılıyor (${modelName})...`;
+        })).trim();
+      } catch (err) {
+        statusEl.textContent = "Hata: " + err.message;
+        areaEl.innerHTML = `<div class="error-msg">Makale araştırması sırasında hata: ${escapeHtml(err.message)}</div>`;
+        return;
+      }
+
+      // 2. AŞAMA: Sonra Süreçler (ve gerektiğinde Parça Kodları) araştırılır
+      statusEl.textContent = "Süreçler araştırılıyor...";
+      areaEl.innerHTML = renderSweetLoadingBox(
+        "Süreçler araştırılıyor...",
+        "Süreçler inceleniyor; parça kodu gerektiğinde Parça Kodları da kontrol ediliyor.",
+        2
+      );
+
+      const sureclerText = buildSureclerContextText();
+      const parcaKodlariText = buildParcaKodlariContextText();
+
+      const birlesikSysRule = `Sen bir servis ve teknik destek çözüm asistanısın.
+Aşağıda sırasıyla araştırılan MAKALE bulguları, SÜREÇLER kayıtları ve gerektiğinde başvurulacak PARÇA KODLARI kayıtları verilmiştir.
+KESİN KURALLAR:
+1. Sadece verilen kayıtlara dayan. Uydurma bilgi üretme.
+2. [ARTFLOW_CEVABI] kısmında YALNIZCA "Makale" bölümünden çekilen cevabı yaz. Makale'de ilgili bilgi yoksa veya MAKALE_KAYDI_YOK ise "Makale kısmında ilgili kayıt bulunamadı." yaz. Süreçler veya Parça Kodları bilgisini ArtFlow Cevabı'na karıştırma.
+3. [FS_CEVABI] kısmında YALNIZCA "Süreçler" bölümünden çekilen cevabı yaz. Ancak süreci açıklarken bir parça kodu gerekiyorsa "Parça Kodları" kayıtlarına da gidip ilgili parça kodunu/açıklamasını kontrol et ve sürece dahil et. Süreçler'de ilgili kayıt yoksa "Süreçler kısmında ilgili kayıt bulunamadı." yaz.
+4. Hem Makale hem Süreçler/Parça Kodları kayıtlarında konuyla hiç ilgili kayıt yoksa, başka hiçbir şey yazmadan TAM OLARAK şu ifadeyi döndür:
+FS Desteği alınmalı
+5. İlgili kayıt varsa yanıtı TAM şu formatta ver:
+[ARTFLOW_CEVABI]:
+...
+
+[FS_CEVABI]:
+...
+
+[YUZDE_ORAN]:
+Eşleşme Oranı: %XX
+Yapılması gereken adımlar...`;
+
+      const birlesikParts = [];
+      if (attachedQuestionPhoto && attachedQuestionPhoto.base64) {
+        birlesikParts.push({
+          inlineData: {
+            mimeType: attachedQuestionPhoto.mimeType || "image/jpeg",
+            data: attachedQuestionPhoto.base64
+          }
+        });
+      }
+      birlesikParts.push({
+        text: `1. ADIMDA ARAŞTIRILAN MAKALE BULGUSU:\n${makaleSonuc}\n\nSÜREÇLER KAYITLARI:\n${sureclerText}\n\nPARÇA KODLARI KAYITLARI (Süreçte parça kodu gerektiğinde başvur):\n${parcaKodlariText}\n\nMÜŞTERİ SORUSU / İNCELEME:\n${qLabel}`
       });
 
       try {
-        const reply = await callGemini(parts, sysRule, (modelName, idx, total) => {
-          statusEl.textContent = `Kayıtlı bilgiler kontrol ediliyor (${modelName} - ${idx}/${total})...`;
+        const reply = await callGemini(birlesikParts, birlesikSysRule, (modelName) => {
+          statusEl.textContent = `Süreçler araştırılıyor (${modelName})...`;
         });
         const clean = reply.trim();
 
@@ -2879,9 +3071,10 @@ Kayıttaki "Yapılması gereken" adımlar.`;
           };
           renderMatchedAnswer(clean);
         }
-        statusEl.textContent = "Tamamlandı.";
+        statusEl.textContent = "Tamamlandı (Makale → Süreçler).";
       } catch (err) {
         statusEl.textContent = "Hata: " + err.message;
+        areaEl.innerHTML = `<div class="error-msg">Araştırma sırasında hata: ${escapeHtml(err.message)}</div>`;
       }
     });
 
@@ -2946,7 +3139,7 @@ Kayıttaki "Yapılması gereken" adımlar.`;
 
     function extCollectMakaleCategories() {
       for (const r of state.records) {
-        if (r.category && r.category !== "Süreçler" && r.category !== "Parça Kodları") {
+        if (isMakaleCategory(r.category)) {
           if (!Array.isArray(extCatTree[r.category])) extCatTree[r.category] = [];
           if (r.group && r.group !== "Geneli" && !extCatTree[r.category].includes(r.group)) {
             extCatTree[r.category].push(r.group);
@@ -2954,7 +3147,7 @@ Kayıttaki "Yapılması gereken" adımlar.`;
         }
       }
       extSaveCatTree();
-      return Object.keys(extCatTree);
+      return Object.keys(extCatTree).filter(isMakaleCategory);
     }
 
     function extRenderCustomMainButtons() {
@@ -4507,8 +4700,6 @@ Kayıttaki "Yapılması gereken" adımlar.`;
 
     /* ==================== BUGÜN EKLENEN KAYITLAR ==================== */
     (function () {
-      const SISTEM_KATEGORILER = new Set(["VardiyaPlanı", "AktifMola", "VardiyaDevirNotu", "İşleme Alınamayanlar"]);
-
       function bugunTarihAnahtari(tarihStr) {
         const d = tarihStr ? new Date(tarihStr) : new Date();
         if (Number.isNaN(d.getTime())) return "";
@@ -4526,7 +4717,7 @@ Kayıttaki "Yapılması gereken" adımlar.`;
           .map(normalizeRecord)
           .filter(r => {
             if (!r || !r.id) return false;
-            if (SISTEM_KATEGORILER.has(r.category)) return false;
+            if (SISTEM_KAYIT_KATEGORILERI.has(r.category)) return false;
             return bugunTarihAnahtari(r.uploadedAt || r.updatedAt) === bugun;
           })
           .sort((a, b) => {
