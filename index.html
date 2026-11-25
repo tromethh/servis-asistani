@@ -1480,7 +1480,11 @@
         </div>
         <img id="questionPhotoPreview" class="preview-img hidden" alt="Soru görseli önizleme" />
         <div id="askStatus" class="status-msg"></div><button id="clearAskBtn" type="button" class="secondary" style="padding:5px 9px;font-size:.7rem;margin-top:4px;">Temizle</button>
-        <div class="ask-stats-shortcuts"><button id="openAnswerStatsBtn" type="button" aria-expanded="false">＋ En çok / Son verilen cevaplar</button></div>
+        <div class="ask-stats-shortcuts"><button id="openAnswerStatsBtn" type="button" aria-expanded="false">＋ En çok / Son verilen cevaplar</button><button id="toggleFavoritesBtn" type="button" aria-expanded="false">☆ Favorilerim</button></div>
+        <section id="favoritesPanel" class="hidden" style="margin-top:9px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;"><strong style="font-size:.86rem;">Favori kayıtlarım</strong><span id="favoritesCount" style="font-size:.72rem;color:var(--muted);"></span></div>
+          <div id="favoritesList" style="font-size:.82rem;"></div>
+        </section>
       </div>
     <section id="answerStatsPage" class="ask-stats-panel hidden" style="margin:12px auto; width:min(100%,760px);">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;">
@@ -2809,7 +2813,10 @@ Ardından yalnızca şu JSON formatında yanıt ver (başka açıklama yazma):
       "VardiyaPlanı",
       "AktifMola",
       "VardiyaDevirNotu",
-      "İşleme Alınamayanlar"
+      "İşleme Alınamayanlar",
+      "Favori",
+      "CozumTakibi",
+      "BilgiEksikligiBildirimi"
     ]);
 
     function isMakaleCategory(cat) {
@@ -2945,6 +2952,69 @@ Ardından yalnızca şu JSON formatında yanıt ver (başka açıklama yazma):
       return bestRec || enSonKaydiBul() || state.records[0];
     }
 
+    function servisAktifKullanici() { return String(currentSession?.user || "Bilinmiyor"); }
+
+    async function saveServisSystemRecord(category, title, payload) {
+      const now = new Date().toISOString();
+      const rec = normalizeRecord({
+        id: `${category}_${Date.now()}_${Math.random().toString(36).slice(2,8)}`,
+        category, group: servisAktifKullanici(), title: String(title || category).slice(0,180),
+        content: JSON.stringify({ ...payload, user: servisAktifKullanici(), createdAt: now }),
+        uploadedBy: servisAktifKullanici(), uploadedAt: now, updatedAt: now
+      });
+      state.records.unshift(rec); saveLocalState(state);
+      try { await sbUpsertRecords([rec]); } catch(err) { console.warn(`${category} kaydı buluta yazılamadı:`,err); }
+      return rec;
+    }
+
+    function readFavoriteRecords() {
+      return (state?.records || []).filter(r => r.category === "Favori" && r.group === servisAktifKullanici());
+    }
+
+    async function toggleFavoriteRecord(record) {
+      if (!record) return;
+      const existing = readFavoriteRecords().find(r => { try { return JSON.parse(r.content||"{}").recordId === record.id; } catch { return false; } });
+      if (existing) {
+        state.records = state.records.filter(r => r.id !== existing.id); saveLocalState(state);
+        try { await sbDeleteRecord(existing.id); } catch(err) { console.warn("Favori kaldırılamadı:",err); }
+      } else {
+        await saveServisSystemRecord("Favori", record.title, { recordId:record.id, recordTitle:record.title, recordCategory:record.category, recordGroup:record.group });
+      }
+      renderFavoritesPanel();
+      const b=document.getElementById("favoriteCurrentRecordBtn");
+      if (b) b.textContent = readFavoriteRecords().some(r=>{try{return JSON.parse(r.content||"{}").recordId===record.id}catch{return false}}) ? "★ Favorilerimde" : "☆ Favorilere ekle";
+    }
+
+    function renderFavoritesPanel() {
+      const list=document.getElementById("favoritesList"); if(!list) return;
+      const favs=readFavoriteRecords();
+      const count=document.getElementById("favoritesCount"); if(count) count.textContent=`${favs.length} kayıt`;
+      if(!favs.length){list.innerHTML='<div class="status-msg" style="font-size:.78rem;">Henüz favori eklemediniz.</div>';return;}
+      list.innerHTML=favs.map(f=>{let d={};try{d=JSON.parse(f.content||"{}")}catch{};const original=(state.records||[]).find(r=>r.id===d.recordId);return `<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 0;border-top:1px solid var(--line);"><button type="button" data-fav-open="${escapeHtml(d.recordId||"")}" style="flex:1;text-align:left;background:none;border:0;color:var(--text);padding:2px 0;font-size:.8rem;">${escapeHtml(d.recordTitle||f.title)} <small style="color:var(--muted);">· ${escapeHtml(d.recordCategory||"")}</small></button><button type="button" data-fav-remove="${escapeHtml(f.id)}" class="secondary" style="padding:4px 7px;font-size:.7rem;">Kaldır</button></div>`;}).join("");
+      list.querySelectorAll("[data-fav-open]").forEach(b=>b.addEventListener("click",()=>{const r=state.records.find(x=>x.id===b.dataset.favOpen);if(r)kaydiModaldaAc(r);else{const f=readFavoriteRecords().find(x=>{try{return JSON.parse(x.content||"{}").recordId===b.dataset.favOpen}catch{return false}});if(f)alert("Bu kayıt artık bilgi bankasında bulunmuyor.");}}));
+      list.querySelectorAll("[data-fav-remove]").forEach(b=>b.addEventListener("click",async()=>{const id=b.dataset.favRemove;state.records=state.records.filter(x=>x.id!==id);saveLocalState(state);try{await sbDeleteRecord(id)}catch{}renderFavoritesPanel();}));
+    }
+
+    async function analyzeQuestionForSearch(question) {
+      const records=(state?.records||[]).map(normalizeRecord).filter(r=>!SISTEM_KAYIT_KATEGORILERI.has(r.category));
+      const catalog=records.map((r,i)=>`${i+1}. [${r.category}/${r.group}] ${r.title}: ${String(r.content||"").replace(/\s+/g," ").slice(0,260)}`).join("\n").slice(0,90000);
+      const sys=`Sen teknik servis bilgi bankası için arama planlayıcısısın. Verilen kısa soruyu yorumla ve tüm kategorilerde aramayı genişlet. Yalnızca JSON döndür: {"expandedQuery":"...","clarifyRequired":false,"clarification":"...","options":[]}. Sorunun anlamı yeterince açıksa clarifyRequired=false yap ve eş anlamlılar, olası arıza adları, ilgili parçalar/işlemler içeren expandedQuery üret. Soru ciddi biçimde belirsizse (hangi cihaz/arıza belli değilse) clarifyRequired=true yap; tek, kısa, net bir açıklayıcı soru ve en fazla 4 seçenek üret. Kullanıcıyı gereksiz yere sorgulama. Kayıtlarda olmayan teknik varsayımı kesin bilgi gibi sunma.`;
+      try {
+        const raw=await callGemini([{text:`SORU: ${question}\n\nBİLGİ BANKASI KATALOĞU (Makale, Süreç, Parça ve diğer kayıtlar):\n${catalog}`}],sys);
+        const m=raw.match(/\{[\s\S]*\}/); if(!m) return {expandedQuery:question,clarifyRequired:false};
+        const d=JSON.parse(m[0]);
+        return {expandedQuery:String(d.expandedQuery||question).slice(0,3000),clarifyRequired:d.clarifyRequired===true,clarification:String(d.clarification||"Sorunu biraz daha açıklar mısınız?"),options:Array.isArray(d.options)?d.options.slice(0,4).map(String):[]};
+      } catch(err) { console.warn("Arama ön analizi atlandı:",err); return {expandedQuery:question,clarifyRequired:false}; }
+    }
+
+    function showQuestionClarification(original, analysis) {
+      const area=document.getElementById("answerArea");
+      const opts=(analysis.options||[]).map(x=>`<button type="button" class="secondary" data-clarify-option="${escapeHtml(x)}" style="font-size:.78rem;padding:7px 9px;">${escapeHtml(x)}</button>`).join("");
+      area.innerHTML=`<div class="card" style="padding:14px;max-width:760px;margin:10px auto;"><strong style="font-size:.92rem;">Soruyu biraz netleştirelim</strong><p style="font-size:.82rem;color:var(--muted);margin:6px 0 10px;">${escapeHtml(analysis.clarification)}</p><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">${opts}</div><label for="clarifiedQuestionInput" style="font-size:.78rem;">Detaylandırılmış soru</label><textarea id="clarifiedQuestionInput" rows="2" style="width:100%;font-size:.84rem;min-height:64px;">${escapeHtml(original)}</textarea><button id="runClarifiedSearchBtn" type="button" style="margin-top:8px;padding:8px 12px;font-size:.8rem;">Bu soruyla tüm kayıtları ara</button></div>`;
+      area.querySelectorAll("[data-clarify-option]").forEach(b=>b.addEventListener("click",()=>{const t=document.getElementById("clarifiedQuestionInput");t.value=(t.value.trim()+" — "+b.dataset.clarifyOption).trim();}));
+      document.getElementById("runClarifiedSearchBtn").addEventListener("click",()=>{const t=document.getElementById("clarifiedQuestionInput");const q=t.value.trim();if(!q)return;document.getElementById("questionInput").value=q;document.getElementById("askBtn").click();});
+    }
+
     function renderMatchedAnswer(clean) {
       const areaEl = document.getElementById("answerArea");
       const triple = extParseTriple(clean);
@@ -2975,6 +3045,7 @@ Ardından yalnızca şu JSON formatında yanıt ver (başka açıklama yazma):
             ${triple ? "" : `<pre style="white-space:pre-wrap; font-family:inherit; margin:0; color:var(--text);">${escapeHtml(clean)}</pre>`}
             ${tripleHtml}
             ${matchedBtnHtml}
+            ${matchedRec ? `<div style="margin-top:8px;"><button id="favoriteCurrentRecordBtn" type="button" class="secondary" style="font-size:.76rem;padding:6px 9px;">☆ Favorilere ekle</button></div>` : ""}
           </div>
           <div class="followup-box">
             <div style="font-size:0.94rem; font-weight:700; color:#ffffff; margin-bottom:8px;">
@@ -2985,6 +3056,7 @@ Ardından yalnızca şu JSON formatında yanıt ver (başka açıklama yazma):
               <button id="fixedNoBtn" type="button" class="warn">Düzelmedi — Sebebini Araştır</button>
             </div>
             <div id="followupResultArea"></div>
+            <div style="margin-top:9px;border-top:1px solid var(--line);padding-top:8px;"><button id="reportMissingInfoBtn" type="button" class="secondary" style="font-size:.75rem;padding:6px 9px;">Bilgi eksik / Yanıt yetersiz</button><span id="missingReportStatus" style="font-size:.74rem;color:var(--muted);margin-left:7px;"></span></div>
           </div>
         </div>
       `;
@@ -2997,7 +3069,22 @@ Ardından yalnızca şu JSON formatında yanıt ver (başka açıklama yazma):
         });
       }
 
-      document.getElementById("fixedYesBtn").addEventListener("click", () => {
+      const favBtn=document.getElementById("favoriteCurrentRecordBtn");
+      if(favBtn && matchedRec){
+        const isFav=readFavoriteRecords().some(r=>{try{return JSON.parse(r.content||"{}").recordId===matchedRec.id}catch{return false}});
+        favBtn.textContent=isFav?"★ Favorilerimde":"☆ Favorilere ekle";
+        favBtn.addEventListener("click",()=>toggleFavoriteRecord(matchedRec));
+      }
+      document.getElementById("reportMissingInfoBtn")?.addEventListener("click",async()=>{
+        const detail=prompt("Eksik veya yetersiz olan bilgi nedir? (İsteğe bağlı)","");
+        const status=document.getElementById("missingReportStatus");
+        if(detail===null)return;
+        await saveServisSystemRecord("BilgiEksikligiBildirimi",lastQuestionContext.question||document.getElementById("questionInput")?.value||"Bilgi eksikliği bildirimi",{question:lastQuestionContext.question||"",answer:clean,detail,matchedRecordId:matchedRec?.id||null});
+        if(status)status.textContent="Bildiriminiz kaydedildi.";
+      });
+
+      document.getElementById("fixedYesBtn").addEventListener("click", async () => {
+        await saveServisSystemRecord("CozumTakibi",lastQuestionContext.question||"Soru çözümü",{question:lastQuestionContext.question||"",answer:clean,result:"cozuldu",matchedRecordId:matchedRec?.id||null});
         document.getElementById("followupResultArea").innerHTML = `
           <div class="summary-box" style="margin-top:10px;">
             <strong>Sorun çözüldü olarak işaretlendi.</strong> Kayıtlı adımla işlem tamamlandı.
@@ -3006,6 +3093,7 @@ Ardından yalnızca şu JSON formatında yanıt ver (başka açıklama yazma):
       });
 
       document.getElementById("fixedNoBtn").addEventListener("click", async () => {
+        await saveServisSystemRecord("CozumTakibi",lastQuestionContext.question||"Soru çözümü",{question:lastQuestionContext.question||"",answer:clean,result:"cozulmedi",matchedRecordId:matchedRec?.id||null});
         const resBox = document.getElementById("followupResultArea");
         resBox.innerHTML = `<div class="status-msg">Uygulanan adımların neden sonuç vermemiş olabileceği kayıtlarda araştırılıyor...</div>`;
 
@@ -3073,6 +3161,12 @@ KESİN KURALLAR:
       catch (err) { console.warn("Soru-cevap geçmişi buluta kaydedilemedi:", err); }
     }
 
+    document.getElementById("toggleFavoritesBtn")?.addEventListener("click",async()=>{
+      const panel=document.getElementById("favoritesPanel");const btn=document.getElementById("toggleFavoritesBtn");
+      const opening=panel.classList.contains("hidden");panel.classList.toggle("hidden",!opening);btn.setAttribute("aria-expanded",String(opening));btn.textContent=opening?"★ Favorilerim":"☆ Favorilerim";
+      if(opening){try{await syncFromCloud()}catch{}renderFavoritesPanel();}
+    });
+
     const questionComposer = document.getElementById("questionInput");
     questionComposer.addEventListener("input", () => { questionComposer.style.height = "auto"; questionComposer.style.height = Math.min(questionComposer.scrollHeight, 180) + "px"; });
     questionComposer.addEventListener("keydown", (e) => {
@@ -3099,7 +3193,19 @@ KESİN KURALLAR:
         return;
       }
 
-      const qLabel = question || "(Görseldeki soru/parça/hata incelensin)";
+      let qLabel = question || "(Görseldeki soru/parça/hata incelensin)";
+      if (question) {
+        statusEl.textContent = "Soru anlaşılıyor ve tüm bilgi bankası tarama için hazırlanıyor...";
+        const searchPlan = await analyzeQuestionForSearch(question);
+        if (searchPlan.clarifyRequired) {
+          showQuestionClarification(question, searchPlan);
+          statusEl.textContent = "Daha isabetli arama için açıklama bekleniyor.";
+          return;
+        }
+        if (searchPlan.expandedQuery && searchPlan.expandedQuery.toLocaleLowerCase("tr-TR") !== question.toLocaleLowerCase("tr-TR")) {
+          qLabel = `${question}\n\nArama için genişletilmiş anlam ve terimler: ${searchPlan.expandedQuery}`;
+        }
+      }
 
       // 1. AŞAMA: Önce Makale araştırılır
       statusEl.textContent = "Makale araştırılıyor...";
@@ -7078,6 +7184,14 @@ ${kaynak}`;
   #centerHomeStage .random-question-shortcut svg{width:22px!important;height:22px!important;fill:none!important;stroke:currentColor!important;stroke-width:1.8!important;stroke-linecap:round!important;stroke-linejoin:round!important}
   #centerHomeStage .random-question-shortcut:active{transform:scale(.94)!important}
   @media(prefers-reduced-motion:no-preference){#centerHomeStage .random-question-shortcut{transition:transform .16s ease,box-shadow .16s ease!important}#centerHomeStage .random-question-shortcut:hover{box-shadow:0 0 18px rgba(35,190,126,.3)!important}}
+</style>
+<style id="compact-new-assistant-tools">
+  .ask-stats-shortcuts{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+  .ask-stats-shortcuts button{width:auto!important;flex:0 0 auto!important;font-size:.76rem!important;padding:7px 10px!important;border-radius:9px!important;min-height:32px!important}
+  #favoritesPanel{font-size:.8rem!important}
+  #answerArea .card{padding:14px!important}
+  #answerArea h2{font-size:1rem!important}
+  #answerArea .confirm-box,#answerArea .followup-box{padding:11px!important}
 </style>
 
 <script id="answer-stats-feature">
