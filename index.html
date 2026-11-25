@@ -4648,3 +4648,116 @@ Kayıttaki "Yapılması gereken" adımlar.`;
   setInterval(sessizSenkronizasyon, 15000);
 })();
 </script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const SISTEM_KATEGORILER = new Set(["VardiyaPlanı", "AktifMola", "VardiyaDevirNotu", "İşleme Alınamayanlar"]);
+
+  function bugunTarihAnahtari(tarihStr) {
+    const d = tarihStr ? new Date(tarihStr) : new Date();
+    if (Number.isNaN(d.getTime())) return "";
+    const yil = d.getFullYear();
+    const ay = String(d.getMonth() + 1).padStart(2, "0");
+    const gun = String(d.getDate()).padStart(2, "0");
+    return `${yil}-${ay}-${gun}`;
+  }
+
+  function bugununKayitlariniGetir() {
+    if (typeof state === "undefined" || !state || !Array.isArray(state.records)) return [];
+    const bugun = bugunTarihAnahtari(new Date().toISOString());
+
+    return state.records
+      .map(raw => (typeof normalizeRecord === "function" ? normalizeRecord(raw) : raw))
+      .filter(r => {
+        if (!r || !r.id) return false;
+        if (SISTEM_KATEGORILER.has(r.category)) return false;
+        return bugunTarihAnahtari(r.uploadedAt || r.updatedAt) === bugun;
+      })
+      .sort((a, b) => {
+        const tA = new Date(a.uploadedAt || a.updatedAt || 0).getTime() || 0;
+        const tB = new Date(b.uploadedAt || b.updatedAt || 0).getTime() || 0;
+        return tB - tA;
+      });
+  }
+
+  function bugunEklenenlerKutusuOlustur() {
+    const bar = document.getElementById("vardiyaAnaBar");
+    if (!bar || document.getElementById("bugunEklenenlerKutusu")) return;
+
+    const kutu = document.createElement("div");
+    kutu.id = "bugunEklenenlerKutusu";
+    kutu.style.cssText =
+      "width:100%; background:var(--panel); border:1px solid var(--neon-cyan);" +
+      "border-radius:14px; padding:12px 14px; box-shadow:0 0 18px rgba(0,240,255,0.16);";
+
+    kutu.innerHTML = `
+      <button id="bugunEklenenlerToggleBtn" type="button" style="width:100%; display:flex; justify-content:space-between; align-items:center; gap:8px; background:transparent; border:none; box-shadow:none; padding:2px 0; color:#ffffff; text-align:left;">
+        <span style="font-weight:800; font-size:0.9rem; color:var(--neon-cyan);">Bugün Eklenen Kayıtlar</span>
+        <span id="bugunEklenenlerAdetBadge" class="badge">0 kayıt • Aç</span>
+      </button>
+      <div id="bugunEklenenlerListe" class="hidden" style="margin-top:10px; max-height:320px; overflow-y:auto;"></div>
+    `;
+
+    bar.insertBefore(kutu, bar.firstChild);
+
+    const toggleBtn = document.getElementById("bugunEklenenlerToggleBtn");
+    const listeEl = document.getElementById("bugunEklenenlerListe");
+
+    toggleBtn.addEventListener("click", async () => {
+      const aciliyor = listeEl.classList.contains("hidden");
+      if (aciliyor && typeof syncFromCloud === "function") {
+        try { await syncFromCloud(); } catch {}
+      }
+      listeEl.classList.toggle("hidden", !aciliyor);
+      bugunEklenenlerArayuzGuncelle();
+    });
+  }
+
+  function bugunEklenenlerArayuzGuncelle() {
+    const badgeEl = document.getElementById("bugunEklenenlerAdetBadge");
+    const listeEl = document.getElementById("bugunEklenenlerListe");
+    if (!badgeEl || !listeEl) return;
+
+    const kayitlar = bugununKayitlariniGetir();
+    const acikMi = !listeEl.classList.contains("hidden");
+    badgeEl.textContent = `${kayitlar.length} kayıt • ${acikMi ? "Gizle" : "Göster"}`;
+
+    if (!acikMi) return;
+
+    if (!kayitlar.length) {
+      listeEl.innerHTML = `<p class="status-msg" style="margin:0;">Bugün henüz yeni kayıt eklenmemiş.</p>`;
+      return;
+    }
+
+    listeEl.innerHTML = kayitlar.map(r => {
+      const saatStr = typeof formatDateTr === "function"
+        ? formatDateTr(r.uploadedAt || r.updatedAt)
+        : (r.uploadedAt || "");
+      return `
+        <div class="record-item" style="margin-bottom:8px; padding:10px;">
+          <div class="record-meta" style="margin-bottom:4px;">
+            <span class="badge">${escapeHtml(r.category || "Genel")}</span>
+            <span class="badge">${escapeHtml(r.group || "Geneli")}</span>
+            <span class="badge user">${escapeHtml(r.uploadedBy || "Bilinmiyor")}</span>
+            <span>${escapeHtml(saatStr)}</span>
+          </div>
+          <div style="font-weight:800; color:#ffffff; font-size:0.92rem; margin-bottom:4px;">
+            ${escapeHtml(r.title || "Başlıksız Kayıt")}
+          </div>
+          <pre style="white-space:pre-wrap; font-family:inherit; margin:0; font-size:0.84rem; color:var(--text);">${escapeHtml(r.content || "")}</pre>
+        </div>
+      `;
+    }).join("");
+  }
+
+  const _origSonBilgiGuncelle = window.sonBilgiKartiniYerlestirVeGuncelle;
+  if (typeof _origSonBilgiGuncelle === "function") {
+    window.sonBilgiKartiniYerlestirVeGuncelle = function () {
+      _origSonBilgiGuncelle();
+      bugunEklenenlerArayuzGuncelle();
+    };
+  }
+
+  bugunEklenenlerKutusuOlustur();
+  bugunEklenenlerArayuzGuncelle();
+});
+</script>
