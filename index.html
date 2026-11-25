@@ -1074,10 +1074,15 @@
       color: var(--muted);
     }
   </style>
+
+
+
 </head>
 <body>
   <header>
     <div class="header-inner">
+      <div class="app-brand"><span class="brand-mark">S</span><span><strong>Servis Asistanı</strong><small>Bilgi merkezi & FS destek</small></span></div>
+      <div id="vardiyaTeamMini" class="vardiya-team-mini hidden" aria-label="Ekip vardiya durumları"></div>
       <div class="header-left">
         <span id="currentUserBadge" class="user-pill hidden">Kullanıcı: -</span>
         <button id="recordsBtn" type="button" class="records-top-btn hidden">Kayıtlar</button>
@@ -1127,70 +1132,39 @@
   </div>
 
   <div id="vardiyaPlanModalBackdrop" class="hidden">
-    <div class="vardiya-plan-card">
-      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px;">
-        <h2 style="margin:0; color:var(--neon-cyan);">Aylık Vardiya & Mola Planı (Paylaşımlı)</h2>
+    <div class="vardiya-plan-card vardiya-wizard-card">
+      <div class="vardiya-modal-head">
+        <div><span class="vardiya-kicker">VARDİYA PLANLAMA</span><h2>Kolay Vardiya Ekle</h2></div>
         <button id="vardiyaPlanKapatBtn" type="button" class="secondary">Kapat</button>
       </div>
-
-      <div class="row" style="margin-bottom:10px;">
-        <div>
-          <label for="vardiyaAyInput">Ay (YYYY-MM)</label>
-          <input id="vardiyaAyInput" type="month" />
+      <div id="vardiyaWizardStep1" class="vardiya-wizard-step">
+        <p class="vardiya-step-note">Önce ayı, haftayı, çalışma saatlerini ve izin günlerini belirle.</p>
+        <div class="vardiya-form-grid">
+          <div><label for="vardiyaAyInput">Hangi ay?</label><input id="vardiyaAyInput" type="month" /></div>
+          <div><label for="vardiyaHaftaSelect">Hangi hafta?</label><select id="vardiyaHaftaSelect"><option value="1">1. Hafta (1–7)</option><option value="2">2. Hafta (8–14)</option><option value="3">3. Hafta (15–21)</option><option value="4">4. Hafta (22–28)</option><option value="5">5. Hafta (29–31)</option></select></div>
+          <div><label for="vardiyaBaslangicSaat">Vardiya başlangıç saati</label><input id="vardiyaBaslangicSaat" type="time" value="09:00" /></div>
+          <div><label for="vardiyaBitisSaat">Vardiya bitiş saati</label><input id="vardiyaBitisSaat" type="time" value="19:00" /></div>
         </div>
-        <div>
-          <label for="vardiyaKisiFiltre">Kişi / Görünüm</label>
-          <select id="vardiyaKisiFiltre">
-            <option value="ALL">Tüm Ekip (Son Eklenenler)</option>
-            <option value="Arda">Arda</option>
-            <option value="Görkem">Görkem</option>
-          </select>
-        </div>
+        <div class="vardiya-offdays-wrap"><strong>Bu hafta hangi günler izinlisin?</strong><div id="vardiyaIzinGunleri" class="vardiya-weekday-picks">
+          <label><input type="checkbox" value="1"> Pazartesi</label><label><input type="checkbox" value="2"> Salı</label><label><input type="checkbox" value="3"> Çarşamba</label><label><input type="checkbox" value="4"> Perşembe</label><label><input type="checkbox" value="5"> Cuma</label><label><input type="checkbox" value="6"> Cumartesi</label><label><input type="checkbox" value="0"> Pazar</label>
+        </div></div>
+        <button id="vardiyaHaftaDevamBtn" type="button" class="vardiya-primary-wide">Çalışma günlerinin mola saatlerini ekle <span>→</span></button>
       </div>
-
-      <div class="vardiya-day-row" style="border-color:var(--neon-cyan);">
-        <strong style="color:var(--neon-cyan); font-size:0.9rem;">Günlük Vardiya & Mola Saati Ekle / Güncelle</strong>
-        <div class="vardiya-mini-inputs">
-          <div>
-            <label for="vardiyaTarihInput">Tarih</label>
-            <input id="vardiyaTarihInput" type="date" />
-          </div>
-          <div>
-            <label for="vardiyaSaatDilimiSelect">Vardiya</label>
-            <select id="vardiyaSaatDilimiSelect">
-              <option value="09:00 / 19:00">09:00 / 19:00</option>
-              <option value="11:00 / 21:00">11:00 / 21:00</option>
-            </select>
-          </div>
-          <div>
-            <label for="vardiyaYemekSaatInput">Yemek (50 dk)</label>
-            <input id="vardiyaYemekSaatInput" type="time" />
-          </div>
-          <div>
-            <label for="vardiyaMola1Input">10dk Mola 1</label>
-            <input id="vardiyaMola1Input" type="time" />
-          </div>
-          <div>
-            <label for="vardiyaMola2Input">10dk Mola 2</label>
-            <input id="vardiyaMola2Input" type="time" />
-          </div>
-          <div>
-            <label for="vardiyaMola3Input">10dk Mola 3</label>
-            <input id="vardiyaMola3Input" type="time" />
-          </div>
-          <div>
-            <label for="vardiyaMola4Input">10dk Mola 4</label>
-            <input id="vardiyaMola4Input" type="time" />
-          </div>
-        </div>
-        <div class="actions" style="margin-top:8px;">
-          <button id="vardiyaKaydetBtn" type="button">Vardiyayı Kaydet & Paylaş</button>
-          <button id="vardiyaYenileBtn" type="button" class="secondary">Buluttan Yenile</button>
-        </div>
+      <div id="vardiyaWizardStep2" class="vardiya-wizard-step hidden">
+        <div class="vardiya-step2-head"><div><strong id="vardiyaHaftaBaslik">1. Hafta</strong><p class="vardiya-step-note">Her çalışma günü için dört kısa mola ve bir yemek molası saati gir.</p></div><button id="vardiyaGeriBtn" type="button" class="secondary">← Geri</button></div>
+        <div id="vardiyaGunMolaFormlari"></div>
+        <div class="vardiya-day-nav"><button id="vardiyaOncekiGunBtn" type="button" class="secondary">← Önceki gün</button><span id="vardiyaGunSayaci"></span><button id="vardiyaSonrakiGunBtn" type="button" class="secondary">Sonraki gün →</button></div>
+        <button id="vardiyaHaftaKaydetBtn" type="button" class="vardiya-primary-wide">Haftayı Kaydet</button>
         <div id="vardiyaDurumMesaj" class="status-msg"></div>
       </div>
+    </div>
+  </div>
 
-      <div id="vardiyaListeAlani"></div>
+  <div id="vardiyaKisiDetayBackdrop" class="hidden">
+    <div class="vardiya-plan-card vardiya-detail-card">
+      <div class="vardiya-modal-head"><div><span class="vardiya-kicker">EKİP VARDİYA DETAYI</span><h2 id="vardiyaDetayKisi">Vardiya</h2></div><button id="vardiyaDetayKapatBtn" type="button" class="secondary">Kapat</button></div>
+      <div id="vardiyaDetayIcerik"></div>
+      <div class="vardiya-detail-footer"><button id="vardiyaDetaySonrakiGunBtn" type="button" class="vardiya-primary-wide">Bir sonraki gün →</button></div>
     </div>
   </div>
 
@@ -1428,6 +1402,7 @@
 
   <main id="appMain" class="hidden">
     <div id="centerHomeStage" class="center-stage">
+      <div class="home-intro"><div class="eyebrow">SERVİS BİLGİ MERKEZİ</div><h1>Nasıl yardımcı olabilirim?</h1><p>Soru çöz, yeni bilgi ekle veya kayıtlarına göz at.</p></div>
       <div class="square-pair">
         <button id="squareAskBtn" type="button" class="neon-square-btn">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1495,6 +1470,13 @@
         <p style="color:var(--muted); margin:0; font-size:0.88rem;">Henüz sıraya alınmış işlem yok.</p>
       </div>
     </div>
+
+    <nav id="appBottomNav" class="app-bottom-nav" aria-label="Ana menü">
+      <button type="button" class="nav-item nav-item-small active" data-nav="home"><span class="nav-icon">⌂</span><span>Ana Sayfa</span></button>
+      <button type="button" class="nav-item nav-item-main" data-nav="ask" aria-label="Soru Sor"><span class="nav-icon">⌕</span><span>Soru Sor</span></button>
+      <button type="button" class="nav-item nav-item-main nav-item-upload" data-nav="upload" aria-label="Bilgi Yükle"><span class="nav-icon">＋</span><span>Bilgi Yükle</span></button>
+      <button type="button" class="nav-item nav-item-small" data-nav="shift"><span class="nav-icon">◷</span><span>Vardiya</span></button>
+    </nav>
 
     <input id="cameraCaptureInput" type="file" accept="image/*" capture="environment" class="hidden" />
     <input id="photoFileInput" type="file" accept="image/*" multiple class="hidden" />
@@ -4105,45 +4087,20 @@ Yapılması gereken adımlar...`;
       function vardiyaAnaEkranaYerlestir() {
         const home = document.getElementById("centerHomeStage");
         if (!home || document.getElementById("vardiyaAnaBar")) return;
-
         const bar = document.createElement("div");
         bar.id = "vardiyaAnaBar";
-        bar.innerHTML = `
-          <div class="vardiya-top-actions">
-            <button id="vardiyaMolaBaslatBtn" type="button">⏱️ Mola Başlat</button>
-            <button id="vardiyaPlanBtn" type="button">📅 Vardiya Saatleri</button>
-          </div>
-          <div id="vardiyaMolaSecimBox" class="hidden">
-            <button id="vardiyaYemekBaslatBtn" type="button" class="cyan-outline">🍽️ Yemek (50 dk)</button>
-            <button id="vardiyaKisaMolaBaslatBtn" type="button">☕ Mola (10 dk)</button>
-          </div>
-        `;
+        bar.innerHTML = `<button id="vardiyaPlanBtn" type="button">＋ Kolay Vardiya Ekle</button>`;
         home.appendChild(bar);
-
-        document.getElementById("vardiyaMolaBaslatBtn").addEventListener("click", () => {
-          sesBaglaminiHazirla();
-          document.getElementById("vardiyaMolaSecimBox").classList.toggle("hidden");
-        });
-
-        document.getElementById("vardiyaYemekBaslatBtn").addEventListener("click", () => {
-          document.getElementById("vardiyaMolaSecimBox").classList.add("hidden");
-          vardiyaSayacBaslat("Yemek", YEMEK_SANIYE);
-        });
-
-        document.getElementById("vardiyaKisaMolaBaslatBtn").addEventListener("click", () => {
-          document.getElementById("vardiyaMolaSecimBox").classList.add("hidden");
-          vardiyaSayacBaslat("Mola", MOLA_SANIYE);
-        });
-
         document.getElementById("vardiyaPlanBtn").addEventListener("click", async () => {
-          const bugun = new Date().toISOString().slice(0, 10);
-          const ayInp = document.getElementById("vardiyaAyInput");
-          const tarihInp = document.getElementById("vardiyaTarihInput");
-          if (!ayInp.value) ayInp.value = bugun.slice(0, 7);
-          if (!tarihInp.value) tarihInp.value = bugun;
+          const now = new Date();
+          const ay = document.getElementById("vardiyaAyInput");
+          if (!ay.value) ay.value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
+          document.getElementById("vardiyaWizardStep1").classList.remove("hidden");
+          document.getElementById("vardiyaWizardStep2").classList.add("hidden");
+          document.getElementById("vardiyaDurumMesaj").textContent = "";
           document.getElementById("vardiyaPlanModalBackdrop").classList.remove("hidden");
           await vardiyaBuluttanSenkronizeEt();
-          vardiyaListeyiCiz();
+          vardiyaEkipMiniyiCiz();
         });
       }
 
@@ -4244,48 +4201,144 @@ Yapılması gereken adımlar...`;
         }
       }
 
-      function vardiyaListeyiCiz() {
-        const listeEl = document.getElementById("vardiyaListeAlani");
-        if (!listeEl) return;
-        const seciliAy = (document.getElementById("vardiyaAyInput").value || "").trim();
-        const seciliKisi = document.getElementById("vardiyaKisiFiltre").value || "ALL";
+      const vardiyaGunAdlari = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
+      let vardiyaDetayKisiSecili = "";
+      let vardiyaDetayTarihSecili = new Date().toISOString().slice(0,10);
+      let vardiyaHaftaTaslak = [];
+      let vardiyaAktifGunIndex = 0;
 
-        const filtreli = vardiyaKayitlari.filter(item => {
-          if (seciliAy && !String(item.tarih || "").startsWith(seciliAy)) return false;
-          if (seciliKisi !== "ALL" && item.kisi !== seciliKisi) return false;
-          return true;
-        });
-
-        if (!filtreli.length) {
-          listeEl.innerHTML = `<p class="status-msg">Bu ay/filtre için kayıtlı vardiya bulunmuyor.</p>`;
+      function tarihLocal(date) {
+        return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`;
+      }
+      function vardiyaTarihFormat(tarih) {
+        if (!tarih) return "-";
+        const [y,m,d] = tarih.split("-").map(Number);
+        return new Date(y,m-1,d).toLocaleDateString("tr-TR", { weekday:"long", day:"numeric", month:"long", year:"numeric" });
+      }
+      function vardiyaSaatAraligi(item) {
+        if (item.baslangic && item.bitis) return `${item.baslangic} / ${item.bitis}`;
+        return item.vardiya || "-";
+      }
+      function vardiyaDurum(item) {
+        if (!item) return { text:"Plan girilmedi", cls:"muted" };
+        if (item.izinli || item.vardiya === "İzinli") return { text:"İzinli", cls:"leave" };
+        const range = vardiyaSaatAraligi(item).match(/(\d{2}:\d{2})\s*\/\s*(\d{2}:\d{2})/);
+        if (!range) return { text:"Vardiya planlı", cls:"work" };
+        const now = new Date(); const mins = now.getHours()*60+now.getMinutes();
+        const a = Number(range[1].slice(0,2))*60+Number(range[1].slice(3));
+        const b = Number(range[2].slice(0,2))*60+Number(range[2].slice(3));
+        return mins >= a && mins < b ? {text:"Şu an çalışıyor",cls:"work"} : {text:"Vardiya dışında",cls:"muted"};
+      }
+      function vardiyaEkipMiniyiCiz() {
+        const el = document.getElementById("vardiyaTeamMini");
+        if (!el) return;
+        const names = [...new Set(vardiyaKayitlari.map(x => x.kisi).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"tr"));
+        if (!names.length) { el.classList.add("hidden"); el.innerHTML=""; return; }
+        el.classList.remove("hidden");
+        const today = tarihLocal(new Date());
+        el.innerHTML = `<span class="vardiya-mini-label">EKİP</span>` + names.map(name => {
+          const item = vardiyaKayitlari.find(x => x.kisi === name && x.tarih === today);
+          const st = vardiyaDurum(item);
+          return `<button type="button" class="vardiya-person-pill ${st.cls}" data-vardiya-person="${escapeHtml(name)}"><strong>${escapeHtml(name)}</strong><small>${st.text}</small></button>`;
+        }).join("");
+        el.querySelectorAll("[data-vardiya-person]").forEach(btn => btn.addEventListener("click", () => {
+          vardiyaDetayKisiSecili = btn.getAttribute("data-vardiya-person");
+          vardiyaDetayTarihSecili = tarihLocal(new Date());
+          vardiyaKisiDetayiniCiz();
+          document.getElementById("vardiyaKisiDetayBackdrop").classList.remove("hidden");
+        }));
+      }
+      function vardiyaKisiDetayiniCiz() {
+        const kisi = vardiyaDetayKisiSecili, tarih = vardiyaDetayTarihSecili;
+        document.getElementById("vardiyaDetayKisi").textContent = kisi;
+        const item = vardiyaKayitlari.find(x => x.kisi === kisi && x.tarih === tarih);
+        const box = document.getElementById("vardiyaDetayIcerik");
+        if (!item) {
+          box.innerHTML = `<div class="vardiya-detail-date">${escapeHtml(vardiyaTarihFormat(tarih))}</div><div class="vardiya-detail-empty">Bu gün için vardiya bilgisi girilmemiş.</div>`;
           return;
         }
-
-        listeEl.innerHTML = filtreli.map(item => {
-          const molalar = [item.mola1, item.mola2, item.mola3, item.mola4].filter(Boolean);
-          const molaOzet = molalar.length ? molalar.join(" • ") : "Mola saati girilmedi";
-          return `
-            <div class="vardiya-day-row">
-              <div class="vardiya-day-top">
-                <div>
-                  <strong style="color:#ffffff;">${escapeHtml(item.tarih || "-")}</strong>
-                  <span class="badge" style="margin-left:6px;">${escapeHtml(item.vardiya || "-")}</span>
-                  <span class="badge user" style="margin-left:4px;">Ekleyen: ${escapeHtml(item.kisi || "-")}</span>
-                </div>
-                <span class="badge ok">Yemek (50dk): ${escapeHtml(item.yemek || "-")}</span>
-              </div>
-              <div style="font-size:0.84rem; color:var(--muted);">
-                10 dk Molalar: <strong style="color:var(--neon-cyan);">${escapeHtml(molaOzet)}</strong>
-              </div>
-            </div>
-          `;
-        }).join("");
+        if (item.izinli || item.vardiya === "İzinli") {
+          box.innerHTML = `<div class="vardiya-detail-date">${escapeHtml(vardiyaTarihFormat(tarih))}</div><div class="vardiya-detail-status leave">İZİNLİ</div><p class="vardiya-step-note">Bu gün için vardiya planlanmamış.</p>`;
+          return;
+        }
+        const molalar = [item.mola1,item.mola2,item.mola3,item.mola4];
+        box.innerHTML = `<div class="vardiya-detail-date">${escapeHtml(vardiyaTarihFormat(tarih))}</div><div class="vardiya-detail-status work">ÇALIŞMA GÜNÜ</div><div class="vardiya-detail-line"><span>Vardiya saati</span><strong>${escapeHtml(vardiyaSaatAraligi(item))}</strong></div><div class="vardiya-detail-line"><span>Yemek molası · 50 dk</span><strong>${escapeHtml(item.yemek || "-")}</strong></div>${molalar.map((v,i)=>`<div class="vardiya-detail-line"><span>${i+1}. mola · 10 dk</span><strong>${escapeHtml(v || "-")}</strong></div>`).join("")}<p class="vardiya-readonly-note">Bu ekran görüntüleme amaçlıdır; vardiya bilgileri buradan değiştirilemez.</p>`;
+      }
+      function vardiyaHaftaGunleriniHazirla() {
+        const ay = document.getElementById("vardiyaAyInput").value;
+        const hafta = Number(document.getElementById("vardiyaHaftaSelect").value);
+        const bas = document.getElementById("vardiyaBaslangicSaat").value;
+        const bit = document.getElementById("vardiyaBitisSaat").value;
+        if (!ay || !bas || !bit || bas >= bit) { alert("Lütfen ayı ve geçerli vardiya başlangıç/bitiş saatlerini seç."); return false; }
+        const [y,m] = ay.split("-").map(Number);
+        const startDay = (hafta-1)*7+1;
+        const lastDay = new Date(y,m,0).getDate();
+        const endDay = Math.min(hafta*7,lastDay);
+        const off = new Set([...document.querySelectorAll("#vardiyaIzinGunleri input:checked")].map(x=>Number(x.value)));
+        vardiyaHaftaTaslak = [];
+        for (let d=startDay; d<=endDay; d++) {
+          const date = new Date(y,m-1,d);
+          const tarih = tarihLocal(date);
+          const izinli = off.has(date.getDay());
+          vardiyaHaftaTaslak.push({tarih, gun:vardiyaGunAdlari[date.getDay()], izinli, baslangic:bas, bitis:bit});
+        }
+        const calisma = vardiyaHaftaTaslak.filter(x=>!x.izinli);
+        if (!calisma.length) { alert("Seçtiğin haftada çalışma günü kalmadı. İzin günlerini kontrol et."); return false; }
+        document.getElementById("vardiyaHaftaBaslik").textContent = `${hafta}. Hafta · ${ay}`;
+        vardiyaAktifGunIndex = 0;
+        document.getElementById("vardiyaGunMolaFormlari").innerHTML = calisma.map((day,i)=>`<section class="vardiya-workday-card ${i===0?"":"hidden"}" data-workday="${day.tarih}" data-day-index="${i}"><div class="vardiya-workday-title"><strong>${day.gun}</strong><span>${day.tarih.split("-").reverse().join(".")}</span></div><div class="vardiya-workday-shift">Vardiya: ${bas} – ${bit}</div><div class="vardiya-break-grid"><label>1. mola · 10 dakika<input type="time" data-field="mola1" required></label><label>2. mola · 10 dakika<input type="time" data-field="mola2" required></label><label>3. mola · 10 dakika<input type="time" data-field="mola3" required></label><label>4. mola · 10 dakika<input type="time" data-field="mola4" required></label><label class="meal-field">Yemek molası · 50 dakika<input type="time" data-field="yemek" required></label></div></section>`).join("");
+        vardiyaGunFormunuGoster(0);
+        document.getElementById("vardiyaWizardStep1").classList.add("hidden");
+        document.getElementById("vardiyaWizardStep2").classList.remove("hidden");
+        document.getElementById("vardiyaDurumMesaj").textContent = "";
+        return true;
+      }
+      function vardiyaGunFormunuGoster(index) {
+        const cards = [...document.querySelectorAll("#vardiyaGunMolaFormlari .vardiya-workday-card")];
+        if (!cards.length) return;
+        vardiyaAktifGunIndex = Math.max(0, Math.min(index, cards.length-1));
+        cards.forEach((card,i)=>card.classList.toggle("hidden",i!==vardiyaAktifGunIndex));
+        document.getElementById("vardiyaGunSayaci").textContent = `${vardiyaAktifGunIndex+1} / ${cards.length}`;
+        document.getElementById("vardiyaOncekiGunBtn").disabled = vardiyaAktifGunIndex===0;
+        document.getElementById("vardiyaSonrakiGunBtn").disabled = vardiyaAktifGunIndex===cards.length-1;
+        document.getElementById("vardiyaSonrakiGunBtn").textContent = vardiyaAktifGunIndex===cards.length-1 ? "Son gün" : "Sonraki gün →";
+      }
+      async function vardiyaHaftayiKaydet() {
+        const kisi = vardiyaAktifKullanici();
+        const durum = document.getElementById("vardiyaDurumMesaj");
+        const cards = [...document.querySelectorAll("#vardiyaGunMolaFormlari .vardiya-workday-card")];
+        const entries = [];
+        for (const day of vardiyaHaftaTaslak) {
+          if (day.izinli) {
+            entries.push({tarih:day.tarih, izinli:true, vardiya:"İzinli", baslangic:"", bitis:"", yemek:"", mola1:"", mola2:"", mola3:"", mola4:""});
+            continue;
+          }
+          const card = cards.find(c=>c.dataset.workday===day.tarih);
+          const val = field => card?.querySelector(`[data-field="${field}"]`)?.value || "";
+          const record = {tarih:day.tarih, izinli:false, baslangic:day.baslangic, bitis:day.bitis, vardiya:`${day.baslangic} / ${day.bitis}`, yemek:val("yemek"), mola1:val("mola1"), mola2:val("mola2"), mola3:val("mola3"), mola4:val("mola4")};
+          if ([record.yemek,record.mola1,record.mola2,record.mola3,record.mola4].some(x=>!x)) { durum.textContent = `${day.gun} için tüm mola saatlerini doldur.`; return; }
+          entries.push(record);
+        }
+        const now = new Date().toISOString();
+        for (const item of entries) {
+          item.kisi = kisi; item.id = `vardiya_${item.tarih}_${kisi}`; item.updatedAt = now;
+          vardiyaKayitlari = vardiyaKayitlari.filter(x=>x.id!==item.id);
+          vardiyaKayitlari.push(item);
+        }
+        vardiyaKayitlari.sort((a,b)=>String(a.tarih||"").localeCompare(String(b.tarih||"")));
+        vardiyaYerelKaydet();
+        durum.textContent = "Vardiya haftası kaydediliyor…";
+        for (const item of entries) await vardiyaBulutaYaz({...item,kisi,id:`vardiya_${item.tarih}_${kisi}`,updatedAt:now});
+        vardiyaEkipMiniyiCiz();
+        durum.textContent = `${entries.length} günlük plan kaydedildi. Ekip durumları güncellendi.`;
+        setTimeout(()=>document.getElementById("vardiyaPlanModalBackdrop").classList.add("hidden"),900);
       }
 
       vardiyaAnaEkranaYerlestir();
       vardiyaYerelYukle();
       ekipMolaYerelYukle();
-      vardiyaBuluttanSenkronizeEt();
+      vardiyaBuluttanSenkronizeEt().then(vardiyaEkipMiniyiCiz);
+      vardiyaEkipMiniyiCiz();
       aktifMolalariBuluttanCek();
 
       aktifSayac = sayacYukle();
@@ -4324,44 +4377,20 @@ Yapılması gereken adımlar...`;
       document.getElementById("vardiyaPlanKapatBtn").addEventListener("click", () => {
         document.getElementById("vardiyaPlanModalBackdrop").classList.add("hidden");
       });
-
-      document.getElementById("vardiyaYenileBtn").addEventListener("click", async () => {
-        await vardiyaBuluttanSenkronizeEt();
-        vardiyaListeyiCiz();
+      document.getElementById("vardiyaHaftaDevamBtn").addEventListener("click", vardiyaHaftaGunleriniHazirla);
+      document.getElementById("vardiyaGeriBtn").addEventListener("click", () => {
+        document.getElementById("vardiyaWizardStep2").classList.add("hidden");
+        document.getElementById("vardiyaWizardStep1").classList.remove("hidden");
       });
-
-      document.getElementById("vardiyaAyInput").addEventListener("change", vardiyaListeyiCiz);
-      document.getElementById("vardiyaKisiFiltre").addEventListener("change", vardiyaListeyiCiz);
-
-      document.getElementById("vardiyaKaydetBtn").addEventListener("click", async () => {
-        const tarih = document.getElementById("vardiyaTarihInput").value;
-        const vardiya = document.getElementById("vardiyaSaatDilimiSelect").value;
-        const yemek = document.getElementById("vardiyaYemekSaatInput").value;
-        const mola1 = document.getElementById("vardiyaMola1Input").value;
-        const mola2 = document.getElementById("vardiyaMola2Input").value;
-        const mola3 = document.getElementById("vardiyaMola3Input").value;
-        const mola4 = document.getElementById("vardiyaMola4Input").value;
-        const durumEl = document.getElementById("vardiyaDurumMesaj");
-
-        if (!tarih) {
-          durumEl.textContent = "Lütfen bir tarih seçin.";
-          return;
-        }
-
-        const kisi = vardiyaAktifKullanici();
-        const id = `vardiya_${tarih}_${kisi}`;
-        const yeniKayit = {
-          id, tarih, vardiya, yemek, mola1, mola2, mola3, mola4, kisi,
-          updatedAt: new Date().toISOString()
-        };
-
-        vardiyaKayitlari = vardiyaKayitlari.filter(x => x.id !== id);
-        vardiyaKayitlari.push(yeniKayit);
-        vardiyaKayitlari.sort((a, b) => String(a.tarih || "").localeCompare(String(b.tarih || "")));
-        vardiyaYerelKaydet();
-        vardiyaListeyiCiz();
-        await vardiyaBulutaYaz(yeniKayit);
-        durumEl.textContent = `${tarih} vardiyası (${kisi}) kaydedildi ve paylaşıldı.`;
+      document.getElementById("vardiyaHaftaKaydetBtn").addEventListener("click", vardiyaHaftayiKaydet);
+      document.getElementById("vardiyaOncekiGunBtn").addEventListener("click", () => vardiyaGunFormunuGoster(vardiyaAktifGunIndex-1));
+      document.getElementById("vardiyaSonrakiGunBtn").addEventListener("click", () => vardiyaGunFormunuGoster(vardiyaAktifGunIndex+1));
+      document.getElementById("vardiyaDetayKapatBtn").addEventListener("click", () => document.getElementById("vardiyaKisiDetayBackdrop").classList.add("hidden"));
+      document.getElementById("vardiyaDetaySonrakiGunBtn").addEventListener("click", () => {
+        const [y,m,d] = vardiyaDetayTarihSecili.split("-").map(Number);
+        const next = new Date(y,m-1,d+1);
+        vardiyaDetayTarihSecili = tarihLocal(next);
+        vardiyaKisiDetayiniCiz();
       });
 
       document.addEventListener("click", () => sesBaglaminiHazirla(), { passive: true });
@@ -5119,15 +5148,16 @@ ${kaynak}`;
     }
 
     function testButonunuYerlestir() {
-      const bar = document.getElementById("vardiyaAnaBar");
-      if (!bar || document.getElementById("kendiniTestEtBtn")) return;
+      const stage = document.getElementById("centerHomeStage");
+      const pair = stage?.querySelector(".square-pair");
+      if (!stage || !pair || document.getElementById("kendiniTestEtBtn")) return;
 
       const btn = document.createElement("button");
       btn.id = "kendiniTestEtBtn";
       btn.type = "button";
+      btn.className = "home-test-shortcut";
       btn.textContent = "📝 Kendini Test Et";
-      bar.appendChild(btn);
-
+      pair.insertAdjacentElement("afterend", btn);
       btn.addEventListener("click", testAkisiniBaslat);
     }
 
@@ -6432,3 +6462,109 @@ ${kaynak}`;
     paneliKur();
   })();
 </script>
+
+<script id="hybrid-navigation">
+(function(){
+  const nav=document.getElementById('appBottomNav');
+  if(!nav) return;
+  const items=[...nav.querySelectorAll('[data-nav]')];
+  function activate(key){items.forEach(b=>b.classList.toggle('active',b.dataset.nav===key));}
+  function showHome(){
+    document.getElementById('askWindowCard')?.classList.add('hidden');
+    document.getElementById('uploadQueueCard')?.classList.add('hidden');
+    document.getElementById('centerHomeStage')?.classList.remove('hidden');
+    activate('home'); window.scrollTo({top:0,behavior:'smooth'});
+  }
+  nav.addEventListener('click',e=>{
+    const btn=e.target.closest('[data-nav]'); if(!btn) return;
+    const key=btn.dataset.nav;
+    if(key==='home'){showHome();return;}
+    if(key==='ask'){document.getElementById('squareAskBtn')?.click();activate(key);window.scrollTo({top:0,behavior:'smooth'});return;}
+    if(key==='upload'){document.getElementById('squareUploadBtn')?.click();activate(key);window.scrollTo({top:0,behavior:'smooth'});return;}
+    if(key==='shift'){
+      document.getElementById('centerHomeStage')?.classList.remove('hidden');
+      document.getElementById('vardiyaPlanBtn')?.click(); activate(key); return;
+    }
+  });
+  document.getElementById('backHomeFromAskBtn')?.addEventListener('click',()=>activate('home'));
+  document.getElementById('backHomeFromUploadBtn')?.addEventListener('click',()=>activate('home'));
+  document.getElementById('squareAskBtn')?.addEventListener('click',()=>activate('ask'));
+  document.getElementById('recordsBtn')?.addEventListener('click',()=>activate('records'));
+  document.getElementById('kendiniTestEtBtn')?.addEventListener('click',()=>activate('quiz'));
+  document.getElementById('vardiyaPlanBtn')?.addEventListener('click',()=>activate('shift'));
+})();
+</script>
+
+<style id="premium-balanced-redesign">
+  :root{--bg:#0d0f16;--panel:#171a25;--panel-2:#202433;--text:#f4f5fb;--muted:#a5adbf;--neon-purple:#8b72e8;--neon-purple-bright:#a995ff;--neon-cyan:#55d6cf;--border:rgba(169,149,255,.20);--radius:18px;--ok:#61d9ae}
+  body{background:radial-gradient(ellipse at 8% 0%,rgba(139,114,232,.13),transparent 36%),#0d0f16;line-height:1.55;padding-bottom:88px}
+  header{background:rgba(13,15,22,.94);border-bottom:1px solid rgba(255,255,255,.07);box-shadow:0 5px 22px rgba(0,0,0,.18);padding:11px 16px}
+  .header-inner{max-width:760px;flex-wrap:wrap}
+  .app-brand{display:flex;align-items:center;gap:10px;min-width:0}
+  .brand-mark{width:38px;height:38px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(145deg,#8b72e8,#5b4ba7);color:white;font-weight:900;font-size:1.1rem;box-shadow:0 5px 16px rgba(139,114,232,.22)}
+  .app-brand strong{display:block;font-size:.95rem;letter-spacing:.01em}.app-brand small{display:block;color:var(--muted);font-size:.68rem;margin-top:-2px}
+  .header-left{gap:7px;justify-content:flex-end;flex-wrap:wrap}.user-pill{font-size:.75rem;padding:5px 10px;background:rgba(139,114,232,.13);border:1px solid rgba(169,149,255,.28);box-shadow:none}
+  .records-top-btn,.notif-btn{font-size:.74rem;padding:6px 10px;border-radius:10px;box-shadow:none;border-color:rgba(255,255,255,.12)}
+  main{max-width:760px;padding:22px 16px 112px}
+  .center-stage{min-height:0;justify-content:flex-start;align-items:stretch;gap:18px;padding-top:10px}
+  .home-intro{margin:0 0 2px}.home-intro .eyebrow{font-size:.68rem;font-weight:800;letter-spacing:.13em;color:var(--neon-cyan);margin-bottom:6px}.home-intro h1{font-size:1.45rem;line-height:1.2;margin:0 0 7px;letter-spacing:-.035em}.home-intro p{margin:0;color:var(--muted);font-size:.88rem}
+  .square-pair{width:100%;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .neon-square-btn{aspect-ratio:1.45/1;max-width:none;border:1px solid rgba(169,149,255,.27);border-radius:18px;background:linear-gradient(145deg,rgba(139,114,232,.17),#171a25 70%);box-shadow:0 8px 22px rgba(0,0,0,.18);font-size:.98rem;gap:9px;letter-spacing:0}
+  .neon-square-btn svg{width:29px;height:29px}.neon-square-btn:hover{transform:translateY(-2px);border-color:var(--neon-purple-bright);box-shadow:0 10px 25px rgba(0,0,0,.24)}
+  .neon-square-btn.upload-sq{border-color:rgba(85,214,207,.35);background:linear-gradient(145deg,rgba(85,214,207,.12),#171a25 72%);box-shadow:0 8px 22px rgba(0,0,0,.18)}
+  .upload-menu-box{width:100%;justify-content:stretch;background:var(--panel);border:1px solid rgba(85,214,207,.25);box-shadow:none;border-radius:16px;padding:10px;gap:8px}
+  .upload-choice-btn{flex:1 1 30%;padding:11px 8px;border:1px solid rgba(255,255,255,.09);border-radius:12px;font-size:.8rem}
+  .card,.gate-card{background:var(--panel);border:1px solid rgba(255,255,255,.08);box-shadow:0 8px 24px rgba(0,0,0,.16);border-radius:18px;padding:17px;margin-bottom:14px}
+  button{border-radius:12px;box-shadow:none!important;transition:transform .16s ease,background .16s ease,border-color .16s ease}
+  button:active{transform:scale(.98)}
+  input,textarea,select{background:#10131d!important;border:1px solid rgba(255,255,255,.12)!important;border-radius:12px!important;color:var(--text)!important}
+  input:focus,textarea:focus,select:focus{outline:2px solid rgba(139,114,232,.25);border-color:var(--neon-purple-bright)!important}
+  .cyan-outline,.records-top-btn{color:var(--neon-cyan);border-color:rgba(85,214,207,.38);background:rgba(85,214,207,.08)}
+  .ok-btn,button:not(.secondary):not(.danger):not(.warn):not(.cyan-outline):not(.upload-choice-btn):not(.nav-item):not(.neon-square-btn){background:linear-gradient(135deg,#7965d1,#6252b3);border:1px solid rgba(169,149,255,.28);color:white}
+  .secondary{background:#252a39!important;border:1px solid rgba(255,255,255,.10)!important;color:#e6e9f2!important}
+  #sonBilgiUstKart{max-width:none;background:linear-gradient(145deg,rgba(85,214,207,.08),#171a25 78%);border:1px solid rgba(85,214,207,.22);box-shadow:none;border-radius:16px;padding:14px 15px}
+  .son-bilgi-etiket{color:var(--neon-cyan)}
+  #vardiyaAnaBar{width:100%;background:var(--panel);border:1px solid rgba(255,255,255,.08);border-radius:17px;padding:14px;box-shadow:none}
+  #vardiyaMolaSecimBox{background:#111520;border-color:rgba(85,214,207,.22);box-shadow:none}
+  #vardiyaFloatingWidget{bottom:94px;right:12px;background:#1a2030;border:1px solid rgba(85,214,207,.35);box-shadow:0 8px 24px rgba(0,0,0,.3);border-radius:14px}
+  #vardiyaEkipMolaRozet{box-shadow:none;border-color:rgba(169,149,255,.28)}
+  .app-bottom-nav{position:fixed;z-index:55;left:0;right:0;bottom:0;display:grid;grid-template-columns:1fr 1fr 1.28fr 1fr 1fr;align-items:end;gap:2px;padding:8px max(8px,env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));background:rgba(20,23,34,.97);border-top:1px solid rgba(255,255,255,.09);backdrop-filter:blur(18px);box-shadow:0 -8px 26px rgba(0,0,0,.24);min-height:72px}
+  .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0;min-height:48px;padding:5px 2px;background:transparent!important;border:0!important;color:#929bad!important;font-size:.65rem;font-weight:700;line-height:1.2;border-radius:11px;white-space:nowrap}
+  .nav-icon{font-size:1.2rem;line-height:1.15;font-weight:700}.nav-item.active{color:#c4b8ff!important;background:rgba(139,114,232,.13)!important}.nav-item.active .nav-icon{color:var(--neon-purple-bright)}
+  .nav-item-center{width:66px;height:66px;min-height:66px;justify-self:center;align-self:start;margin-top:-29px;border-radius:50%!important;background:linear-gradient(145deg,#9b83ff,#6754c5)!important;border:3px solid #171a25!important;color:#fff!important;box-shadow:0 5px 20px rgba(139,114,232,.42),0 0 0 1px rgba(255,255,255,.13)!important;gap:1px;font-size:.63rem}
+  .nav-item-center .nav-icon{font-size:1.75rem;line-height:1}.nav-item-center.active{background:linear-gradient(145deg,#ad9aff,#7965dc)!important;color:#fff!important}.nav-item-center.active .nav-icon{color:#fff!important}
+  #askWindowCard{margin-top:8px}#questionInput{min-height:112px}
+  #answerArea{margin-top:12px}#uploadQueueCard{margin-top:8px}
+  .modal-backdrop{backdrop-filter:blur(8px)}
+  @media(max-width:390px){main{padding-left:12px;padding-right:12px}.home-intro h1{font-size:1.3rem}.neon-square-btn{font-size:.9rem}.nav-item{font-size:.57rem}.nav-item-center{width:62px;height:62px;min-height:62px;margin-top:-26px}.nav-item-center .nav-icon{font-size:1.6rem}}
+  @media(min-width:700px){.app-bottom-nav{left:50%;right:auto;transform:translateX(-50%);width:min(100%,760px);border:1px solid rgba(255,255,255,.09);border-bottom:0;border-radius:18px 18px 0 0}.center-stage{padding-top:20px}.square-pair{max-width:580px}}
+
+  /* Revize alt menü: iki ana işlem butonu merkezde, küçük kısayollar dışta */
+  .app-bottom-nav{position:fixed;z-index:55;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;gap:clamp(12px,5vw,34px);padding:10px max(14px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));min-height:82px;background:rgba(20,23,34,.97);border-top:1px solid rgba(255,255,255,.09);backdrop-filter:blur(18px);box-shadow:0 -8px 26px rgba(0,0,0,.24)}
+  .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0;padding:0;background:transparent!important;border:0!important;color:#929bad!important;font-size:.63rem;font-weight:700;line-height:1.15;white-space:nowrap}
+  .nav-item .nav-icon{display:grid;place-items:center;width:42px;height:42px;border-radius:50%;font-size:1.15rem;line-height:1;background:#303647;color:#d8deeb}
+  .nav-item-small{width:48px;flex:0 0 48px}.nav-item-small .nav-icon{width:36px;height:36px;font-size:1.05rem;background:#303647}
+  .nav-item-main{width:66px;flex:0 0 66px}.nav-item-main .nav-icon{width:58px;height:58px;font-size:1.7rem;background:linear-gradient(145deg,#9b83ff,#6754c5);color:#fff;box-shadow:0 5px 18px rgba(139,114,232,.35)}
+  .nav-item-upload .nav-icon{background:linear-gradient(145deg,#62d8d0,#278d9a)}
+  .nav-item.active{color:#fff!important;background:transparent!important}.nav-item.active .nav-icon{outline:2px solid rgba(255,255,255,.16);outline-offset:2px}
+  .nav-item-main.active .nav-icon{outline:2px solid rgba(255,255,255,.28);outline-offset:3px}
+  #vardiyaAnaBar{width:100%;max-width:420px;background:transparent;border:0;padding:0;box-shadow:none;margin-top:2px}
+  #vardiyaPlanBtn{width:100%;padding:13px 18px;border-radius:14px;background:linear-gradient(135deg,#8b72e8,#5f51b2);border:0;color:white;font-size:.95rem;font-weight:800;box-shadow:0 8px 20px rgba(139,114,232,.2)}
+  .vardiya-team-mini{order:3;flex:1 0 100%;display:flex;align-items:center;justify-content:flex-start;gap:7px;overflow-x:auto;padding:5px 0 1px;scrollbar-width:none}
+  .vardiya-team-mini::-webkit-scrollbar{display:none}.vardiya-mini-label{font-size:.62rem;letter-spacing:.1em;color:var(--muted);font-weight:800;margin-right:2px}
+  .vardiya-person-pill{display:flex;align-items:center;gap:7px;flex:0 0 auto;border:1px solid rgba(255,255,255,.1);background:#1b2030;color:var(--text);border-radius:999px;padding:5px 10px;font-size:.72rem;cursor:pointer}
+  .vardiya-person-pill small{font-size:.62rem;color:var(--muted)}.vardiya-person-pill.work{border-color:rgba(97,217,174,.35)}.vardiya-person-pill.work small{color:#75e2b9}.vardiya-person-pill.leave{border-color:rgba(255,183,3,.4)}.vardiya-person-pill.leave small{color:#ffc85b}
+  .vardiya-wizard-card{max-width:620px}.vardiya-modal-head,.vardiya-step2-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}.vardiya-modal-head h2{font-size:1.2rem;margin:2px 0 0;color:#f4f5fb}.vardiya-kicker{font-size:.65rem;letter-spacing:.13em;font-weight:900;color:var(--neon-cyan)}
+  .vardiya-step-note{font-size:.83rem;color:var(--muted);margin:0 0 14px}.vardiya-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.vardiya-form-grid label,.vardiya-break-grid label{display:block;font-size:.78rem;font-weight:700;color:#dce2ef;margin-bottom:5px}.vardiya-form-grid input,.vardiya-form-grid select,.vardiya-break-grid input{width:100%;margin-top:5px}
+  .vardiya-offdays-wrap{margin:18px 0;padding:13px;background:#111723;border:1px solid rgba(255,255,255,.08);border-radius:14px}.vardiya-offdays-wrap>strong{font-size:.83rem}.vardiya-weekday-picks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}.vardiya-weekday-picks label{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:.78rem}.vardiya-weekday-picks input{width:17px;height:17px;accent-color:#8b72e8}
+  .vardiya-primary-wide{width:100%;padding:13px 16px;border:0;border-radius:13px;background:linear-gradient(135deg,#8b72e8,#5f51b2);color:#fff;font-weight:850;font-size:.9rem}.vardiya-primary-wide span{float:right}.vardiya-step2-head{align-items:flex-start}.vardiya-workday-card{padding:13px;margin:0 0 12px;background:#111723;border:1px solid rgba(169,149,255,.18);border-radius:14px}.vardiya-workday-title{display:flex;justify-content:space-between;align-items:center;gap:8px}.vardiya-workday-title strong{font-size:.95rem}.vardiya-workday-title span,.vardiya-workday-shift{font-size:.75rem;color:var(--muted)}.vardiya-workday-shift{margin:3px 0 12px}.vardiya-break-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.vardiya-break-grid .meal-field{grid-column:1/-1}.vardiya-break-grid input{margin-bottom:0}
+  .vardiya-detail-card{max-width:480px}.vardiya-detail-date{font-size:.9rem;color:var(--muted);margin:2px 0 12px;text-transform:capitalize}.vardiya-detail-status{display:inline-block;padding:5px 10px;border-radius:999px;font-size:.68rem;font-weight:900;letter-spacing:.07em;margin-bottom:12px}.vardiya-detail-status.work{background:rgba(97,217,174,.13);color:#75e2b9}.vardiya-detail-status.leave{background:rgba(255,183,3,.13);color:#ffc85b}.vardiya-detail-line{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:.82rem}.vardiya-detail-line span{color:var(--muted)}.vardiya-detail-line strong{font-variant-numeric:tabular-nums}.vardiya-detail-empty{padding:22px 12px;text-align:center;border-radius:13px;background:#111723;color:var(--muted);font-size:.86rem}.vardiya-readonly-note{font-size:.72rem;color:var(--muted);margin:14px 0 0}.vardiya-detail-footer{margin-top:16px}
+  #vardiyaPlanModalBackdrop,#vardiyaKisiDetayBackdrop{z-index:75}#vardiyaKisiDetayBackdrop{position:fixed;inset:0;background:rgba(4,3,8,.84);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:16px}
+  @media(max-width:390px){.app-bottom-nav{gap:clamp(8px,3.2vw,14px);min-height:76px}.nav-item-main{width:60px;flex-basis:60px}.nav-item-main .nav-icon{width:53px;height:53px}.nav-item-small{width:42px;flex-basis:42px}.nav-item-small .nav-icon{width:33px;height:33px}.nav-item{font-size:.58rem}.vardiya-form-grid{gap:9px}.vardiya-plan-card{padding:14px}}
+
+  #anaMenuVardiyaDurumKart{display:none!important}
+  .vardiya-day-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:12px 0}.vardiya-day-nav button{padding:9px 11px;font-size:.75rem}.vardiya-day-nav button:disabled{opacity:.35;cursor:default}.vardiya-day-nav span{font-size:.75rem;color:var(--muted);font-weight:800;font-variant-numeric:tabular-nums}
+  .vardiya-break-grid{grid-template-columns:1fr;gap:8px}.vardiya-break-grid label{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)}.vardiya-break-grid input{width:132px;flex:0 0 132px;margin:0}
+
+  .home-test-shortcut{width:100%;max-width:420px;padding:11px 14px;border-radius:13px;background:#1b2030!important;border:1px solid rgba(169,149,255,.2)!important;color:#cfc5ff!important;font-weight:750}
+</style>
