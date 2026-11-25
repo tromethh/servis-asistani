@@ -1403,7 +1403,7 @@
   <main id="appMain" class="hidden">
     <div id="centerHomeStage" class="center-stage">
       <div id="homeClock" class="home-clock"><div id="homeClockTime">--:--:--</div><div id="homeClockDate">Yükleniyor...</div></div>
-      <div class="home-shortcuts"><button type="button" id="homePartsShortcut">⌕ <span>Parça Kodları</span></button><button type="button" id="homeArticlesShortcut">▤ <span>Makale</span></button></div>
+      <div class="home-shortcuts"><button type="button" id="homePartsShortcut">⌕ <span>Parça Kodları</span></button><button type="button" id="homeArticlesShortcut">▤ <span>Makale</span></button><button type="button" id="homeProcessesShortcut">▣ <span>Süreçler</span></button></div>
       <div class="home-intro"><div class="eyebrow">SERVİS BİLGİ MERKEZİ</div><h1>Nasıl yardımcı olabilirim?</h1><p>Soru çöz, yeni bilgi ekle veya kayıtlarına göz at.</p></div>
       <div class="square-pair">
         <button id="squareAskBtn" type="button" class="neon-square-btn">
@@ -4959,8 +4959,7 @@ Yapılması gereken adımlar...`;
   const tick=()=>{const n=new Date();const t=document.getElementById('homeClockTime'),d=document.getElementById('homeClockDate');if(t)t.textContent=n.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});if(d)d.textContent=n.toLocaleDateString('tr-TR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});};
   tick();setInterval(tick,1000);
   const records=()=>document.getElementById('recordsBtn')?.click();
-  document.getElementById('homePartsShortcut')?.addEventListener('click',()=>{records();setTimeout(()=>document.getElementById('pickParcaKodlariBtn')?.click(),80);});
-  document.getElementById('homeArticlesShortcut')?.addEventListener('click',()=>{records();setTimeout(()=>document.getElementById('extPickMakaleBtn')?.click(),80);});
+  // Kısayol yönlendirmeleri v4 gezinme betiğinde yönetilir.
 })();
 </script>
 </body>
@@ -5121,7 +5120,7 @@ Yapılması gereken adımlar...`;
   <div id="quizModalCard">
     <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px;">
       <div>
-        <strong style="color:var(--neon-cyan); font-size:1.05rem;">Kendini Test Et</strong>
+        <strong id="quizModalBaslik" style="color:var(--neon-cyan); font-size:1.05rem;">Kendini Test Et</strong>
         <div id="quizİlerlemeMetni" style="font-size:0.8rem; color:var(--muted);">Makale & Süreçler</div>
       </div>
       <button id="quizKapatBtn" type="button" class="secondary" style="padding:6px 12px; font-size:0.82rem;">Kapat</button>
@@ -5158,28 +5157,21 @@ Yapılması gereken adımlar...`;
 
     function hatirlatmaKartiYerlestir() {
       const stage = document.getElementById("centerHomeStage");
-      if (!stage || document.getElementById("hatirlatmaKartBox")) return;
-
-      const box = document.createElement("div");
-      box.id = "hatirlatmaKartBox";
-      box.innerHTML = `
-        <div class="hatirlatma-ust">
-          <span class="hatirlatma-etiket">💡 Hatırlatma Kartı (Makale & Süreçler)</span>
-          <div style="display:flex; align-items:center; gap:8px;">
-            <span id="hatirlatmaGeriSayim" class="hatirlatma-sayac">01:00</span>
-            <button id="hatirlatmaYenileBtn" type="button" class="secondary" style="padding:2px 8px; font-size:0.72rem; border-radius:999px;">Yenile</button>
-          </div>
-        </div>
-        <div id="hatirlatmaSoruMetni" class="hatirlatma-soru">Hatırlatma hazırlanıyor...</div>
-        <div id="hatirlatmaCevapMetni" class="hatirlatma-cevap">Makale ve Süreçler kayıtlarından kısa bir ipucu yüklenecek.</div>
-      `;
-
-      stage.insertBefore(box, stage.firstChild);
-
-      document.getElementById("hatirlatmaYenileBtn").addEventListener("click", () => {
-        kalanHatirlatmaSn = HATIRLATMA_SURE_SN;
-        hatirlatmaKartiniGuncelle(true);
-      });
+      if (!stage || document.getElementById("randomQuestionShortcut")) return;
+      // Uzun hatırlatma metninin yerine saat altında küçük, simge tabanlı tek-soru kısayolu.
+      document.getElementById("hatirlatmaKartBox")?.remove();
+      document.getElementById("kendiniTestEtBtn")?.remove();
+      const btn = document.createElement("button");
+      btn.id = "randomQuestionShortcut";
+      btn.type = "button";
+      btn.className = "random-question-shortcut";
+      btn.setAttribute("aria-label", "Rastgele bir soru sor");
+      btn.title = "Rastgele bir soru sor";
+      btn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 3h4v4M3 7h3.5a4 4 0 0 1 3.2 1.6l4.6 6.8A4 4 0 0 0 17.5 17H21m-4-4 4 4-4 4M3 17h3.5a4 4 0 0 0 3.2-1.6M17 3l4 4"/></svg>';
+      const clock = document.getElementById("homeClock");
+      if (clock?.parentElement === stage) clock.insertAdjacentElement("afterend", btn);
+      else stage.insertBefore(btn, stage.firstChild);
+      btn.addEventListener("click", () => testAkisiniBaslat(true));
     }
 
     function yerelHatirlatmaUret(havuz) {
@@ -5307,10 +5299,12 @@ ${kaynak}`;
       });
     }
 
-    async function testAkisiniBaslat() {
+    async function testAkisiniBaslat(tekSoruModu = false) {
       const backdrop = document.getElementById("quizModalBackdrop");
       const icerikEl = document.getElementById("quizİcerikAlani");
       const ilerlemeEl = document.getElementById("quizİlerlemeMetni");
+      const baslikEl = document.getElementById("quizModalBaslik");
+      if (baslikEl) baslikEl.textContent = tekSoruModu ? "Rastgele Soru" : "Kendini Test Et";
       if (!backdrop || !icerikEl) return;
 
       if (!state.records.length && typeof syncFromCloud === "function") {
@@ -5326,12 +5320,12 @@ ${kaynak}`;
       }
 
       backdrop.classList.remove("hidden");
-      ilerlemeEl.textContent = "Sorular hazırlanıyor...";
-      icerikEl.innerHTML = `<div class="status-msg">Makale ve Süreçler kayıtlarından 5-10 soruluk test oluşturuluyor...</div>`;
+      ilerlemeEl.textContent = tekSoruModu ? "Rastgele Soru" : "Sorular hazırlanıyor...";
+      icerikEl.innerHTML = `<div class="status-msg">${tekSoruModu ? "Tek bir soru hazırlanıyor..." : "Makale ve Süreçler kayıtlarından test oluşturuluyor..."}</div>`;
 
       try {
         const kaynak = ozetKaynakMetniOlustur(18);
-        const soruAdedi = Math.min(10, Math.max(5, havuz.length));
+        const soruAdedi = tekSoruModu ? 1 : Math.min(10, Math.max(5, havuz.length));
         const prompt = `Aşağıdaki MAKALE ve SÜREÇLER kayıtlarına dayanarak ${soruAdedi} adet çoktan seçmeli test sorusu hazırla.
 Her sorunun tam 4 seçeneği olsun, tek bir doğru seçeneği bulunsun ve neden doğru olduğuna dair çok kısa (1 cümlelik) bir açıklama yaz.
 Yalnızca şu JSON formatında yanıt ver:
@@ -5361,9 +5355,12 @@ ${kaynak}`;
           }
         }
 
-        testSorulari = sorular.length >= 3 ? sorular : yerelTestSorulariUret(havuz);
+        testSorulari = tekSoruModu
+          ? (sorular.length ? [sorular[Math.floor(Math.random() * sorular.length)]] : yerelTestSorulariUret(havuz).slice(0, 1))
+          : (sorular.length >= 3 ? sorular : yerelTestSorulariUret(havuz));
       } catch {
         testSorulari = yerelTestSorulariUret(havuz);
+        if (tekSoruModu) testSorulari = testSorulari.slice(0, 1);
       }
 
       aktifSoruIndex = 0;
@@ -5388,11 +5385,11 @@ ${kaynak}`;
             </div>
           </div>
           <div class="actions">
-            <button id="quizTekrarBtn" type="button" class="ok-btn">Yeni Test Başlat</button>
+            <button id="quizTekrarBtn" type="button" class="ok-btn">${testSorulari.length === 1 ? "Yeni Rastgele Soru" : "Yeni Test Başlat"}</button>
             <button id="quizBitirKapatBtn" type="button" class="secondary">Kapat</button>
           </div>
         `;
-        document.getElementById("quizTekrarBtn").addEventListener("click", testAkisiniBaslat);
+        document.getElementById("quizTekrarBtn").addEventListener("click", () => testAkisiniBaslat(testSorulari.length === 1));
         document.getElementById("quizBitirKapatBtn").addEventListener("click", () => {
           document.getElementById("quizModalBackdrop").classList.add("hidden");
         });
@@ -5482,8 +5479,6 @@ ${kaynak}`;
 
     hatirlatmaKartiYerlestir();
     testButonunuYerlestir();
-    setTimeout(() => hatirlatmaKartiniGuncelle(false), 500);
-    setInterval(hatirlatmaSayacTick, 1000);
   })();
 </script>
 <!-- ==================== BİLGİLERİ GÜNCELLE BUTONU MODÜLÜ ==================== -->
@@ -6712,4 +6707,106 @@ ${kaynak}`;
   .vardiya-break-grid{grid-template-columns:1fr;gap:8px}.vardiya-break-grid label{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)}.vardiya-break-grid input{width:132px;flex:0 0 132px;margin:0}
 
   .home-test-shortcut{width:100%;max-width:420px;padding:11px 14px;border-radius:13px;background:#1b2030!important;border:1px solid rgba(169,149,255,.2)!important;color:#cfc5ff!important;font-weight:750}
+</style>
+
+
+<style id="home-navigation-header-marquee-v4">
+  /* Header: only user, refresh and notifications, centered as one compact group. */
+  header{padding:10px 12px!important}
+  .header-inner{display:flex!important;justify-content:center!important;align-items:center!important;gap:12px!important;min-height:42px!important;flex-wrap:nowrap!important}
+  #vardiyaTeamMini{display:none!important}
+  .header-left{display:flex!important;align-items:center!important;justify-content:center!important;gap:10px!important;flex:0 0 auto!important}
+  #recordsBtn{display:none!important}
+  #currentUserBadge{display:inline-flex!important;align-items:center!important;justify-content:center!important;margin:0!important}
+  #notifToggleBtn{display:grid!important;flex:0 0 36px!important}
+  #bilgileriGuncelleBtn{display:inline-grid!important;flex:0 0 34px!important;margin:0!important;color:#48df9a!important;border:1px solid rgba(72,223,154,.4)!important;background:rgba(72,223,154,.1)!important;box-shadow:none!important}
+  #homeClock{order:0!important;margin:0 auto 4px!important;padding:8px 0 3px!important}
+  #homeClockTime{font-size:clamp(3.2rem,14vw,5.4rem)!important;font-weight:950!important;letter-spacing:.045em!important}
+  .home-shortcuts{grid-template-columns:repeat(3,minmax(0,1fr))!important;max-width:620px!important}
+  .home-shortcuts button{min-width:0!important;padding:12px 6px!important}
+  .home-shortcuts button span{font-size:clamp(.72rem,2.8vw,.88rem)!important}
+  /* Smooth ticker: keep the full reminder readable over time rather than clipping it. */
+  #hatirlatmaKartBox{overflow:hidden!important}
+  .hatirlatma-soru,.hatirlatma-cevap{display:block!important;max-width:100%!important;overflow:hidden!important;white-space:nowrap!important;text-overflow:clip!important;overflow-wrap:normal!important}
+  .hatirlatma-soru{line-height:1.5!important;position:relative!important}
+  .hatirlatma-cevap{max-height:none!important;line-height:1.5!important}
+  .reminder-marquee-line{display:block!important;width:max-content!important;min-width:100%!important;white-space:nowrap!important;animation:reminderMarquee 24s linear infinite!important;will-change:transform!important}
+  .hatirlatma-cevap .reminder-marquee-line{animation-duration:30s!important}
+  #hatirlatmaKartBox:hover .reminder-marquee-line{animation-play-state:paused!important}
+  @keyframes reminderMarquee{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
+  @media(prefers-reduced-motion:reduce){.reminder-marquee-line{animation:none!important;transform:none!important;width:auto!important;white-space:normal!important}}
+  @media(max-width:420px){.header-inner{gap:8px!important}.header-left{gap:7px!important}#currentUserBadge{font-size:.8rem!important;padding:5px 9px!important}.home-shortcuts{gap:6px!important}}
+</style>
+<script id="home-navigation-header-marquee-v4-script">
+(function(){
+  const byId=id=>document.getElementById(id);
+  function prepareTicker(el){
+    if(!el || el.dataset.marqueeReady==='1') return;
+    const content=(el.textContent||'').trim();
+    if(!content || content==='Hatırlatma hazırlanıyor...') return;
+    el.dataset.marqueeReady='1';
+    const span=document.createElement('span');
+    span.className='reminder-marquee-line';
+    span.textContent=content+'　　 •　　 '+content;
+    el.textContent=''; el.appendChild(span);
+  }
+  function setupReminder(){
+    const clock=byId('homeClock'), reminder=byId('hatirlatmaKartBox');
+    if(clock && reminder && reminder.parentElement && clock.parentElement!==reminder.parentElement){
+      reminder.parentElement.insertBefore(clock,reminder);
+    } else if(clock && reminder && clock.nextElementSibling!==reminder){
+      reminder.parentElement.insertBefore(clock,reminder);
+    }
+    prepareTicker(byId('hatirlatmaSoruMetni'));
+    prepareTicker(byId('hatirlatmaCevapMetni'));
+  }
+  const openRecords=async()=>{
+    // recordsBtn remains the existing entry point so cloud sync and filters are preserved.
+    const btn=byId('recordsBtn');
+    if(btn){
+      btn.classList.remove('hidden');
+      btn.click();
+      btn.classList.add('hidden');
+    }
+    const modal=byId('recordsModal');
+    for(let i=0;i<80 && modal?.classList.contains('hidden');i++) await new Promise(resolve=>setTimeout(resolve,100));
+    await new Promise(resolve=>setTimeout(resolve,80));
+  };
+  async function openParts(){
+    await openRecords();
+    byId('pickParcaKodlariBtn')?.click();
+  }
+  async function openProcesses(){
+    await openRecords();
+    byId('pickSureclerBtn')?.click();
+  }
+  async function openArticles(){
+    await openRecords();
+    // Makale's own category selector; bypass the generic "Bölüm seçin" screen.
+    byId('extPickMakaleBtn')?.click();
+  }
+  byId('homePartsShortcut')?.addEventListener('click',openParts);
+  byId('homeArticlesShortcut')?.addEventListener('click',openArticles);
+  byId('homeProcessesShortcut')?.addEventListener('click',openProcesses);
+  const obs=new MutationObserver(()=>setupReminder());
+  function init(){
+    setupReminder();
+    ['hatirlatmaSoruMetni','hatirlatmaCevapMetni'].forEach(id=>{
+      const el=byId(id); if(el) obs.observe(el,{childList:true,subtree:true,characterData:true});
+    });
+    // Keep the header's refresh control visible while the generic records shortcut stays hidden.
+    byId('recordsBtn')?.classList.add('hidden');
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init,{once:true}); else init();
+  setTimeout(setupReminder,500); setTimeout(setupReminder,1500);
+})();
+</script>
+
+
+<style id="home-random-question-icon-v5">
+  #hatirlatmaKartBox,#kendiniTestEtBtn{display:none!important}
+  #centerHomeStage .random-question-shortcut{display:grid!important;place-items:center!important;width:42px!important;height:42px!important;min-width:42px!important;margin:7px auto 8px!important;padding:9px!important;border-radius:50%!important;border:1px solid rgba(72,223,154,.42)!important;background:linear-gradient(145deg,rgba(39,170,117,.18),rgba(31,45,58,.88))!important;color:#65e6a8!important;box-shadow:0 4px 14px rgba(35,190,126,.13)!important;cursor:pointer!important}
+  #centerHomeStage .random-question-shortcut svg{width:22px!important;height:22px!important;fill:none!important;stroke:currentColor!important;stroke-width:1.8!important;stroke-linecap:round!important;stroke-linejoin:round!important}
+  #centerHomeStage .random-question-shortcut:active{transform:scale(.94)!important}
+  @media(prefers-reduced-motion:no-preference){#centerHomeStage .random-question-shortcut{transition:transform .16s ease,box-shadow .16s ease!important}#centerHomeStage .random-question-shortcut:hover{box-shadow:0 0 18px rgba(35,190,126,.3)!important}}
 </style>
