@@ -4455,114 +4455,116 @@ Kayıttaki "Yapılması gereken" adımlar.`;
 </script>
 <script>
 (function () {
-  const SISTEM_KATEGORILER = new Set(["VardiyaPlanı", "AktifMola", "VardiyaDevirNotu", "İşleme Alınamayanlar"]);
+  if (typeof window.renderRecordsModalList !== "function") return;
+  const _origRenderRecordsModalList = window.renderRecordsModalList;
 
-  function bugunTarihAnahtari(tarihStr) {
-    const d = tarihStr ? new Date(tarihStr) : new Date();
-    if (Number.isNaN(d.getTime())) return "";
-    const yil = d.getFullYear();
-    const ay = String(d.getMonth() + 1).padStart(2, "0");
-    const gun = String(d.getDate()).padStart(2, "0");
-    return `${yil}-${ay}-${gun}`;
+  let baslikModuBaslatildi = false;
+  let aktifAcikId = null;
+
+  function acikKaydiGizle() {
+    aktifAcikId = null;
+    if (typeof expandedTitleIds !== "undefined" && expandedTitleIds instanceof Set) {
+      expandedTitleIds.clear();
+    }
   }
 
-  function bugununKayitlariniGetir() {
-    if (!state || !Array.isArray(state.records)) return [];
-    const bugun = bugunTarihAnahtari(new Date().toISOString());
+  const _origRecordsBtnClick = document.getElementById("recordsBtn")?.onclick;
+  document.getElementById("recordsBtn")?.addEventListener("click", () => {
+    acikKaydiGizle();
+  });
 
-    return state.records
-      .map(raw => (typeof normalizeRecord === "function" ? normalizeRecord(raw) : raw))
-      .filter(r => {
-        if (!r || !r.id) return false;
-        if (SISTEM_KATEGORILER.has(r.category)) return false;
-        return bugunTarihAnahtari(r.uploadedAt || r.updatedAt) === bugun;
-      })
-      .sort((a, b) => {
-        const tA = new Date(a.uploadedAt || a.updatedAt || 0).getTime() || 0;
-        const tB = new Date(b.uploadedAt || b.updatedAt || 0).getTime() || 0;
-        return tB - tA;
-      });
-  }
-
-  function bugunEklenenlerKutusuOlustur() {
-    const bar = document.getElementById("vardiyaAnaBar");
-    if (!bar || document.getElementById("bugunEklenenlerKutusu")) return;
-
-    const kutu = document.createElement("div");
-    kutu.id = "bugunEklenenlerKutusu";
-    kutu.style.cssText =
-      "width:100%; background:var(--panel); border:1px solid var(--neon-cyan);" +
-      "border-radius:14px; padding:12px 14px; box-shadow:0 0 18px rgba(0,240,255,0.16);";
-
-    kutu.innerHTML = `
-      <button id="bugunEklenenlerToggleBtn" type="button" style="width:100%; display:flex; justify-content:space-between; align-items:center; gap:8px; background:transparent; border:none; box-shadow:none; padding:2px 0; color:#ffffff; text-align:left;">
-        <span style="font-weight:800; font-size:0.9rem; color:var(--neon-cyan);">Bugün Eklenen Kayıtlar</span>
-        <span id="bugunEklenenlerAdetBadge" class="badge">0 kayıt • Aç</span>
-      </button>
-      <div id="bugunEklenenlerListe" class="hidden" style="margin-top:10px; max-height:320px; overflow-y:auto;"></div>
-    `;
-
-    bar.insertBefore(kutu, bar.firstChild);
-
-    const toggleBtn = document.getElementById("bugunEklenenlerToggleBtn");
-    const listeEl = document.getElementById("bugunEklenenlerListe");
-
-    toggleBtn.addEventListener("click", async () => {
-      const aciliyor = listeEl.classList.contains("hidden");
-      if (aciliyor && typeof syncFromCloud === "function") {
-        await syncFromCloud();
-      }
-      listeEl.classList.toggle("hidden", !aciliyor);
-      bugunEklenenlerArayuzGuncelle();
+  ["sortTitleOnlyBtn", "sortDetailedBtn", "sortNewestBtn"].forEach((id) => {
+    document.getElementById(id)?.addEventListener("click", () => {
+      acikKaydiGizle();
     });
-  }
+  });
 
-  function bugunEklenenlerArayuzGuncelle() {
-    const badgeEl = document.getElementById("bugunEklenenlerAdetBadge");
-    const listeEl = document.getElementById("bugunEklenenlerListe");
-    if (!badgeEl || !listeEl) return;
+  window.sadeceBaslikKayitAcKapat = function (id) {
+    if (aktifAcikId === id) {
+      aktifAcikId = null;
+    } else {
+      aktifAcikId = id;
+    }
+    if (typeof expandedTitleIds !== "undefined" && expandedTitleIds instanceof Set) {
+      expandedTitleIds.clear();
+      if (aktifAcikId) expandedTitleIds.add(aktifAcikId);
+    }
+    window.renderRecordsModalList();
+  };
 
-    const kayitlar = bugununKayitlariniGetir();
-    const acikMi = !listeEl.classList.contains("hidden");
-    badgeEl.textContent = `${kayitlar.length} kayıt • ${acikMi ? "Gizle" : "Göster"}`;
+  window.renderRecordsModalList = function () {
+    const q = (document.getElementById("recordsModalSearch")?.value || "").trim().toLowerCase();
+    const listEl = document.getElementById("recordsModalList");
+    if (!listEl) return;
 
-    if (!acikMi) return;
+    if (!baslikModuBaslatildi) {
+      baslikModuBaslatildi = true;
+      acikKaydiGizle();
+    }
 
-    if (!kayitlar.length) {
-      listeEl.innerHTML = `<p class="status-msg" style="margin:0;">Bugün henüz yeni kayıt eklenmemiş.</p>`;
+    let filtered = (state?.records || [])
+      .map(r => (typeof normalizeRecord === "function" ? normalizeRecord(r) : r))
+      .filter(r => {
+        if (typeof selectedMainCat !== "undefined" && selectedMainCat && r.category !== selectedMainCat) return false;
+        if (typeof selectedMainCat !== "undefined" && selectedMainCat === "Parça Kodları" && typeof selectedPartSub !== "undefined" && selectedPartSub) {
+          if (typeof matchesPartSubType === "function" && !matchesPartSubType(r, selectedPartSub)) return false;
+        } else if (typeof selectedMainCat !== "undefined" && selectedMainCat && selectedMainCat !== "Süreçler" && typeof selectedPartSub !== "undefined" && selectedPartSub && selectedPartSub !== "Geneli") {
+          if (r.group !== selectedPartSub) return false;
+        }
+        if (!q) return true;
+        return (
+          String(r.title || "").toLowerCase().includes(q) ||
+          String(r.content || "").toLowerCase().includes(q) ||
+          String(r.group || "").toLowerCase().includes(q) ||
+          String(r.category || "").toLowerCase().includes(q) ||
+          String(r.uploadedBy || "").toLowerCase().includes(q)
+        );
+      });
+
+    const sortMode = typeof currentSortMode !== "undefined" ? currentSortMode : "detailed";
+    if (sortMode === "title_only") {
+      filtered.sort((a, b) => String(a.title || "").localeCompare(String(b.title || ""), "tr", { sensitivity: "base" }));
+    } else if (sortMode === "detailed") {
+      filtered.sort((a, b) => {
+        const byTitle = String(a.title || "").localeCompare(String(b.title || ""), "tr", { sensitivity: "base" });
+        if (byTitle !== 0) return byTitle;
+        return new Date(b.uploadedAt || 0) - new Date(a.uploadedAt || 0);
+      });
+    } else {
+      filtered.sort((a, b) => new Date(b.uploadedAt || 0) - new Date(a.uploadedAt || 0));
+    }
+
+    if (!filtered.length) {
+      listEl.innerHTML = `<p style="color:var(--muted); margin:0;">Bu seçimde kayıt bulunmuyor.</p>`;
       return;
     }
 
-    listeEl.innerHTML = kayitlar.map(r => {
-      const saatStr = typeof formatDateTr === "function"
-        ? formatDateTr(r.uploadedAt || r.updatedAt)
-        : (r.uploadedAt || "");
+    listEl.innerHTML = filtered.map(r => {
+      const acikMi = aktifAcikId === r.id;
+      const tarihStr = typeof formatDateTr === "function" ? formatDateTr(r.uploadedAt) : (r.uploadedAt || "");
       return `
-        <div class="record-item" style="margin-bottom:8px; padding:10px;">
-          <div class="record-meta" style="margin-bottom:4px;">
-            <span class="badge">${escapeHtml(r.category || "Genel")}</span>
-            <span class="badge">${escapeHtml(r.group || "Geneli")}</span>
-            <span class="badge user">${escapeHtml(r.uploadedBy || "Bilinmiyor")}</span>
-            <span>${escapeHtml(saatStr)}</span>
+        <div style="margin-bottom:8px;">
+          <div class="title-only-item" onclick="sadeceBaslikKayitAcKapat('${escapeHtml(r.id)}')">
+            <strong style="color:#ffffff;">${escapeHtml(r.title || "Başlıksız Kayıt")}</strong>
+            <span class="badge">${acikMi ? "Kapat" : "Aç"}</span>
           </div>
-          <div style="font-weight:800; color:#ffffff; font-size:0.92rem; margin-bottom:4px;">
-            ${escapeHtml(r.title || "Başlıksız Kayıt")}
-          </div>
-          <pre style="white-space:pre-wrap; font-family:inherit; margin:0; font-size:0.84rem; color:var(--text);">${escapeHtml(r.content || "")}</pre>
+          ${acikMi ? `
+            <div class="record-item" style="margin-top:-4px;">
+              <div class="record-meta">
+                <span class="badge">${escapeHtml(r.category || "Genel")}</span>
+                <span class="badge">${escapeHtml(r.group || "Geneli")}</span>
+                <span class="badge user">Yükleyen Kişi: ${escapeHtml(r.uploadedBy || "Bilinmiyor")}</span>
+                <span>Tarih/Saat: ${escapeHtml(tarihStr)}</span>
+              </div>
+              <pre style="white-space:pre-wrap; font-family:inherit; margin:8px 0 0; color:var(--text);">${escapeHtml(r.content || "")}</pre>
+              <div class="actions">
+                <button type="button" class="danger" onclick="deleteRecordFromModal('${escapeHtml(r.id)}')">Sil</button>
+              </div>
+            </div>
+          ` : ""}
         </div>
       `;
     }).join("");
-  }
-
-  const _origSonBilgiGuncelle = window.sonBilgiKartiniYerlestirVeGuncelle;
-  if (typeof _origSonBilgiGuncelle === "function") {
-    window.sonBilgiKartiniYerlestirVeGuncelle = function () {
-      _origSonBilgiGuncelle();
-      bugunEklenenlerArayuzGuncelle();
-    };
-  }
-
-  bugunEklenenlerKutusuOlustur();
-  bugunEklenenlerArayuzGuncelle();
+  };
 })();
 </script>
