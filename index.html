@@ -4816,3 +4816,523 @@ Yapılması gereken adımlar...`;
   </script>
 </body>
 </html>
+<!-- ==================== HATIRLATMA KARTI & KENDİNİ TEST ET MODÜLÜ ==================== -->
+<style>
+  #hatirlatmaKartBox {
+    width: 100%;
+    max-width: 480px;
+    background: linear-gradient(155deg, rgba(157, 78, 221, 0.16), rgba(17, 15, 26, 0.96));
+    border: 1.5px solid var(--neon-purple-bright);
+    box-shadow: 0 0 22px rgba(157, 78, 221, 0.25), inset 0 0 14px rgba(0, 240, 255, 0.1);
+    border-radius: 16px;
+    padding: 13px 15px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  #hatirlatmaKartBox:hover {
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 24px rgba(0, 240, 255, 0.26);
+  }
+
+  .hatirlatma-ust {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 0.75rem;
+  }
+
+  .hatirlatma-etiket {
+    color: var(--neon-cyan);
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+
+  .hatirlatma-sayac {
+    color: var(--muted);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .hatirlatma-soru {
+    font-size: 0.94rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 6px;
+  }
+
+  .hatirlatma-cevap {
+    font-size: 0.86rem;
+    color: var(--text);
+    background: rgba(8, 7, 13, 0.55);
+    border-left: 3px solid var(--ok);
+    border-radius: 8px;
+    padding: 8px 10px;
+  }
+
+  #kendiniTestEtBtn {
+    background: linear-gradient(135deg, rgba(0, 245, 160, 0.18), rgba(0, 240, 255, 0.16));
+    color: var(--ok);
+    border: 1.5px solid var(--ok);
+    box-shadow: 0 0 16px rgba(0, 245, 160, 0.25);
+    border-radius: 12px;
+    padding: 10px 16px;
+    font-weight: 800;
+    cursor: pointer;
+    width: 100%;
+  }
+
+  #kendiniTestEtBtn:hover {
+    box-shadow: 0 0 22px rgba(0, 245, 160, 0.45);
+  }
+
+  #quizModalBackdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(4, 3, 8, 0.86);
+    backdrop-filter: blur(6px);
+    z-index: 85;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+
+  #quizModalCard {
+    background: var(--panel);
+    border: 1.5px solid var(--neon-cyan);
+    box-shadow: 0 0 32px rgba(0, 240, 255, 0.28);
+    border-radius: 16px;
+    max-width: 640px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 18px;
+  }
+
+  .quiz-secenek-btn {
+    width: 100%;
+    text-align: left;
+    background: var(--panel-2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 11px 14px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    box-shadow: none;
+  }
+
+  .quiz-secenek-btn:hover:not(:disabled) {
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.25);
+  }
+
+  .quiz-secenek-btn:disabled {
+    cursor: default;
+    opacity: 0.92;
+  }
+
+  .quiz-secenek-btn.dogru-secim {
+    background: rgba(0, 245, 160, 0.2);
+    border-color: var(--ok);
+    color: var(--ok);
+  }
+
+  .quiz-secenek-btn.yanlis-secim {
+    background: rgba(255, 59, 92, 0.22);
+    border-color: var(--danger);
+    color: #ff9eb0;
+  }
+
+  .quiz-sonuc-kutu {
+    margin-top: 14px;
+    border-radius: 12px;
+    padding: 14px;
+  }
+
+  .quiz-sonuc-kutu.dogru {
+    background: var(--ok-bg);
+    border: 1.5px solid var(--ok);
+    color: var(--ok);
+  }
+
+  .quiz-sonuc-kutu.yanlis {
+    background: var(--danger-bg);
+    border: 1.5px solid var(--danger);
+    color: #ff9eb0;
+  }
+</style>
+
+<div id="quizModalBackdrop" class="hidden">
+  <div id="quizModalCard">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px;">
+      <div>
+        <strong style="color:var(--neon-cyan); font-size:1.05rem;">Kendini Test Et</strong>
+        <div id="quizİlerlemeMetni" style="font-size:0.8rem; color:var(--muted);">Makale & Süreçler</div>
+      </div>
+      <button id="quizKapatBtn" type="button" class="secondary" style="padding:6px 12px; font-size:0.82rem;">Kapat</button>
+    </div>
+    <div id="quizİcerikAlani"></div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const HATIRLATMA_SURE_SN = 90; // 1.5 dakika (1-2 dakika arası)
+    let kalanHatirlatmaSn = HATIRLATMA_SURE_SN;
+    let sonHatirlatmaKayitId = null;
+
+    let testSorulari = [];
+    let aktifSoruIndex = 0;
+    let dogruSayisi = 0;
+
+    function makaleVeSurecKayitlariniAl() {
+      if (!state || !Array.isArray(state.records)) return [];
+      return state.records
+        .map(normalizeRecord)
+        .filter(r => r && (r.category === "Süreçler" || isMakaleCategory(r.category)));
+    }
+
+    function ozetKaynakMetniOlustur(limit = 14) {
+      const havuz = makaleVeSurecKayitlariniAl();
+      if (!havuz.length) return "";
+      const karisik = havuz.slice().sort(() => Math.random() - 0.5).slice(0, limit);
+      return karisik
+        .map((r, i) => `[${i + 1} | ${r.category} - ${r.group} | ${r.title}]\n${String(r.content || "").slice(0, 700)}`)
+        .join("\n\n---\n\n");
+    }
+
+    function hatirlatmaKartiYerlestir() {
+      const stage = document.getElementById("centerHomeStage");
+      if (!stage || document.getElementById("hatirlatmaKartBox")) return;
+
+      const box = document.createElement("div");
+      box.id = "hatirlatmaKartBox";
+      box.innerHTML = `
+        <div class="hatirlatma-ust">
+          <span class="hatirlatma-etiket">💡 Hatırlatma Kartı (Makale & Süreçler)</span>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span id="hatirlatmaGeriSayim" class="hatirlatma-sayac">01:30</span>
+            <button id="hatirlatmaYenileBtn" type="button" class="secondary" style="padding:2px 8px; font-size:0.72rem; border-radius:999px;">Yenile</button>
+          </div>
+        </div>
+        <div id="hatirlatmaSoruMetni" class="hatirlatma-soru">Hatırlatma hazırlanıyor...</div>
+        <div id="hatirlatmaCevapMetni" class="hatirlatma-cevap">Makale ve Süreçler kayıtlarından kısa bir ipucu yüklenecek.</div>
+      `;
+
+      stage.insertBefore(box, stage.firstChild);
+
+      document.getElementById("hatirlatmaYenileBtn").addEventListener("click", () => {
+        kalanHatirlatmaSn = HATIRLATMA_SURE_SN;
+        hatirlatmaKartiniGuncelle(true);
+      });
+    }
+
+    function yerelHatirlatmaUret(havuz) {
+      const adaylar = havuz.filter(r => r.id !== sonHatirlatmaKayitId);
+      const secilen = (adaylar.length ? adaylar : havuz)[Math.floor(Math.random() * (adaylar.length ? adaylar.length : havuz.length))];
+      sonHatirlatmaKayitId = secilen.id;
+      const kisaOzet = String(secilen.content || "")
+        .replace(/\s+/g, " ")
+        .trim()
+        .slice(0, 170);
+      return {
+        soru: `${secilen.category}: ${secilen.title}`,
+        cevap: kisaOzet ? `${kisaOzet}${secilen.content.length > 170 ? "..." : ""}` : "Detay için Kayıtlar menüsüne bakın."
+      };
+    }
+
+    async function hatirlatmaKartiniGuncelle(forceAi = false) {
+      const soruEl = document.getElementById("hatirlatmaSoruMetni");
+      const cevapEl = document.getElementById("hatirlatmaCevapMetni");
+      if (!soruEl || !cevapEl) return;
+
+      const havuz = makaleVeSurecKayitlariniAl();
+      if (!havuz.length) {
+        soruEl.textContent = "Henüz Makale veya Süreç kaydı yok";
+        cevapEl.textContent = "Kayıt eklendikçe burada otomatik hatırlatma soruları gösterilir.";
+        return;
+      }
+
+      if (!currentSession || !currentSession.apiKey) {
+        const yer = yerelHatirlatmaUret(havuz);
+        soruEl.textContent = yer.soru;
+        cevapEl.textContent = yer.cevap;
+        return;
+      }
+
+      if (forceAi) {
+        cevapEl.textContent = "Kayıtlardan yeni soru ve kısa cevap hazırlanıyor...";
+      }
+
+      try {
+        const kaynak = ozetKaynakMetniOlustur(10);
+        const prompt = `Aşağıdaki MAKALE ve SÜREÇLER kayıtlarından rastgele bir konuyu seç ve tek bir kısa hatırlatma sorusu ile anlaşılır, kısaltılmış cevabını üret.
+Yalnızca şu JSON formatında yanıt ver:
+{
+  "soru": "Kısa ve net soru (en fazla 14 kelime)",
+  "cevap": "Anlaşılır, kısaltılmış doğrudan cevap (en fazla 28 kelime)"
+}
+
+KAYITLAR:
+${kaynak}`;
+
+        const raw = await callGemini([{ text: prompt }]);
+        const match = raw.match(/\{[\s\S]*\}/);
+        if (match) {
+          const parsed = JSON.parse(match[0]);
+          if (parsed.soru && parsed.cevap) {
+            soruEl.textContent = String(parsed.soru).trim();
+            cevapEl.textContent = String(parsed.cevap).trim();
+            return;
+          }
+        }
+        const yer = yerelHatirlatmaUret(havuz);
+        soruEl.textContent = yer.soru;
+        cevapEl.textContent = yer.cevap;
+      } catch {
+        const yer = yerelHatirlatmaUret(havuz);
+        soruEl.textContent = yer.soru;
+        cevapEl.textContent = yer.cevap;
+      }
+    }
+
+    function hatirlatmaSayacTick() {
+      kalanHatirlatmaSn--;
+      if (kalanHatirlatmaSn <= 0) {
+        kalanHatirlatmaSn = HATIRLATMA_SURE_SN;
+        if (document.visibilityState === "visible") {
+          hatirlatmaKartiniGuncelle(false);
+        }
+      }
+      const sayacEl = document.getElementById("hatirlatmaGeriSayim");
+      if (sayacEl) {
+        const dk = String(Math.floor(kalanHatirlatmaSn / 60)).padStart(2, "0");
+        const sn = String(kalanHatirlatmaSn % 60).padStart(2, "0");
+        sayacEl.textContent = `${dk}:${sn}`;
+      }
+    }
+
+    function testButonunuYerlestir() {
+      const bar = document.getElementById("vardiyaAnaBar");
+      if (!bar || document.getElementById("kendiniTestEtBtn")) return;
+
+      const btn = document.createElement("button");
+      btn.id = "kendiniTestEtBtn";
+      btn.type = "button";
+      btn.textContent = "📝 Kendini Test Et";
+      bar.appendChild(btn);
+
+      btn.addEventListener("click", testAkisiniBaslat);
+    }
+
+    function yerelTestSorulariUret(havuz) {
+      const secilenler = havuz.slice().sort(() => Math.random() - 0.5).slice(0, Math.min(7, havuz.length));
+      return secilenler.map((item, idx) => {
+        const dogruMetin = `${item.title}: ${String(item.content || "").replace(/\s+/g, " ").trim().slice(0, 95)}`;
+        const digerleri = havuz
+          .filter(x => x.id !== item.id)
+          .sort(() => Math.random() - 0.5)
+          .slice(0, 3)
+          .map(x => `${x.title}: ${String(x.content || "").replace(/\s+/g, " ").trim().slice(0, 95)}`);
+
+        while (digerleri.length < 3) {
+          digerleri.push(`Farklı prosedür adımı #${digerleri.length + 1}`);
+        }
+
+        const siklar = [dogruMetin, ...digerleri].sort(() => Math.random() - 0.5);
+        const dogruIndex = siklar.indexOf(dogruMetin);
+
+        return {
+          soru: `${idx + 1}. "${item.category}" bölümündeki "${item.title}" kaydına ait doğru bilgi hangisidir?`,
+          secenekler: siklar,
+          dogruIndex,
+          aciklama: `Bu bilgi "${item.category} / ${item.group}" kaydındaki "${item.title}" başlığında yer alır.`
+        };
+      });
+    }
+
+    async function testAkisiniBaslat() {
+      const backdrop = document.getElementById("quizModalBackdrop");
+      const icerikEl = document.getElementById("quizİcerikAlani");
+      const ilerlemeEl = document.getElementById("quizİlerlemeMetni");
+      if (!backdrop || !icerikEl) return;
+
+      if (!state.records.length && typeof syncFromCloud === "function") {
+        try { await syncFromCloud(); } catch {}
+      }
+
+      const havuz = makaleVeSurecKayitlariniAl();
+      if (!havuz.length) {
+        backdrop.classList.remove("hidden");
+        ilerlemeEl.textContent = "Kayıt bulunamadı";
+        icerikEl.innerHTML = `<p class="error-msg">Test oluşturmak için önce Makale veya Süreçler bölümünde kayıt bulunmalıdır.</p>`;
+        return;
+      }
+
+      backdrop.classList.remove("hidden");
+      ilerlemeEl.textContent = "Sorular hazırlanıyor...";
+      icerikEl.innerHTML = `<div class="status-msg">Makale ve Süreçler kayıtlarından 5-10 soruluk test oluşturuluyor...</div>`;
+
+      try {
+        const kaynak = ozetKaynakMetniOlustur(18);
+        const soruAdedi = Math.min(10, Math.max(5, havuz.length));
+        const prompt = `Aşağıdaki MAKALE ve SÜREÇLER kayıtlarına dayanarak ${soruAdedi} adet çoktan seçmeli test sorusu hazırla.
+Her sorunun tam 4 seçeneği olsun, tek bir doğru seçeneği bulunsun ve neden doğru olduğuna dair çok kısa (1 cümlelik) bir açıklama yaz.
+Yalnızca şu JSON formatında yanıt ver:
+{
+  "sorular": [
+    {
+      "soru": "Soru metni",
+      "secenekler": ["A şıkkı", "B şıkkı", "C şıkkı", "D şıkkı"],
+      "dogruIndex": 0,
+      "aciklama": "Neden doğru olduğuna dair çok kısa açıklama"
+    }
+  ]
+}
+
+MAKALE VE SÜREÇLER KAYITLARI:
+${kaynak}`;
+
+        const raw = await callGemini([{ text: prompt }]);
+        const match = raw.match(/\{[\s\S]*\}/);
+        let sorular = [];
+        if (match) {
+          const parsed = JSON.parse(match[0]);
+          if (Array.isArray(parsed.sorular)) {
+            sorular = parsed.sorular
+              .filter(s => s && s.soru && Array.isArray(s.secenekler) && s.secenekler.length === 4 && typeof s.dogruIndex === "number")
+              .slice(0, 10);
+          }
+        }
+
+        testSorulari = sorular.length >= 3 ? sorular : yerelTestSorulariUret(havuz);
+      } catch {
+        testSorulari = yerelTestSorulariUret(havuz);
+      }
+
+      aktifSoruIndex = 0;
+      dogruSayisi = 0;
+      soruyuEkranaBas();
+    }
+
+    function soruyuEkranaBas() {
+      const icerikEl = document.getElementById("quizİcerikAlani");
+      const ilerlemeEl = document.getElementById("quizİlerlemeMetni");
+      if (!icerikEl) return;
+
+      if (aktifSoruIndex >= testSorulari.length) {
+        ilerlemeEl.textContent = "Test Tamamlandı";
+        icerikEl.innerHTML = `
+          <div class="summary-box">
+            <div style="font-size:1.1rem; font-weight:800; color:var(--ok); margin-bottom:6px;">
+              Test Bitti! Skorunuz: ${dogruSayisi} / ${testSorulari.length}
+            </div>
+            <div style="font-size:0.9rem; color:var(--text);">
+              Makale ve Süreçler kayıtlarındaki soruları tamamladınız.
+            </div>
+          </div>
+          <div class="actions">
+            <button id="quizTekrarBtn" type="button" class="ok-btn">Yeni Test Başlat</button>
+            <button id="quizBitirKapatBtn" type="button" class="secondary">Kapat</button>
+          </div>
+        `;
+        document.getElementById("quizTekrarBtn").addEventListener("click", testAkisiniBaslat);
+        document.getElementById("quizBitirKapatBtn").addEventListener("click", () => {
+          document.getElementById("quizModalBackdrop").classList.add("hidden");
+        });
+        return;
+      }
+
+      const item = testSorulari[aktifSoruIndex];
+      const harfler = ["A", "B", "C", "D"];
+      ilerlemeEl.textContent = `Soru ${aktifSoruIndex + 1} / ${testSorulari.length} • Doğru: ${dogruSayisi}`;
+
+      icerikEl.innerHTML = `
+        <div style="font-size:1rem; font-weight:800; color:#ffffff; margin-bottom:12px;">
+          ${escapeHtml(item.soru)}
+        </div>
+        <div id="quizSeceneklerListe" style="display:flex; flex-direction:column; gap:8px;">
+          ${item.secenekler.map((sec, idx) => `
+            <button type="button" class="quiz-secenek-btn" data-sec-idx="${idx}">
+              <strong>${harfler[idx]})</strong> ${escapeHtml(sec)}
+            </button>
+          `).join("")}
+        </div>
+        <div id="quizCevapGeriBildirim"></div>
+      `;
+
+      icerikEl.querySelectorAll(".quiz-secenek-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const secilenIdx = Number(btn.getAttribute("data-sec-idx"));
+          secenegiDegerlendir(secilenIdx, item);
+        });
+      });
+    }
+
+    function secenegiDegerlendir(secilenIdx, item) {
+      const butonlar = document.querySelectorAll("#quizSeceneklerListe .quiz-secenek-btn");
+      butonlar.forEach(b => { b.disabled = true; });
+
+      const dogruIdx = Math.max(0, Math.min(3, Number(item.dogruIndex)));
+      const dogruMu = secilenIdx === dogruIdx;
+      const harfler = ["A", "B", "C", "D"];
+
+      if (butonlar[dogruIdx]) {
+        butonlar[dogruIdx].classList.add("dogru-secim");
+      }
+      if (!dogruMu && butonlar[secilenIdx]) {
+        butonlar[secilenIdx].classList.add("yanlis-secim");
+      }
+
+      if (dogruMu) {
+        dogruSayisi++;
+      }
+
+      const geriEl = document.getElementById("quizCevapGeriBildirim");
+      const sonrakiEtiket = aktifSoruIndex + 1 < testSorulari.length ? "Sonraki Soru" : "Testi Bitir";
+
+      geriEl.innerHTML = `
+        <div class="quiz-sonuc-kutu ${dogruMu ? "dogru" : "yanlis"}">
+          <div style="font-size:1.05rem; font-weight:900; margin-bottom:6px;">
+            ${dogruMu ? "Doğru!" : "Yanlış!"}
+          </div>
+          <div style="font-size:0.88rem; color:var(--text);">
+            ${dogruMu
+              ? escapeHtml(item.aciklama || "Seçtiğiniz seçenek doğrudur.")
+              : `<strong>Doğru Cevap (${harfler[dogruIdx]}):</strong> ${escapeHtml(item.secenekler[dogruIdx] || "")}`
+            }
+          </div>
+          <div class="actions">
+            <button id="sonrakiSoruBtn" type="button" class="${dogruMu ? "ok-btn" : "cyan-outline"}">${sonrakiEtiket}</button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById("sonrakiSoruBtn").addEventListener("click", () => {
+        aktifSoruIndex++;
+        soruyuEkranaBas();
+      });
+    }
+
+    document.getElementById("quizKapatBtn").addEventListener("click", () => {
+      document.getElementById("quizModalBackdrop").classList.add("hidden");
+    });
+
+    document.getElementById("quizModalBackdrop").addEventListener("click", (e) => {
+      if (e.target.id === "quizModalBackdrop") {
+        document.getElementById("quizModalBackdrop").classList.add("hidden");
+      }
+    });
+
+    hatirlatmaKartiYerlestir();
+    testButonunuYerlestir();
+    setTimeout(() => hatirlatmaKartiniGuncelle(false), 500);
+    setInterval(hatirlatmaSayacTick, 1000);
+  })();
+</script>
