@@ -5336,3 +5336,88 @@ ${kaynak}`;
     setInterval(hatirlatmaSayacTick, 1000);
   })();
 </script>
+<!-- ==================== BİLGİLERİ GÜNCELLE BUTONU MODÜLÜ ==================== -->
+<style>
+  #bilgileriGuncelleBtn {
+    background: rgba(0, 245, 160, 0.14);
+    color: var(--ok);
+    border: 1px solid var(--ok);
+    box-shadow: 0 0 12px rgba(0, 245, 160, 0.25);
+    padding: 6px 13px;
+    border-radius: 999px;
+    font-size: 0.84rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  #bilgileriGuncelleBtn:hover {
+    background: rgba(0, 245, 160, 0.24);
+    box-shadow: 0 0 18px rgba(0, 245, 160, 0.45);
+  }
+</style>
+
+<script>
+  (function () {
+    function butonuYerlestir() {
+      const recordsBtn = document.getElementById("recordsBtn");
+      if (!recordsBtn || document.getElementById("bilgileriGuncelleBtn")) return;
+
+      const btn = document.createElement("button");
+      btn.id = "bilgileriGuncelleBtn";
+      btn.type = "button";
+      btn.textContent = "↻ Bilgileri Güncelle";
+      btn.title = "Buluttaki verileri tazeler ve yeni sürüm için sayfayı yeniler";
+
+      recordsBtn.insertAdjacentElement("afterend", btn);
+
+      btn.addEventListener("click", async () => {
+        btn.disabled = true;
+        const oncekiMetin = btn.textContent;
+        btn.textContent = "Güncelleniyor...";
+
+        try {
+          if (typeof syncFromCloud === "function") {
+            await syncFromCloud();
+          }
+          if (typeof sonBilgiKartiniYerlestirVeGuncelle === "function") {
+            sonBilgiKartiniYerlestirVeGuncelle();
+          }
+          const recordsModal = document.getElementById("recordsModal");
+          const stepRecordsList = document.getElementById("stepRecordsList");
+          if (
+            recordsModal &&
+            !recordsModal.classList.contains("hidden") &&
+            stepRecordsList &&
+            !stepRecordsList.classList.contains("hidden") &&
+            typeof renderRecordsModalList === "function"
+          ) {
+            renderRecordsModalList();
+          }
+        } catch {}
+
+        // Sayfa / uygulama önbelleğini kırarak taze yükle
+        try {
+          const url = new URL(window.location.href);
+          url.searchParams.set("v", String(Date.now()));
+          window.location.replace(url.toString());
+        } catch {
+          window.location.reload();
+        }
+
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.textContent = oncekiMetin;
+        }, 2500);
+      });
+    }
+
+    butonuYerlestir();
+
+    const authGate = document.getElementById("authGate");
+    if (authGate) {
+      const observer = new MutationObserver(() => butonuYerlestir());
+      observer.observe(authGate, { attributes: true, attributeFilter: ["class"] });
+    }
+  })();
+</script>
