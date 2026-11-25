@@ -5421,3 +5421,396 @@ ${kaynak}`;
     }
   })();
 </script>
+<!-- ==================== HIZLI VARDİYA PANELİ & ANA MENÜ CANLI MOLA DURUMU ==================== -->
+<style>
+  #anaMenuVardiyaDurumKart {
+    width: 100%;
+    max-width: 480px;
+    background: linear-gradient(155deg, rgba(0, 240, 255, 0.12), rgba(17, 15, 26, 0.96));
+    border: 1.5px solid var(--neon-cyan);
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.22);
+    border-radius: 14px;
+    padding: 11px 14px;
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .vardiya-durum-vurgu {
+    color: var(--neon-cyan);
+  }
+
+  .vardiya-durum-mola-tur {
+    background: rgba(157, 78, 221, 0.24);
+    border: 1px solid var(--neon-purple-bright);
+    color: var(--neon-purple-bright);
+    padding: 2px 9px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 800;
+  }
+
+  .vardiya-durum-molada {
+    color: var(--ok);
+  }
+
+  #hizliCokluVardiyaPanel {
+    background: rgba(0, 240, 255, 0.06);
+    border: 1px solid rgba(0, 240, 255, 0.45);
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+
+  .hizli-gun-secim-bar {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+
+  .hizli-gun-chip {
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    background: var(--panel-2);
+    color: var(--muted);
+    border: 1px solid var(--border);
+    cursor: pointer;
+  }
+
+  .hizli-gun-chip.aktif {
+    background: rgba(0, 240, 255, 0.18);
+    color: var(--neon-cyan);
+    border-color: var(--neon-cyan);
+  }
+</style>
+
+<script>
+  (function () {
+    const VARDIYA_KEY = "servis_asistani_vardiyalar_v1";
+    const AKTIF_MOLA_KEY = "servis_asistani_aktif_mola_v1";
+
+    let seciliHaftaGunleri = new Set([1, 2, 3, 4, 5]); // Varsayılan: Pzt-Cum (0=Paz, 1=Pzt..6=Cmt)
+
+    function saatDakikaya(hhmm) {
+      if (!hhmm || !/^\d{2}:\d{2}$/.test(hhmm)) return null;
+      const [h, m] = hhmm.split(":").map(Number);
+      return h * 60 + m;
+    }
+
+    function formatKalanSure(saniye) {
+      const s = Math.max(0, Math.floor(saniye));
+      const dk = Math.floor(s / 60);
+      const sn = s % 60;
+      return `${String(dk).padStart(2, "0")}:${String(sn).padStart(2, "0")} dk`;
+    }
+
+    function bugununVardiyasiniBul(kisi) {
+      try {
+        const raw = localStorage.getItem(VARDIYA_KEY);
+        const liste = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(liste)) return null;
+        const bugun = new Date().toISOString().slice(0, 10);
+        const eslesenler = liste.filter(x => x.tarih === bugun && (!kisi || x.kisi === kisi));
+        if (eslesenler.length) return eslesenler[eslesenler.length - 1];
+        const herhangiBugun = liste.filter(x => x.tarih === bugun);
+        return herhangiBugun.length ? herhangiBugun[herhangiBugun.length - 1] : null;
+      } catch {
+        return null;
+      }
+    }
+
+    function aktifKisiselMolayiBul() {
+      try {
+        const raw = localStorage.getItem(AKTIF_MOLA_KEY);
+        if (!raw) return null;
+        const p = JSON.parse(raw);
+        if (!p || !p.startMs || !p.durationSec) return null;
+        const gecen = Math.floor((Date.now() - p.startMs) / 1000);
+        if (gecen >= p.durationSec + 2 * 3600) return null;
+        return { ...p, kalanSn: p.durationSec - gecen };
+      } catch {
+        return null;
+      }
+    }
+
+    function anaMenuDurumKartiniYerlestir() {
+      const stage = document.getElementById("centerHomeStage");
+      const pair = stage ? stage.querySelector(".square-pair") : null;
+      if (!stage || !pair || document.getElementById("anaMenuVardiyaDurumKart")) return;
+
+      const kart = document.createElement("div");
+      kart.id = "anaMenuVardiyaDurumKart";
+      kart.innerHTML = `
+        <span id="anaMenuDurumMetin">Kullanıcı / Çalışıyor / Bir sonraki molaya: --:-- dk</span>
+        <span id="anaMenuMolaTurRozet" class="vardiya-durum-mola-tur">10 dk mola</span>
+      `;
+
+      stage.insertBefore(kart, pair);
+    }
+
+    function anaMenuDurumKartiniGuncelle() {
+      const metinEl = document.getElementById("anaMenuDurumMetin");
+      const rozetEl = document.getElementById("anaMenuMolaTurRozet");
+      if (!metinEl || !rozetEl) return;
+
+      const kisi = (typeof currentSession !== "undefined" && currentSession?.user) ? currentSession.user : "Kullanıcı";
+      const aktifMola = aktifKisiselMolayiBul();
+
+      if (aktifMola) {
+        const turEtiket = aktifMola.tur === "Yemek" ? "50 dk mola" : "10 dk mola";
+        const sureMetni = aktifMola.kalanSn > 0
+          ? `Molada (${formatKalanSure(aktifMola.kalanSn)} kaldı)`
+          : `Mola süresi doldu (+${formatKalanSure(Math.abs(aktifMola.kalanSn))} geçti)`;
+        metinEl.innerHTML = `<span class="vardiya-durum-vurgu">${escapeHtml(aktifMola.kisi || kisi)}</span> / <span class="vardiya-durum-molada">${escapeHtml(sureMetni)}</span>`;
+        rozetEl.textContent = turEtiket;
+        return;
+      }
+
+      const vardiyaKaydi = bugununVardiyasiniBul(kisi);
+      if (!vardiyaKaydi) {
+        metinEl.innerHTML = `<span class="vardiya-durum-vurgu">${escapeHtml(kisi)}</span> / Çalışıyor / Bir sonraki molaya: <span class="vardiya-durum-vurgu">Plan girilmedi</span>`;
+        rozetEl.textContent = "Mola saati yok";
+        return;
+      }
+
+      const simdi = new Date();
+      const simdiSn = simdi.getHours() * 3600 + simdi.getMinutes() * 60 + simdi.getSeconds();
+
+      const adayMolalar = [
+        { saat: vardiyaKaydi.yemek, turEtiket: "50 dk mola" },
+        { saat: vardiyaKaydi.mola1, turEtiket: "10 dk mola" },
+        { saat: vardiyaKaydi.mola2, turEtiket: "10 dk mola" },
+        { saat: vardiyaKaydi.mola3, turEtiket: "10 dk mola" },
+        { saat: vardiyaKaydi.mola4, turEtiket: "10 dk mola" }
+      ]
+        .map(m => {
+          const dk = saatDakikaya(m.saat);
+          if (dk === null) return null;
+          return { ...m, hedefSn: dk * 60 };
+        })
+        .filter(m => m && m.hedefSn > simdiSn)
+        .sort((a, b) => a.hedefSn - b.hedefSn);
+
+      if (!adayMolalar.length) {
+        metinEl.innerHTML = `<span class="vardiya-durum-vurgu">${escapeHtml(kisi)}</span> / Çalışıyor / Bir sonraki molaya: <span class="vardiya-durum-vurgu">Bugünkü molalar bitti</span>`;
+        rozetEl.textContent = "Tamamlandı";
+        return;
+      }
+
+      const siradaki = adayMolalar[0];
+      const kalanSn = siradaki.hedefSn - simdiSn;
+      metinEl.innerHTML = `<span class="vardiya-durum-vurgu">${escapeHtml(kisi)}</span> / Çalışıyor / Bir sonraki molaya: <span class="vardiya-durum-vurgu">${formatKalanSure(kalanSn)}</span>`;
+      rozetEl.textContent = siradaki.turEtiket;
+    }
+
+    function hizliVardiyaPaneliniYerlestir() {
+      const planCard = document.querySelector("#vardiyaPlanModalBackdrop .vardiya-plan-card");
+      const listeAlani = document.getElementById("vardiyaListeAlani");
+      if (!planCard || !listeAlani || document.getElementById("hizliCokluVardiyaPanel")) return;
+
+      const bugun = new Date();
+      const baslangicDefault = bugun.toISOString().slice(0, 10);
+      const aySonu = new Date(bugun.getFullYear(), bugun.getMonth() + 1, 0);
+      const bitisDefault = aySonu.toISOString().slice(0, 10);
+
+      const gunAdlari = [
+        { d: 1, ad: "Pzt" },
+        { d: 2, ad: "Sal" },
+        { d: 3, ad: "Çar" },
+        { d: 4, ad: "Per" },
+        { d: 5, ad: "Cum" },
+        { d: 6, ad: "Cmt" },
+        { d: 0, ad: "Paz" }
+      ];
+
+      const panel = document.createElement("div");
+      panel.id = "hizliCokluVardiyaPanel";
+      panel.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
+          <strong style="color:var(--neon-cyan); font-size:0.92rem;">⚡ Hızlı Çoklu Gün / Aylık Vardiya Paneli</strong>
+          <span style="font-size:0.78rem; color:var(--muted);">Tek seferde seçili günlere uygular</span>
+        </div>
+        <div class="vardiya-mini-inputs">
+          <div>
+            <label for="hizliBaslangicTarih">Başlangıç</label>
+            <input id="hizliBaslangicTarih" type="date" value="${baslangicDefault}" />
+          </div>
+          <div>
+            <label for="hizliBitisTarih">Bitiş</label>
+            <input id="hizliBitisTarih" type="date" value="${bitisDefault}" />
+          </div>
+          <div>
+            <label for="hizliVardiyaSelect">Vardiya</label>
+            <select id="hizliVardiyaSelect">
+              <option value="09:00 / 19:00">09:00 / 19:00</option>
+              <option value="11:00 / 21:00">11:00 / 21:00</option>
+            </select>
+          </div>
+          <div>
+            <label for="hizliYemekSaat">Yemek (50 dk)</label>
+            <input id="hizliYemekSaat" type="time" />
+          </div>
+          <div>
+            <label for="hizliMola1Saat">10dk Mola 1</label>
+            <input id="hizliMola1Saat" type="time" />
+          </div>
+          <div>
+            <label for="hizliMola2Saat">10dk Mola 2</label>
+            <input id="hizliMola2Saat" type="time" />
+          </div>
+          <div>
+            <label for="hizliMola3Saat">10dk Mola 3</label>
+            <input id="hizliMola3Saat" type="time" />
+          </div>
+          <div>
+            <label for="hizliMola4Saat">10dk Mola 4</label>
+            <input id="hizliMola4Saat" type="time" />
+          </div>
+        </div>
+
+        <div class="hizli-gun-secim-bar">
+          ${gunAdlari.map(g => `
+            <button type="button" class="hizli-gun-chip ${seciliHaftaGunleri.has(g.d) ? "aktif" : ""}" data-gun="${g.d}">${g.ad}</button>
+          `).join("")}
+          <button type="button" id="hizliTumGunlerBtn" class="hizli-gun-chip">Tüm Hafta</button>
+        </div>
+
+        <div class="actions" style="margin-top:10px;">
+          <button type="button" id="hizliTopluKaydetBtn" class="ok-btn">Seçili Günlere Uygula & Paylaş</button>
+        </div>
+        <div id="hizliTopluDurum" class="status-msg"></div>
+      `;
+
+      planCard.insertBefore(panel, listeAlani);
+
+      panel.querySelectorAll(".hizli-gun-chip[data-gun]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const d = Number(btn.getAttribute("data-gun"));
+          if (seciliHaftaGunleri.has(d)) seciliHaftaGunleri.delete(d);
+          else seciliHaftaGunleri.add(d);
+          btn.classList.toggle("aktif", seciliHaftaGunleri.has(d));
+        });
+      });
+
+      document.getElementById("hizliTumGunlerBtn").addEventListener("click", () => {
+        seciliHaftaGunleri = new Set([0, 1, 2, 3, 4, 5, 6]);
+        panel.querySelectorAll(".hizli-gun-chip[data-gun]").forEach(b => b.classList.add("aktif"));
+      });
+
+      document.getElementById("hizliTopluKaydetBtn").addEventListener("click", async () => {
+        const basStr = document.getElementById("hizliBaslangicTarih").value;
+        const bitStr = document.getElementById("hizliBitisTarih").value;
+        const vardiya = document.getElementById("hizliVardiyaSelect").value;
+        const yemek = document.getElementById("hizliYemekSaat").value;
+        const mola1 = document.getElementById("hizliMola1Saat").value;
+        const mola2 = document.getElementById("hizliMola2Saat").value;
+        const mola3 = document.getElementById("hizliMola3Saat").value;
+        const mola4 = document.getElementById("hizliMola4Saat").value;
+        const durumEl = document.getElementById("hizliTopluDurum");
+
+        if (!basStr || !bitStr) {
+          durumEl.textContent = "Lütfen başlangıç ve bitiş tarihlerini seçin.";
+          return;
+        }
+
+        const basTarih = new Date(basStr + "T00:00:00");
+        const bitTarih = new Date(bitStr + "T00:00:00");
+        if (Number.isNaN(basTarih.getTime()) || Number.isNaN(bitTarih.getTime()) || basTarih > bitTarih) {
+          durumEl.textContent = "Bitiş tarihi başlangıç tarihinden önce olamaz.";
+          return;
+        }
+
+        const kisi = (typeof currentSession !== "undefined" && currentSession?.user) ? currentSession.user : "Kullanıcı";
+        const eklenecekler = [];
+
+        const cur = new Date(basTarih);
+        while (cur <= bitTarih) {
+          if (seciliHaftaGunleri.has(cur.getDay())) {
+            const y = cur.getFullYear();
+            const m = String(cur.getMonth() + 1).padStart(2, "0");
+            const g = String(cur.getDate()).padStart(2, "0");
+            const tarihStr = `${y}-${m}-${g}`;
+            eklenecekler.push({
+              id: `vardiya_${tarihStr}_${kisi}`,
+              tarih: tarihStr,
+              vardiya,
+              yemek,
+              mola1,
+              mola2,
+              mola3,
+              mola4,
+              kisi,
+              updatedAt: new Date().toISOString()
+            });
+          }
+          cur.setDate(cur.getDate() + 1);
+        }
+
+        if (!eklenecekler.length) {
+          durumEl.textContent = "Seçili tarih aralığında işaretli gün bulunamadı.";
+          return;
+        }
+
+        let mevcutListe = [];
+        try {
+          const raw = localStorage.getItem(VARDIYA_KEY);
+          mevcutListe = raw ? JSON.parse(raw) : [];
+        } catch {}
+
+        const harita = new Map((Array.isArray(mevcutListe) ? mevcutListe : []).map(x => [x.id, x]));
+        for (const item of eklenecekler) {
+          harita.set(item.id, item);
+        }
+
+        const birlesik = Array.from(harita.values()).sort((a, b) =>
+          String(a.tarih || "").localeCompare(String(b.tarih || ""))
+        );
+        try {
+          localStorage.setItem(VARDIYA_KEY, JSON.stringify(birlesik));
+        } catch {}
+
+        const cfg = typeof getSbConfig === "function" ? getSbConfig() : null;
+        if (cfg) {
+          try {
+            const payload = eklenecekler.map(item => ({
+              id: item.id,
+              category: "VardiyaPlanı",
+              group: item.kisi || "Genel",
+              title: `${item.tarih} (${item.vardiya}) - ${item.kisi}`,
+              content: JSON.stringify(item),
+              updated_at: new Date().toISOString()
+            }));
+            await fetch(`${cfg.url}/rest/v1/records`, {
+              method: "POST",
+              headers: {
+                "apikey": cfg.key,
+                "Authorization": `Bearer ${cfg.key}`,
+                "Content-Type": "application/json",
+                "Prefer": "resolution=merge-duplicates"
+              },
+              body: JSON.stringify(payload)
+            });
+          } catch {}
+        }
+
+        durumEl.textContent = `${eklenecekler.length} gün için vardiya planı (${kisi}) kaydedildi ve paylaşıldı.`;
+        document.getElementById("vardiyaYenileBtn")?.click();
+        anaMenuDurumKartiniGuncelle();
+      });
+    }
+
+    anaMenuDurumKartiniYerlestir();
+    hizliVardiyaPaneliniYerlestir();
+    anaMenuDurumKartiniGuncelle();
+    setInterval(anaMenuDurumKartiniGuncelle, 1000);
+  })();
+</script>
