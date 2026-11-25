@@ -4193,125 +4193,7 @@ Kayıttaki "Yapılması gereken" adımlar.`;
   };
 })();
 </script>
-<script>
-(function () {
-  const DEVIR_LOCAL_KEY = "servis_asistani_devir_notu_v1";
-  const DEVIR_REC_ID = "vardiya_devir_notu_ortak";
 
-  function devirKartiniOlustur() {
-    const bar = document.getElementById("vardiyaAnaBar");
-    if (!bar || document.getElementById("devirNotuKutusu")) return;
-
-    const kutu = document.createElement("div");
-    kutu.id = "devirNotuKutusu";
-    kutu.style.cssText =
-      "width:100%; background:var(--panel); border:1px solid var(--neon-purple-bright);" +
-      "border-radius:14px; padding:12px 14px; box-shadow:0 0 18px rgba(157,78,221,0.2);";
-
-    kutu.innerHTML = `
-      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px;">
-        <strong style="color:var(--neon-cyan); font-size:0.88rem;">📌 Vardiya Devir Notu</strong>
-        <span id="devirNotuMeta" style="font-size:0.75rem; color:var(--muted);">Henüz not yok</span>
-      </div>
-      <div id="devirNotuMetin" style="font-size:0.9rem; color:#ffffff; background:var(--panel-2); border:1px solid var(--border); border-radius:8px; padding:8px 10px; min-height:38px; word-break:break-word;">
-        Devir notu girilmedi.
-      </div>
-      <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;">
-        <input id="devirNotuInput" type="text" placeholder="Örn: V12 filtre kodu güncellendi veya bugün iade sürecinde değişiklik var..." style="flex:1 1 200px; padding:8px 10px; font-size:0.86rem;" />
-        <button id="devirNotuKaydetBtn" type="button" style="padding:8px 12px; font-size:0.84rem;">Devir Notunu Sabitle</button>
-      </div>
-    `;
-
-    bar.insertBefore(kutu, bar.firstChild);
-
-    document.getElementById("devirNotuKaydetBtn").addEventListener("click", async () => {
-      const inp = document.getElementById("devirNotuInput");
-      const notMetni = (inp?.value || "").trim();
-      if (!notMetni) return;
-
-      const payload = {
-        id: DEVIR_REC_ID,
-        not: notMetni,
-        kisi: currentSession?.user || "Kullanıcı",
-        updatedAt: new Date().toISOString()
-      };
-
-      try { localStorage.setItem(DEVIR_LOCAL_KEY, JSON.stringify(payload)); } catch {}
-      devirNotuArayuzGuncelle(payload);
-      if (inp) inp.value = "";
-
-      const cfg = typeof getSbConfig === "function" ? getSbConfig() : null;
-      if (cfg) {
-        try {
-          await fetch(`${cfg.url}/rest/v1/records`, {
-            method: "POST",
-            headers: {
-              "apikey": cfg.key,
-              "Authorization": `Bearer ${cfg.key}`,
-              "Content-Type": "application/json",
-              "Prefer": "resolution=merge-duplicates"
-            },
-            body: JSON.stringify([{
-              id: DEVIR_REC_ID,
-              category: "VardiyaDevirNotu",
-              group: payload.kisi,
-              title: "Sabit Vardiya Devir Notu",
-              content: JSON.stringify(payload),
-              updated_at: payload.updatedAt
-            }])
-          });
-        } catch {}
-      }
-    });
-  }
-
-  function devirNotuArayuzGuncelle(payload) {
-    const metinEl = document.getElementById("devirNotuMetin");
-    const metaEl = document.getElementById("devirNotuMeta");
-    if (!metinEl || !metaEl) return;
-
-    if (!payload || !payload.not) {
-      metinEl.textContent = "Devir notu girilmedi.";
-      metaEl.textContent = "Henüz not yok";
-      return;
-    }
-
-    metinEl.textContent = payload.not;
-    const saatStr = typeof formatDateTr === "function" ? formatDateTr(payload.updatedAt) : payload.updatedAt;
-    metaEl.textContent = `${payload.kisi} • ${saatStr}`;
-  }
-
-  async function devirNotunuSenkronizeEt() {
-    let yerel = null;
-    try {
-      const raw = localStorage.getItem(DEVIR_LOCAL_KEY);
-      if (raw) yerel = JSON.parse(raw);
-    } catch {}
-    if (yerel) devirNotuArayuzGuncelle(yerel);
-
-    const cfg = typeof getSbConfig === "function" ? getSbConfig() : null;
-    if (!cfg) return;
-    try {
-      const res = await fetch(`${cfg.url}/rest/v1/records?id=eq.${encodeURIComponent(DEVIR_REC_ID)}`, {
-        headers: { "apikey": cfg.key, "Authorization": `Bearer ${cfg.key}` }
-      });
-      if (!res.ok) return;
-      const rows = await res.json();
-      if (Array.isArray(rows) && rows[0]?.content) {
-        const remote = JSON.parse(rows[0].content);
-        if (remote && remote.not) {
-          try { localStorage.setItem(DEVIR_LOCAL_KEY, JSON.stringify(remote)); } catch {}
-          devirNotuArayuzGuncelle(remote);
-        }
-      }
-    } catch {}
-  }
-
-  devirKartiniOlustur();
-  devirNotunuSenkronizeEt();
-  setInterval(devirNotunuSenkronizeEt, 10000);
-})();
-</script>
 <script>
 (function () {
   const TETIKLENEN_KEY = "servis_asistani_plan_mola_uyari_v1";
@@ -4569,5 +4451,118 @@ Kayıttaki "Yapılması gereken" adımlar.`;
   }
 
   yedekBariniYerlestir();
+})();
+</script>
+<script>
+(function () {
+  const SISTEM_KATEGORILER = new Set(["VardiyaPlanı", "AktifMola", "VardiyaDevirNotu", "İşleme Alınamayanlar"]);
+
+  function bugunTarihAnahtari(tarihStr) {
+    const d = tarihStr ? new Date(tarihStr) : new Date();
+    if (Number.isNaN(d.getTime())) return "";
+    const yil = d.getFullYear();
+    const ay = String(d.getMonth() + 1).padStart(2, "0");
+    const gun = String(d.getDate()).padStart(2, "0");
+    return `${yil}-${ay}-${gun}`;
+  }
+
+  function bugununKayitlariniGetir() {
+    if (!state || !Array.isArray(state.records)) return [];
+    const bugun = bugunTarihAnahtari(new Date().toISOString());
+
+    return state.records
+      .map(raw => (typeof normalizeRecord === "function" ? normalizeRecord(raw) : raw))
+      .filter(r => {
+        if (!r || !r.id) return false;
+        if (SISTEM_KATEGORILER.has(r.category)) return false;
+        return bugunTarihAnahtari(r.uploadedAt || r.updatedAt) === bugun;
+      })
+      .sort((a, b) => {
+        const tA = new Date(a.uploadedAt || a.updatedAt || 0).getTime() || 0;
+        const tB = new Date(b.uploadedAt || b.updatedAt || 0).getTime() || 0;
+        return tB - tA;
+      });
+  }
+
+  function bugunEklenenlerKutusuOlustur() {
+    const bar = document.getElementById("vardiyaAnaBar");
+    if (!bar || document.getElementById("bugunEklenenlerKutusu")) return;
+
+    const kutu = document.createElement("div");
+    kutu.id = "bugunEklenenlerKutusu";
+    kutu.style.cssText =
+      "width:100%; background:var(--panel); border:1px solid var(--neon-cyan);" +
+      "border-radius:14px; padding:12px 14px; box-shadow:0 0 18px rgba(0,240,255,0.16);";
+
+    kutu.innerHTML = `
+      <button id="bugunEklenenlerToggleBtn" type="button" style="width:100%; display:flex; justify-content:space-between; align-items:center; gap:8px; background:transparent; border:none; box-shadow:none; padding:2px 0; color:#ffffff; text-align:left;">
+        <span style="font-weight:800; font-size:0.9rem; color:var(--neon-cyan);">Bugün Eklenen Kayıtlar</span>
+        <span id="bugunEklenenlerAdetBadge" class="badge">0 kayıt • Aç</span>
+      </button>
+      <div id="bugunEklenenlerListe" class="hidden" style="margin-top:10px; max-height:320px; overflow-y:auto;"></div>
+    `;
+
+    bar.insertBefore(kutu, bar.firstChild);
+
+    const toggleBtn = document.getElementById("bugunEklenenlerToggleBtn");
+    const listeEl = document.getElementById("bugunEklenenlerListe");
+
+    toggleBtn.addEventListener("click", async () => {
+      const aciliyor = listeEl.classList.contains("hidden");
+      if (aciliyor && typeof syncFromCloud === "function") {
+        await syncFromCloud();
+      }
+      listeEl.classList.toggle("hidden", !aciliyor);
+      bugunEklenenlerArayuzGuncelle();
+    });
+  }
+
+  function bugunEklenenlerArayuzGuncelle() {
+    const badgeEl = document.getElementById("bugunEklenenlerAdetBadge");
+    const listeEl = document.getElementById("bugunEklenenlerListe");
+    if (!badgeEl || !listeEl) return;
+
+    const kayitlar = bugununKayitlariniGetir();
+    const acikMi = !listeEl.classList.contains("hidden");
+    badgeEl.textContent = `${kayitlar.length} kayıt • ${acikMi ? "Gizle" : "Göster"}`;
+
+    if (!acikMi) return;
+
+    if (!kayitlar.length) {
+      listeEl.innerHTML = `<p class="status-msg" style="margin:0;">Bugün henüz yeni kayıt eklenmemiş.</p>`;
+      return;
+    }
+
+    listeEl.innerHTML = kayitlar.map(r => {
+      const saatStr = typeof formatDateTr === "function"
+        ? formatDateTr(r.uploadedAt || r.updatedAt)
+        : (r.uploadedAt || "");
+      return `
+        <div class="record-item" style="margin-bottom:8px; padding:10px;">
+          <div class="record-meta" style="margin-bottom:4px;">
+            <span class="badge">${escapeHtml(r.category || "Genel")}</span>
+            <span class="badge">${escapeHtml(r.group || "Geneli")}</span>
+            <span class="badge user">${escapeHtml(r.uploadedBy || "Bilinmiyor")}</span>
+            <span>${escapeHtml(saatStr)}</span>
+          </div>
+          <div style="font-weight:800; color:#ffffff; font-size:0.92rem; margin-bottom:4px;">
+            ${escapeHtml(r.title || "Başlıksız Kayıt")}
+          </div>
+          <pre style="white-space:pre-wrap; font-family:inherit; margin:0; font-size:0.84rem; color:var(--text);">${escapeHtml(r.content || "")}</pre>
+        </div>
+      `;
+    }).join("");
+  }
+
+  const _origSonBilgiGuncelle = window.sonBilgiKartiniYerlestirVeGuncelle;
+  if (typeof _origSonBilgiGuncelle === "function") {
+    window.sonBilgiKartiniYerlestirVeGuncelle = function () {
+      _origSonBilgiGuncelle();
+      bugunEklenenlerArayuzGuncelle();
+    };
+  }
+
+  bugunEklenenlerKutusuOlustur();
+  bugunEklenenlerArayuzGuncelle();
 })();
 </script>
