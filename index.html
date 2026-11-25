@@ -1178,6 +1178,20 @@
     </div>
   </div>
 
+  <div id="todayRecordEditBackdrop" class="modal-backdrop hidden" style="z-index:1200;">
+    <div class="modal-card" style="width:min(94vw,680px);max-height:88vh;overflow:auto;">
+      <div class="modal-header"><h2 style="margin:0;color:var(--neon-cyan);">Kaydı Düzenle</h2><button id="todayRecordEditClose" type="button" class="secondary">Kapat</button></div>
+      <div style="display:grid;gap:10px;padding:12px 0;">
+        <label>Kategori<input id="todayEditCategory" type="text" /></label>
+        <label>Grup<input id="todayEditGroup" type="text" /></label>
+        <label>Başlık<input id="todayEditTitle" type="text" /></label>
+        <label>Açıklama<textarea id="todayEditContent" rows="8" style="width:100%;"></textarea></label>
+        <div id="todayEditStatus" class="status-msg"></div>
+        <button id="todayRecordEditSave" type="button" class="ok-btn">Değişiklikleri Kaydet</button>
+      </div>
+    </div>
+  </div>
+
   <div id="kirpmaModalBackdrop" class="hidden">
     <div id="kirpmaModalCard">
       <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px;">
@@ -1453,27 +1467,43 @@
         <h2 style="margin:0;">Soru Sor</h2>
         <button id="backHomeFromAskBtn" type="button" class="secondary">Ana Sayfa</button>
       </div>
-      <label for="questionInput">Müşterinin sorusunu yazın veya sorunun fotoğrafını ekleyin</label>
-      <textarea id="questionInput" placeholder="Soruyu veya parça/hata kodunu yazın..."></textarea>
-
-      <div class="question-photo-bar">
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-          <button id="askCamBtn" type="button" class="cyan-outline" style="padding:8px 12px; font-size:0.84rem;">📷 Soru Fotoğrafı Çek</button>
-          <button id="askImgBtn" type="button" class="cyan-outline" style="padding:8px 12px; font-size:0.84rem;">🖼️ Fotoğraf Seç</button>
-          <button id="clearQuestionPhotoBtn" type="button" class="secondary hidden" style="padding:8px 12px; font-size:0.84rem;">Fotoğrafı Kaldır</button>
+      <div class="ask-entry-panel">
+        <label for="questionInput">Sorunuzu yazın veya fotoğraf ekleyin</label>
+        <div class="ask-composer"><textarea id="questionInput" rows="1" placeholder="Sorunuzu yazın..."></textarea><button id="askBtn" type="button" class="ask-send-btn" aria-label="Sor">➤</button></div>
+        <div class="question-photo-bar ask-photo-actions">
+          <div class="ask-photo-buttons">
+            <button id="askCamBtn" type="button" class="cyan-outline">📷 Fotoğraf Çek</button>
+            <button id="askImgBtn" type="button" class="cyan-outline">🖼️ Fotoğraf Seç</button>
+            <button id="clearQuestionPhotoBtn" type="button" class="secondary hidden">Kaldır</button>
+          </div>
+          <span id="questionPhotoName" style="font-size:0.76rem; color:var(--muted);">Fotoğraf eklenmedi</span>
         </div>
-        <span id="questionPhotoName" style="font-size:0.82rem; color:var(--muted);">Fotoğraf eklenmedi</span>
+        <img id="questionPhotoPreview" class="preview-img hidden" alt="Soru görseli önizleme" />
+        <div id="askStatus" class="status-msg"></div><button id="clearAskBtn" type="button" class="secondary" style="padding:5px 9px;font-size:.7rem;margin-top:4px;">Temizle</button>
+        <div class="ask-stats-shortcuts"><button id="openAnswerStatsBtn" type="button" aria-expanded="false">＋ En çok / Son verilen cevaplar</button></div>
       </div>
-      <img id="questionPhotoPreview" class="preview-img hidden" alt="Soru görseli önizleme" />
-
-      <div class="actions">
-        <button id="askBtn" type="button">Çözümü Bul</button>
-        <button id="clearAskBtn" type="button" class="secondary">Temizle</button>
+    <section id="answerStatsPage" class="ask-stats-panel hidden" style="margin:12px auto; width:min(100%,760px);">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;">
+        <div><div class="eyebrow">SERVİS ANALİZİ</div><h2 style="margin:4px 0 0;color:var(--neon-cyan);">Soru geçmişi</h2></div>
+        <button type="button" id="backHomeFromStatsBtn" class="secondary">Küçült</button>
       </div>
-      <div id="askStatus" class="status-msg"></div>
+      <div class="home-shortcuts" style="margin:0 0 12px;">
+        <button type="button" id="statsPopularTab" class="active">En Çok Verilen Cevaplar</button>
+        <button type="button" id="statsRecentTab">Son Sorulan Sorular</button>
+      </div>
+      <label for="answerStatsDateFilter">Tarih aralığı</label>
+      <select id="answerStatsDateFilter" style="margin-bottom:12px;">
+        <option value="all">Tüm zamanlar</option><option value="today">Bugün</option><option value="7">Son 7 gün</option><option value="30">Son 30 gün</option>
+      </select>
+      <div id="answerStatsSummary" class="summary-box" style="margin-bottom:12px;"></div>
+      <div id="answerStatsList"><div class="status-msg">İstatistikler yükleniyor...</div></div>
+    </section>
     </div>
 
     <div id="answerArea"></div>
+
+
+
 
     <div id="uploadQueueCard" class="card hidden">
       <div class="queue-header">
@@ -1485,6 +1515,15 @@
         </div>
       </div>
       <div id="uploadStatus" class="status-msg" style="margin-top:0; margin-bottom:8px;"></div>
+      <section id="uploadReviewPanel" class="card hidden" style="margin:12px 0;border:1px solid rgba(85,214,207,.4);">
+        <div class="eyebrow">KAYIT ÖNİZLEMESİ</div><h3 style="margin:4px 0 12px;color:var(--neon-cyan);">Kaydedilecek bilgiyi kontrol edin</h3>
+        <p style="font-size:.82rem;color:var(--muted);margin:0 0 12px;">Fotoğraftan algılanan metni kontrol edin. Gereksiz yazıları silebilir, eksik veya hatalı kısımları düzeltebilirsiniz. Onaylamadan kayıt yapılmaz.</p>
+        <label for="reviewRecordCategory">Kategori</label><input id="reviewRecordCategory" type="text" />
+        <label for="reviewRecordGroup">Grup</label><input id="reviewRecordGroup" type="text" />
+        <label for="reviewRecordTitle">Başlık</label><input id="reviewRecordTitle" type="text" />
+        <label for="reviewRecordContent">Algılanan içerik</label><textarea id="reviewRecordContent" rows="10" style="min-height:220px;"></textarea>
+        <div style="display:flex;gap:8px;margin-top:12px;"><button id="approveUploadReviewBtn" type="button">Onayla ve Kaydet</button><button id="skipUploadReviewBtn" type="button" class="secondary">Bu fotoğrafı atla</button></div>
+      </section>
       <div id="uploadQueueList">
         <p style="color:var(--muted); margin:0; font-size:0.88rem;">Henüz sıraya alınmış işlem yok.</p>
       </div>
@@ -2067,7 +2106,7 @@
       const nowIso = new Date().toISOString();
       const uploader = currentSession?.user || "Bilinmiyor";
       const newRec = {
-        id: "rec_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
+        id: "bilgi_yukle_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
         category,
         group,
         title,
@@ -2633,6 +2672,36 @@
       } catch {}
     }
 
+    let uploadReviewResolver = null;
+    function reviewExtractedRecord(parsed, fileName) {
+      const panel = document.getElementById("uploadReviewPanel");
+      if (!panel) return Promise.resolve(parsed);
+      document.getElementById("reviewRecordCategory").value = parsed.category || "Süreçler";
+      document.getElementById("reviewRecordGroup").value = parsed.group || "Geneli";
+      document.getElementById("reviewRecordTitle").value = parsed.title || fileName || "Yeni kayıt";
+      document.getElementById("reviewRecordContent").value = parsed.content || "";
+      panel.classList.remove("hidden");
+      panel.scrollIntoView({behavior:"smooth",block:"start"});
+      return new Promise(resolve => { uploadReviewResolver = resolve; });
+    }
+    function finishUploadReview(approved) {
+      if (!uploadReviewResolver) return;
+      const result = approved ? {
+        category: document.getElementById("reviewRecordCategory").value.trim() || "Süreçler",
+        group: document.getElementById("reviewRecordGroup").value.trim() || "Geneli",
+        title: document.getElementById("reviewRecordTitle").value.trim() || "Yeni kayıt",
+        content: document.getElementById("reviewRecordContent").value.trim()
+      } : null;
+      const resolve = uploadReviewResolver; uploadReviewResolver = null;
+      document.getElementById("uploadReviewPanel")?.classList.add("hidden");
+      resolve(result);
+    }
+    document.getElementById("approveUploadReviewBtn")?.addEventListener("click", () => {
+      if (!document.getElementById("reviewRecordContent").value.trim()) { alert("İçerik boş olamaz. Kaydetmek istemiyorsanız fotoğrafı atlayın."); return; }
+      finishUploadReview(true);
+    });
+    document.getElementById("skipUploadReviewBtn")?.addEventListener("click", () => finishUploadReview(false));
+
     async function processImagePayload(fileName, mimeType, base64, dataUrl, queueId = null, approxKb = null, extOverride = null) {
       const kbText = approxKb ? ` (~${approxKb} KB sıkıştırıldı)` : "";
       if (queueId) updateQueueItem(queueId, "processing", `OCR ve kategori ayrıştırma yapılıyor${kbText}...`);
@@ -2657,11 +2726,18 @@ Ardından yalnızca şu JSON formatında yanıt ver (başka açıklama yazma):
         if (extOverride?.category) parsed.category = extOverride.category;
         if (extOverride?.group) parsed.group = extOverride.group;
 
+        const reviewed = await reviewExtractedRecord(parsed, fileName);
+        if (!reviewed) {
+          if (queueId) updateQueueItem(queueId, "error", "Kullanıcı tarafından atlandı; kayıt oluşturulmadı.");
+          return;
+        }
+        parsed = reviewed;
+        if (queueId) updateQueueItem(queueId, "processing", "Onaylanan bilgi kaydediliyor...");
         const nowIso = new Date().toISOString();
         const uploader = currentSession?.user || "Bilinmiyor";
 
         const newRec = {
-          id: "rec_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
+          id: "bilgi_yukle_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
           category: parsed.category,
           group: parsed.group,
           title: parsed.title,
@@ -2723,7 +2799,7 @@ Ardından yalnızca şu JSON formatında yanıt ver (başka açıklama yazma):
       }).length;
 
       if (batchErrors === 0) {
-        statusEl.textContent = "Tüm görseller sıkıştırılıp otomatik olarak kaydedildi.";
+        statusEl.textContent = "Tüm görseller incelendi; onaylanan kayıtlar kaydedildi.";
       } else {
         statusEl.textContent = `${batchErrors} görsel tamamlanamadı; Bildirimler alanından kontrol edebilirsiniz.`;
       }
@@ -2970,6 +3046,39 @@ KESİN KURALLAR:
       });
     }
 
+    function normalizeAnswerForStats(text) {
+      return String(text || "")
+        .toLocaleLowerCase("tr-TR")
+        .normalize("NFKC")
+        .replace(/^\s*(?:[-*•]+|\d+[.)])\s*/gm, "")
+        .replace(/\s+/g, " ")
+        .replace(/[.,;:!?()[\]{}"'“”‘’]/g, "")
+        .trim();
+    }
+
+    async function saveQuestionAnswerHistory(question, answer) {
+      const cleanQuestion = String(question || "(Görsel soru)").trim();
+      const cleanAnswer = String(answer || "").trim();
+      if (!cleanAnswer) return;
+      const now = new Date().toISOString();
+      const rec = normalizeRecord({
+        id: `qa_${Date.now()}_${Math.random().toString(36).slice(2,8)}`,
+        category: "SoruCevapGecmisi", group: "Soru-Cevap", title: cleanQuestion.slice(0, 180),
+        content: JSON.stringify({ question: cleanQuestion, answer: cleanAnswer, answerKey: normalizeAnswerForStats(cleanAnswer), askedAt: now, askedBy: currentSession?.user || "Bilinmiyor" }),
+        uploadedBy: currentSession?.user || "Bilinmiyor", uploadedAt: now, updatedAt: now
+      });
+      state.records.unshift(rec);
+      saveLocalState(state);
+      try { await sbUpsertRecords([rec]); }
+      catch (err) { console.warn("Soru-cevap geçmişi buluta kaydedilemedi:", err); }
+    }
+
+    const questionComposer = document.getElementById("questionInput");
+    questionComposer.addEventListener("input", () => { questionComposer.style.height = "auto"; questionComposer.style.height = Math.min(questionComposer.scrollHeight, 180) + "px"; });
+    questionComposer.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); document.getElementById("askBtn").click(); }
+    });
+
     document.getElementById("askBtn").addEventListener("click", async () => {
       const question = document.getElementById("questionInput").value.trim();
       const statusEl = document.getElementById("askStatus");
@@ -3079,6 +3188,7 @@ Yapılması gereken adımlar...`;
           statusEl.textContent = `Süreçler araştırılıyor (${modelName})...`;
         });
         const clean = reply.trim();
+        await saveQuestionAnswerHistory(qLabel, clean);
 
         if (/^FS Desteği alınmalı$/i.test(clean) || (clean.includes("FS Desteği alınmalı") && clean.length < 60)) {
           areaEl.innerHTML = `<div class="fs-alert">FS Desteği alınmalı</div>`;
@@ -3743,7 +3853,10 @@ Yapılması gereken adımlar...`;
       if (!state || !Array.isArray(state.records) || !state.records.length) {
         return null;
       }
-      const normal = state.records.map(r => normalizeRecord(r));
+      const normal = state.records
+        .filter(r => String(r?.id || "").startsWith("bilgi_yukle_"))
+        .map(r => normalizeRecord(r));
+      if (!normal.length) return null;
       normal.sort((a, b) => {
         const tA = new Date(a.uploadedAt || a.updatedAt || 0).getTime() || 0;
         const tB = new Date(b.uploadedAt || b.updatedAt || 0).getTime() || 0;
@@ -3780,7 +3893,7 @@ Yapılması gereken adımlar...`;
           </div>
           <div class="son-bilgi-baslik">Henüz eklenmiş bir bilgi yok</div>
           <div class="son-bilgi-meta">
-            <span>Yeni bilgi eklendiğinde burada anlık görünür.</span>
+            <span>Bilgi Yükle bölümünden kayıt eklendiğinde burada görünür.</span>
           </div>
         `;
         return;
@@ -3833,6 +3946,12 @@ Yapılması gereken adımlar...`;
         document.getElementById("sonBilgiDetayBackdrop").classList.add("hidden");
       }
     });
+
+    document.getElementById("appBottomNav")?.addEventListener("click", (e) => {
+      if (e.target.closest(".nav-item")) {
+        document.getElementById("sonBilgiDetayBackdrop")?.classList.add("hidden");
+      }
+    }, true);
 
     /* ==================== VARDİYA, MOLA & 2 DK SESLİ UYARI ==================== */
     (function () {
@@ -4872,16 +4991,94 @@ Yapılması gereken adımlar...`;
 
         listeEl.innerHTML = kayitlar.map(r => {
           const saatStr = formatDateTr(r.uploadedAt || r.updatedAt);
+          const isOpen = window.todayExpandedRecordIds?.has(r.id) || false;
           return `
-            <div class="record-item" style="margin-bottom:8px; padding:10px;">
-              <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
-                <div style="font-weight:800; color:#ffffff; font-size:0.9rem; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(r.title || "Başlıksız Kayıt")}</div>
-                <span class="badge user" style="flex-shrink:0;">${escapeHtml(r.uploadedBy || "Bilinmiyor")}</span>
-              </div>
-            </div>
-          `;
-        }).join("");
+            <div class="record-item today-record-expand" style="margin-bottom:8px;padding:10px;">
+              <button type="button" class="today-record-title" onclick="toggleTodayRecord('${escapeHtml(r.id)}')" style="display:flex;width:100%;justify-content:space-between;align-items:center;gap:10px;background:transparent;border:0;box-shadow:none;padding:0;text-align:left;">
+                <span style="font-weight:800;color:#fff;font-size:.9rem;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(r.title || "Başlıksız Kayıt")}</span>
+                <span class="badge">${isOpen ? "Gizle" : "Detay"}</span>
+              </button>
+              ${isOpen ? `<div class="today-record-content" style="margin-top:10px;">
+                <div class="today-record-meta">${escapeHtml(r.category || "Genel")} · ${escapeHtml(r.group || "Geneli")} · ${escapeHtml(saatStr)} · ${escapeHtml(r.uploadedBy || "Bilinmiyor")}</div>
+                <pre style="white-space:pre-wrap;font-family:inherit;margin:8px 0;color:var(--text);">${escapeHtml(r.content || "İçerik bulunmuyor.")}</pre>
+                <div class="actions" style="margin-top:10px;">
+                  <button type="button" class="cyan-outline" onclick="editTodayRecord('${escapeHtml(r.id)}')">Düzenle</button>
+                  <button type="button" class="danger" onclick="deleteTodayRecord('${escapeHtml(r.id)}')">Sil</button>
+                </div>
+              </div>` : ""}
+            </div>`;
+        }).join("") + `
+          <div style="margin-top:14px;padding-top:8px;border-top:1px solid var(--border);text-align:right;">
+            <button type="button" id="openDeletedRecordsBtn" class="secondary" style="font-size:.72rem;padding:5px 9px;opacity:.72;">Son silinenler</button>
+            <div id="deletedRecordsPanel" class="hidden" style="margin-top:8px;text-align:left;"></div>
+          </div>`;
+        document.getElementById("openDeletedRecordsBtn")?.addEventListener("click", renderDeletedRecords);
+
       }
+
+      window.todayExpandedRecordIds = window.todayExpandedRecordIds || new Set();
+      window.toggleTodayRecord = function(id) {
+        if (window.todayExpandedRecordIds.has(id)) window.todayExpandedRecordIds.delete(id);
+        else window.todayExpandedRecordIds.add(id);
+        bugunEklenenlerArayuzGuncelle();
+      };
+      function readDeletedRecords() {
+        try { return JSON.parse(localStorage.getItem("servisAsistaniDeletedRecords") || "[]"); } catch { return []; }
+      }
+      function writeDeletedRecords(items) { localStorage.setItem("servisAsistaniDeletedRecords", JSON.stringify(items)); }
+      window.renderDeletedRecords = function() {
+        const panel = document.getElementById("deletedRecordsPanel");
+        if (!panel) return;
+        panel.classList.toggle("hidden");
+        if (panel.classList.contains("hidden")) return;
+        const items = readDeletedRecords().sort((a,b)=>(new Date(b.deletedAt||0))-(new Date(a.deletedAt||0)));
+        panel.innerHTML = items.length ? items.map(r => `<div class="record-item" style="padding:8px;margin-bottom:6px;"><strong>${escapeHtml(r.title || "Başlıksız Kayıt")}</strong><div class="record-meta">Silinme: ${escapeHtml(formatDateTr(r.deletedAt))}</div><div class="actions"><button type="button" class="cyan-outline" onclick="restoreDeletedRecord('${escapeHtml(r.id)}')">Geri Yükle</button><button type="button" class="danger" onclick="permanentlyDeleteRecord('${escapeHtml(r.id)}')">Kalıcı Sil</button></div></div>`).join("") : `<p class="status-msg">Son silinen kayıt yok.</p>`;
+      };
+      window.editTodayRecord = function(id) {
+        const r = state.records.find(x => String(x.id) === String(id)); if (!r) return;
+        document.getElementById("todayEditCategory").value = r.category || "Genel";
+        document.getElementById("todayEditGroup").value = r.group || "Geneli";
+        document.getElementById("todayEditTitle").value = r.title || "";
+        document.getElementById("todayEditContent").value = r.content || "";
+        document.getElementById("todayEditStatus").textContent = "";
+        document.getElementById("todayRecordEditBackdrop").dataset.recordId = id;
+        document.getElementById("todayRecordEditBackdrop").classList.remove("hidden");
+      };
+      document.getElementById("todayRecordEditClose")?.addEventListener("click", () => document.getElementById("todayRecordEditBackdrop").classList.add("hidden"));
+      document.getElementById("todayRecordEditSave")?.addEventListener("click", async () => {
+        const back = document.getElementById("todayRecordEditBackdrop"), id = back.dataset.recordId;
+        const r = state.records.find(x => String(x.id) === String(id)); if (!r) return;
+        const title = document.getElementById("todayEditTitle").value.trim(), content = document.getElementById("todayEditContent").value.trim();
+        if (!title || !content) { document.getElementById("todayEditStatus").textContent = "Başlık ve açıklama boş bırakılamaz."; return; }
+        r.category = normalizeCategory(document.getElementById("todayEditCategory").value);
+        r.group = document.getElementById("todayEditGroup").value.trim() || "Geneli";
+        r.title = title; r.content = content; r.updatedAt = new Date().toISOString();
+        saveLocalState(state);
+        try { await sbUpsertRecords([normalizeRecord(r)]); document.getElementById("todayEditStatus").textContent = "Değişiklikler kaydedildi."; }
+        catch { document.getElementById("todayEditStatus").textContent = "Yerel kayıt güncellendi ancak sunucuya kaydedilemedi."; }
+        back.classList.add("hidden"); bugunEklenenlerArayuzGuncelle(); sonBilgiKartiniYerlestirVeGuncelle();
+      });
+      window.deleteTodayRecord = async function(id) {
+        const r = state.records.find(x => String(x.id) === String(id)); if (!r) return;
+        if (!confirm(`“${r.title}” kaydı silinsin mi? Son silinenlerden geri yükleyebilirsin.`)) return;
+        const trash = readDeletedRecords(); trash.push({...normalizeRecord(r), deletedAt:new Date().toISOString()}); writeDeletedRecords(trash);
+        state.records = state.records.filter(x => String(x.id) !== String(id)); saveLocalState(state);
+        try { await sbDeleteRecord(id); } catch {}
+        window.todayExpandedRecordIds.delete(id); bugunEklenenlerArayuzGuncelle(); sonBilgiKartiniYerlestirVeGuncelle();
+      };
+      window.restoreDeletedRecord = async function(id) {
+        const trash = readDeletedRecords(), r = trash.find(x => String(x.id) === String(id)); if (!r) return;
+        const restored = {...r}; delete restored.deletedAt;
+        state.records.unshift(normalizeRecord(restored)); saveLocalState(state);
+        try { await sbUpsertRecords([normalizeRecord(restored)]); } catch {}
+        writeDeletedRecords(trash.filter(x => String(x.id) !== String(id)));
+        bugunEklenenlerArayuzGuncelle(); sonBilgiKartiniYerlestirVeGuncelle(); renderDeletedRecords();
+      };
+      window.permanentlyDeleteRecord = function(id) {
+        if (!confirm("Bu kayıt son silinenlerden de kalıcı olarak silinsin mi?")) return;
+        writeDeletedRecords(readDeletedRecords().filter(x => String(x.id) !== String(id)));
+        renderDeletedRecords();
+      };
 
       const _origSonBilgiGuncelle = window.sonBilgiKartiniYerlestirVeGuncelle;
       if (typeof _origSonBilgiGuncelle === "function") {
@@ -4989,6 +5186,36 @@ Yapılması gereken adımlar...`;
   // Kısayol yönlendirmeleri v4 gezinme betiğinde yönetilir.
 })();
 </script>
+
+<style id="v14-usability-fixes">
+  #bugunEklenenlerListe .today-record-expand{background:rgba(31,37,52,.72)!important;border:1px solid rgba(255,255,255,.07)!important}
+  .today-record-expand summary::-webkit-details-marker{display:none}
+  .today-record-expand summary:after{content:'⌄';color:var(--neon-cyan);font-size:1rem;margin-left:6px}
+  .today-record-expand[open] summary:after{content:'⌃'}
+  .today-record-content{margin-top:10px;padding-top:9px;border-top:1px solid rgba(255,255,255,.08)}
+  .today-record-meta{font-size:.72rem;color:var(--neon-cyan);margin-bottom:6px}
+  .today-record-content pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;font-size:.84rem;color:var(--text);margin:0}
+  .ask-composer{display:flex;align-items:flex-end;gap:9px;padding:8px;background:#10131d;border:1px solid rgba(169,149,255,.28);border-radius:20px}
+  #questionInput{flex:1;min-height:40px!important;max-height:180px;resize:none;border:0!important;background:transparent!important;padding:8px 6px!important;line-height:1.45;overflow-y:auto}
+  .ask-send-btn{flex:0 0 42px;width:42px;height:42px;min-width:42px;border-radius:50%!important;padding:0!important;display:grid;place-items:center;font-size:1.25rem;font-weight:900;background:linear-gradient(145deg,#9b83ff,#6754c5)!important}
+  .ask-photo-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px}
+  .ask-photo-buttons{display:flex;gap:7px;flex-wrap:nowrap;min-width:0}
+  .ask-photo-buttons button{padding:7px 9px!important;font-size:.72rem!important;white-space:nowrap;min-width:0}
+  .ask-stats-shortcuts{display:flex;margin-top:10px}
+  .ask-stats-shortcuts button{width:100%;padding:8px 10px;font-size:.78rem;background:rgba(139,114,232,.10)!important;border:1px solid rgba(169,149,255,.24)!important;color:#c8bcff!important}
+  .ask-stats-panel{margin-top:12px;padding:12px;border:1px solid rgba(85,214,207,.2);border-radius:15px;background:rgba(12,16,25,.7)}
+  #answerStatsPage>div:first-child h2{font-size:1rem!important}
+  #answerStatsPage .home-shortcuts{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+  #answerStatsPage .home-shortcuts button{padding:8px 6px;font-size:.72rem;line-height:1.25;min-width:0}
+  #answerStatsPage select{width:100%}
+  #vardiyaPlanModalBackdrop{position:fixed!important;inset:0 0 72px 0!important;z-index:52!important;display:flex!important;align-items:stretch!important;justify-content:center!important;padding:0!important;background:#0d0f16!important;backdrop-filter:none!important;overflow-y:auto!important}
+  #vardiyaPlanModalBackdrop.hidden{display:none!important}
+  #vardiyaPlanModalBackdrop .vardiya-plan-card{width:100%!important;max-width:760px!important;min-height:100%!important;max-height:none!important;overflow:visible!important;border-radius:0!important;padding:18px 16px 28px!important;margin:0!important;background:#111520!important;border:0!important;box-shadow:none!important}
+  #vardiyaPlanKapatBtn{font-size:0!important}
+  #vardiyaPlanKapatBtn:after{content:'← Geri';font-size:.82rem}
+  @media(max-width:380px){.ask-photo-buttons button{font-size:.66rem!important;padding:7px 6px!important}.ask-photo-actions #questionPhotoName{max-width:86px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
+</style>
+
 </body>
 </html>
 <!-- ==================== HATIRLATMA KARTI & KENDİNİ TEST ET MODÜLÜ ==================== -->
@@ -6614,8 +6841,11 @@ ${kaynak}`;
   function activate(key){items.forEach(b=>b.classList.toggle('active',b.dataset.nav===key));}
   function showHome(){
     el('askWindowCard')?.classList.add('hidden');
+    el('answerStatsPage')?.classList.add('hidden');
+    el('askWindowCard')?.querySelector('.ask-entry-panel')?.classList.remove('hidden');
     el('uploadPageCard')?.classList.add('hidden');
     el('uploadQueueCard')?.classList.add('hidden');
+    el('uploadReviewPanel')?.classList.add('hidden');
     el('answerArea')?.replaceChildren();
     el('centerHomeStage')?.classList.remove('hidden');
     activate('home');
@@ -6624,6 +6854,7 @@ ${kaynak}`;
   nav.addEventListener('click',e=>{
     const btn=e.target.closest('[data-nav]'); if(!btn) return;
     const key=btn.dataset.nav;
+    if(key!=='shift') el('vardiyaPlanModalBackdrop')?.classList.add('hidden');
     if(key==='home'){showHome();return;}
     if(key==='ask'){
       el('uploadOptionsBox')?.classList.add('hidden');
@@ -6847,4 +7078,89 @@ ${kaynak}`;
   #centerHomeStage .random-question-shortcut svg{width:22px!important;height:22px!important;fill:none!important;stroke:currentColor!important;stroke-width:1.8!important;stroke-linecap:round!important;stroke-linejoin:round!important}
   #centerHomeStage .random-question-shortcut:active{transform:scale(.94)!important}
   @media(prefers-reduced-motion:no-preference){#centerHomeStage .random-question-shortcut{transition:transform .16s ease,box-shadow .16s ease!important}#centerHomeStage .random-question-shortcut:hover{box-shadow:0 0 18px rgba(35,190,126,.3)!important}}
+</style>
+
+<script id="answer-stats-feature">
+(function(){
+  const el=id=>document.getElementById(id);
+  let mode="popular";
+  async function showStats(){
+    const panel=el('answerStatsPage');
+    const button=el('openAnswerStatsBtn');
+    const opening=panel?.classList.contains('hidden');
+    if(!panel) return;
+    panel.classList.toggle('hidden',!opening);
+    button?.setAttribute('aria-expanded',String(!!opening));
+    if(button) button.textContent=opening?'－ En çok / Son verilen cevaplar':'＋ En çok / Son verilen cevaplar';
+    if(!opening) return;
+    el('askWindowCard')?.classList.remove('hidden');
+    el('centerHomeStage')?.classList.add('hidden');
+    el('answerStatsList').innerHTML='<div class="status-msg">Soru-cevap geçmişi buluttan yükleniyor...</div>';
+    // İstatistikler, soru yazma alanının hemen altında açılır; giriş alanı gizlenmez.
+    // Başka cihazlarda kaydedilen soru-cevapları da istatistiklere dahil et.
+    try { if (typeof syncFromCloud === 'function') await syncFromCloud(); }
+    catch(err) { console.warn('İstatistikler senkronize edilemedi:',err); }
+    render();
+  }
+  function readRows(){
+    const rows=(typeof state !== 'undefined' && Array.isArray(state.records) ? state.records : []).filter(r=>r.category==='SoruCevapGecmisi');
+    return rows.map(r=>{try{return {...r,qa:JSON.parse(r.content||'{}')}}catch{return null}}).filter(r=>r&&r.qa&&r.qa.answer);
+  }
+  function render(){
+    const dateFilter=el('answerStatsDateFilter')?.value||'all';
+    const now=Date.now();
+    let rows=readRows().filter(r=>{
+      const t=new Date(r.qa.askedAt||r.uploadedAt||r.updatedAt).getTime();
+      if(!Number.isFinite(t)) return false;
+      if(dateFilter==='today'){const d=new Date();const x=new Date(t);return x.getFullYear()===d.getFullYear()&&x.getMonth()===d.getMonth()&&x.getDate()===d.getDate();}
+      if(dateFilter!=='all') return t>=now-Number(dateFilter)*86400000;
+      return true;
+    });
+    el('answerStatsSummary').innerHTML=`<strong>${rows.length}</strong> soru-cevap kaydı · <strong>${new Set(rows.map(r=>r.qa.answerKey||r.qa.answer)).size}</strong> farklı cevap`;
+    const list=el('answerStatsList');
+    if(!rows.length){list.innerHTML='<p class="status-msg">Bu tarih aralığında henüz kaydedilmiş soru-cevap bulunmuyor. Yeni sorular soruldukça burada otomatik görünecek.</p>';return;}
+    if(mode==='recent'){
+      const repeatCounts=new Map();
+      rows.forEach(r=>{const k=r.qa.answerKey||normalizeAnswerForStats(r.qa.answer);repeatCounts.set(k,(repeatCounts.get(k)||0)+1);});
+      rows.sort((a,b)=>new Date(b.qa.askedAt||b.updatedAt)-new Date(a.qa.askedAt||a.updatedAt));
+      list.innerHTML=rows.slice(0,100).map(r=>{const k=r.qa.answerKey||normalizeAnswerForStats(r.qa.answer);return `<article class="confirm-box" style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start;"><strong>${esc(r.qa.question||r.title)}</strong><small>${esc(new Date(r.qa.askedAt||r.updatedAt).toLocaleString('tr-TR'))}</small></div><div style="white-space:pre-wrap;margin-top:8px;">${esc(r.qa.answer)}</div><small style="color:var(--muted);display:block;margin-top:8px;">Soran: ${esc(r.qa.askedBy||r.uploadedBy||'Bilinmiyor')} · Bu cevap toplam ${repeatCounts.get(k)} kez verildi</small></article>`;}).join('');
+    } else {
+      const groups=new Map();
+      rows.forEach(r=>{const k=r.qa.answerKey||String(r.qa.answer).toLocaleLowerCase('tr-TR').trim();if(!groups.has(k))groups.set(k,{answer:r.qa.answer,title:r.qa.answerTitle||r.qa.title||r.title||String(r.qa.answer).split(/\r?\n/)[0].slice(0,72),count:0,questions:new Set(),last:r.qa.askedAt||r.updatedAt});const g=groups.get(k);g.count++;g.questions.add(r.qa.question||r.title);if(new Date(r.qa.askedAt||r.updatedAt)>new Date(g.last))g.last=r.qa.askedAt||r.updatedAt;});
+      const sorted=[...groups.values()].sort((a,b)=>b.count-a.count||new Date(b.last)-new Date(a.last));
+      list.innerHTML=sorted.map((g,i)=>`<details class="confirm-box stats-answer-item" style="margin-bottom:8px;"><summary style="cursor:pointer;display:flex;justify-content:space-between;gap:10px;align-items:center;font-size:.82rem;line-height:1.35;"><strong style="font-size:.84rem;font-weight:700;">${i+1}. ${esc(g.title||'Başlıksız cevap')}</strong><span class="badge" style="font-size:.68rem;white-space:nowrap;">${g.count} kez</span></summary><div style="white-space:pre-wrap;margin-top:10px;font-size:.82rem;line-height:1.5;">${esc(g.answer)}</div><small style="display:block;color:var(--muted);margin-top:8px;font-size:.7rem;">${g.questions.size} farklı soru · Son kullanım: ${esc(new Date(g.last).toLocaleString('tr-TR'))}</small><div style="margin-top:8px;font-size:.78rem;"><strong>Bu cevabın verildiği sorular:</strong><ul>${[...g.questions].map(q=>`<li>${esc(q)}</li>`).join('')}</ul></div></details>`).join('');
+    }
+  }
+  function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+  el('openAnswerStatsBtn')?.addEventListener('click',showStats);
+  el('backHomeFromStatsBtn')?.addEventListener('click',()=>{el('answerStatsPage')?.classList.add('hidden');el('openAnswerStatsBtn')?.setAttribute('aria-expanded','false');if(el('openAnswerStatsBtn'))el('openAnswerStatsBtn').textContent='＋ En çok / Son verilen cevaplar';});
+  el('statsPopularTab')?.addEventListener('click',()=>{mode='popular';el('statsPopularTab').classList.add('active');el('statsRecentTab').classList.remove('active');render();});
+  el('statsRecentTab')?.addEventListener('click',()=>{mode='recent';el('statsRecentTab').classList.add('active');el('statsPopularTab').classList.remove('active');render();});
+  el('answerStatsDateFilter')?.addEventListener('change',render);
+})();
+</script>
+
+<style id="v15-stats-and-shift-navigation-fix">
+  #answerStatsPage #answerStatsList{font-size:.82rem!important}
+  #answerStatsPage #answerStatsList .confirm-box{padding:10px 12px!important}
+  #answerStatsPage #answerStatsList .confirm-box summary{font-size:.82rem!important}
+  #answerStatsPage #answerStatsList .confirm-box summary strong{font-size:.84rem!important}
+  #answerStatsPage #answerStatsList .confirm-box>div,#answerStatsPage #answerStatsList .confirm-box small{font-size:.78rem!important}
+  #appBottomNav{z-index:10001!important;pointer-events:auto!important}
+  #vardiyaPlanModalBackdrop{z-index:10000!important;bottom:82px!important}
+  #vardiyaPlanModalBackdrop.hidden{display:none!important}
+</style>
+
+<style id="son-bilgi-fullpage-navigation-fix-v16">
+  #sonBilgiDetayBackdrop{position:fixed!important;inset:0!important;z-index:50!important;display:flex!important;align-items:stretch!important;justify-content:stretch!important;padding:0!important;background:var(--bg,#10131d)!important;backdrop-filter:none!important}
+  #sonBilgiDetayBackdrop.hidden{display:none!important}
+  #sonBilgiDetayCard{width:100%!important;max-width:none!important;height:100%!important;max-height:none!important;min-height:100dvh!important;overflow-y:auto!important;box-sizing:border-box!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:18px 16px calc(108px + env(safe-area-inset-bottom))!important;background:var(--bg,#10131d)!important}
+  @media(min-width:700px){#sonBilgiDetayCard{padding-left:max(24px,calc((100vw - 720px)/2))!important;padding-right:max(24px,calc((100vw - 720px)/2))!important}}
+</style>
+
+<style id="v18-inline-answer-stats">
+  #answerStatsPage{position:relative!important;display:block;margin:10px 0 0!important;width:100%!important;max-height:none!important;overflow:visible!important}
+  #answerStatsPage.hidden{display:none!important}
+  #answerStatsPage .ask-stats-panel{box-shadow:none}
+  #openAnswerStatsBtn[aria-expanded="true"]{border-color:rgba(85,214,207,.5)!important}
 </style>
