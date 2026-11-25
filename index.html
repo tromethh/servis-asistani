@@ -4100,3 +4100,474 @@ Kayıttaki "Yapılması gereken" adımlar.`;
   </script>
 </body>
 </html>
+<script>
+(function () {
+  if (typeof window.renderMatchedAnswer !== "function") return;
+  const _origRenderMatchedAnswer = window.renderMatchedAnswer;
+
+  function kaydiModaldaAc(rec) {
+    if (!rec) return;
+    const norm = typeof normalizeRecord === "function" ? normalizeRecord(rec) : rec;
+    const modal = document.getElementById("recordsModal");
+    const searchInp = document.getElementById("recordsModalSearch");
+    if (!modal) return;
+
+    selectedMainCat = norm.category || null;
+    if (norm.category === "Parça Kodları") {
+      selectedPartSub = typeof matchesPartSubType === "function" && matchesPartSubType(norm, "Kişisel Bakım")
+        ? "Kişisel Bakım"
+        : "Temizlik";
+    } else if (norm.category && norm.category !== "Süreçler") {
+      selectedPartSub = norm.group && norm.group !== "Geneli" ? norm.group : null;
+    } else {
+      selectedPartSub = null;
+    }
+
+    currentSortMode = "detailed";
+    if (typeof updateSortButtons === "function") updateSortButtons();
+    if (typeof expandedTitleIds !== "undefined") expandedTitleIds.clear();
+
+    if (searchInp) searchInp.value = norm.title || "";
+    document.getElementById("recordsModalTitle").textContent =
+      selectedPartSub ? `${norm.category} — ${selectedPartSub}` : `Kayıtlar — ${norm.category || "Tümü"}`;
+    document.getElementById("activePathBadge").textContent =
+      selectedPartSub ? `${norm.category} / ${selectedPartSub}` : (norm.category || "Tümü");
+
+    if (typeof showRecordsStep === "function") showRecordsStep("list");
+    modal.classList.remove("hidden");
+    if (typeof renderRecordsModalList === "function") renderRecordsModalList();
+  }
+
+  function enUygunKaydiBul(yanitMetni) {
+    if (!state || !Array.isArray(state.records) || !state.records.length) return null;
+    const cleanText = String(yanitMetni || "").toLowerCase();
+    const qText = String(document.getElementById("questionInput")?.value || "").toLowerCase().trim();
+
+    let bestRec = null;
+    let bestScore = 0;
+
+    for (const raw of state.records) {
+      const r = typeof normalizeRecord === "function" ? normalizeRecord(raw) : raw;
+      let score = 0;
+      const titleLow = String(r.title || "").toLowerCase().trim();
+      const contentLow = String(r.content || "").toLowerCase();
+
+      if (titleLow && titleLow.length > 2 && cleanText.includes(titleLow)) score += 10;
+      if (qText) {
+        const tokens = qText.split(/\s+/).filter(t => t.length >= 2);
+        for (const tok of tokens) {
+          if (titleLow.includes(tok)) score += 4;
+          if (contentLow.includes(tok)) score += 2;
+        }
+      }
+      if (score > bestScore) {
+        bestScore = score;
+        bestRec = r;
+      }
+    }
+    return bestRec || (typeof enSonKaydiBul === "function" ? enSonKaydiBul() : state.records[0]);
+  }
+
+  window.renderMatchedAnswer = function (clean) {
+    _origRenderMatchedAnswer(clean);
+    const areaEl = document.getElementById("answerArea");
+    const confirmBox = areaEl?.querySelector(".confirm-box");
+    if (!confirmBox || confirmBox.querySelector("#openMatchedInRecordsBtn")) return;
+
+    const matchedRec = enUygunKaydiBul(clean);
+    if (!matchedRec) return;
+
+    const wrap = document.createElement("div");
+    wrap.style.marginTop = "12px";
+    wrap.innerHTML = `
+      <button id="openMatchedInRecordsBtn" type="button" class="cyan-outline">
+        📂 Bu kaydın tamamını Kayıtlar penceresinde aç (${escapeHtml(matchedRec.title || "Kayıt")})
+      </button>
+    `;
+    confirmBox.appendChild(wrap);
+
+    wrap.querySelector("#openMatchedInRecordsBtn").addEventListener("click", async () => {
+      if (!state.records.length && typeof syncFromCloud === "function") await syncFromCloud();
+      kaydiModaldaAc(matchedRec);
+    });
+  };
+})();
+</script>
+<script>
+(function () {
+  const DEVIR_LOCAL_KEY = "servis_asistani_devir_notu_v1";
+  const DEVIR_REC_ID = "vardiya_devir_notu_ortak";
+
+  function devirKartiniOlustur() {
+    const bar = document.getElementById("vardiyaAnaBar");
+    if (!bar || document.getElementById("devirNotuKutusu")) return;
+
+    const kutu = document.createElement("div");
+    kutu.id = "devirNotuKutusu";
+    kutu.style.cssText =
+      "width:100%; background:var(--panel); border:1px solid var(--neon-purple-bright);" +
+      "border-radius:14px; padding:12px 14px; box-shadow:0 0 18px rgba(157,78,221,0.2);";
+
+    kutu.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px;">
+        <strong style="color:var(--neon-cyan); font-size:0.88rem;">📌 Vardiya Devir Notu</strong>
+        <span id="devirNotuMeta" style="font-size:0.75rem; color:var(--muted);">Henüz not yok</span>
+      </div>
+      <div id="devirNotuMetin" style="font-size:0.9rem; color:#ffffff; background:var(--panel-2); border:1px solid var(--border); border-radius:8px; padding:8px 10px; min-height:38px; word-break:break-word;">
+        Devir notu girilmedi.
+      </div>
+      <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;">
+        <input id="devirNotuInput" type="text" placeholder="Örn: V12 filtre kodu güncellendi veya bugün iade sürecinde değişiklik var..." style="flex:1 1 200px; padding:8px 10px; font-size:0.86rem;" />
+        <button id="devirNotuKaydetBtn" type="button" style="padding:8px 12px; font-size:0.84rem;">Devir Notunu Sabitle</button>
+      </div>
+    `;
+
+    bar.insertBefore(kutu, bar.firstChild);
+
+    document.getElementById("devirNotuKaydetBtn").addEventListener("click", async () => {
+      const inp = document.getElementById("devirNotuInput");
+      const notMetni = (inp?.value || "").trim();
+      if (!notMetni) return;
+
+      const payload = {
+        id: DEVIR_REC_ID,
+        not: notMetni,
+        kisi: currentSession?.user || "Kullanıcı",
+        updatedAt: new Date().toISOString()
+      };
+
+      try { localStorage.setItem(DEVIR_LOCAL_KEY, JSON.stringify(payload)); } catch {}
+      devirNotuArayuzGuncelle(payload);
+      if (inp) inp.value = "";
+
+      const cfg = typeof getSbConfig === "function" ? getSbConfig() : null;
+      if (cfg) {
+        try {
+          await fetch(`${cfg.url}/rest/v1/records`, {
+            method: "POST",
+            headers: {
+              "apikey": cfg.key,
+              "Authorization": `Bearer ${cfg.key}`,
+              "Content-Type": "application/json",
+              "Prefer": "resolution=merge-duplicates"
+            },
+            body: JSON.stringify([{
+              id: DEVIR_REC_ID,
+              category: "VardiyaDevirNotu",
+              group: payload.kisi,
+              title: "Sabit Vardiya Devir Notu",
+              content: JSON.stringify(payload),
+              updated_at: payload.updatedAt
+            }])
+          });
+        } catch {}
+      }
+    });
+  }
+
+  function devirNotuArayuzGuncelle(payload) {
+    const metinEl = document.getElementById("devirNotuMetin");
+    const metaEl = document.getElementById("devirNotuMeta");
+    if (!metinEl || !metaEl) return;
+
+    if (!payload || !payload.not) {
+      metinEl.textContent = "Devir notu girilmedi.";
+      metaEl.textContent = "Henüz not yok";
+      return;
+    }
+
+    metinEl.textContent = payload.not;
+    const saatStr = typeof formatDateTr === "function" ? formatDateTr(payload.updatedAt) : payload.updatedAt;
+    metaEl.textContent = `${payload.kisi} • ${saatStr}`;
+  }
+
+  async function devirNotunuSenkronizeEt() {
+    let yerel = null;
+    try {
+      const raw = localStorage.getItem(DEVIR_LOCAL_KEY);
+      if (raw) yerel = JSON.parse(raw);
+    } catch {}
+    if (yerel) devirNotuArayuzGuncelle(yerel);
+
+    const cfg = typeof getSbConfig === "function" ? getSbConfig() : null;
+    if (!cfg) return;
+    try {
+      const res = await fetch(`${cfg.url}/rest/v1/records?id=eq.${encodeURIComponent(DEVIR_REC_ID)}`, {
+        headers: { "apikey": cfg.key, "Authorization": `Bearer ${cfg.key}` }
+      });
+      if (!res.ok) return;
+      const rows = await res.json();
+      if (Array.isArray(rows) && rows[0]?.content) {
+        const remote = JSON.parse(rows[0].content);
+        if (remote && remote.not) {
+          try { localStorage.setItem(DEVIR_LOCAL_KEY, JSON.stringify(remote)); } catch {}
+          devirNotuArayuzGuncelle(remote);
+        }
+      }
+    } catch {}
+  }
+
+  devirKartiniOlustur();
+  devirNotunuSenkronizeEt();
+  setInterval(devirNotunuSenkronizeEt, 10000);
+})();
+</script>
+<script>
+(function () {
+  const TETIKLENEN_KEY = "servis_asistani_plan_mola_uyari_v1";
+
+  function tetiklenenleriYukle() {
+    try {
+      const raw = localStorage.getItem(TETIKLENEN_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch {
+      return {};
+    }
+  }
+
+  function tetiklenenleriKaydet(obj) {
+    try {
+      localStorage.setItem(TETIKLENEN_KEY, JSON.stringify(obj));
+    } catch {}
+  }
+
+  function sesliBipVer() {
+    try {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return;
+      const ctx = new Ctx();
+      const now = ctx.currentTime;
+      [0, 0.22].forEach((offset) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(880, now + offset);
+        gain.gain.setValueAtTime(0.0001, now + offset);
+        gain.gain.exponentialRampToValueAtTime(0.22, now + offset + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + offset + 0.15);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + offset);
+        osc.stop(now + offset + 0.16);
+      });
+    } catch {}
+  }
+
+  async function bildirimGonder(baslik, icerik) {
+    sesliBipVer();
+
+    const stack = document.getElementById("toastStack");
+    if (stack) {
+      const box = document.createElement("div");
+      box.className = "toast-box";
+      box.style.borderColor = "#00f0ff";
+      box.style.borderLeftColor = "#00f0ff";
+      box.innerHTML = `
+        <div class="toast-title" style="color:#00f0ff;">${escapeHtml(baslik)}</div>
+        <div class="toast-sub" style="color:#f5f3ff;">${escapeHtml(icerik)}</div>
+      `;
+      box.addEventListener("click", () => box.remove());
+      stack.prepend(box);
+      setTimeout(() => box.remove(), 10000);
+    }
+
+    if ("Notification" in window) {
+      if (Notification.permission === "default") {
+        try { await Notification.requestPermission(); } catch {}
+      }
+      if (Notification.permission === "granted") {
+        try { new Notification(baslik, { body: icerik }); } catch {}
+      }
+    }
+  }
+
+  function saatleriKontrolEt() {
+    const rawVars = localStorage.getItem("servis_asistani_vardiyalar_v1");
+    if (!rawVars) return;
+
+    let liste = [];
+    try { liste = JSON.parse(rawVars) || []; } catch { return; }
+
+    const simdi = new Date();
+    const bugunStr = simdi.toISOString().slice(0, 10);
+    const aktifKisi = currentSession?.user;
+    const simdiDakika = simdi.getHours() * 60 + simdi.getMinutes();
+
+    const bugunkuKayitlar = liste.filter(item => {
+      if (item.tarih !== bugunStr) return false;
+      if (aktifKisi && item.kisi && item.kisi !== aktifKisi) return false;
+      return true;
+    });
+
+    if (!bugunkuKayitlar.length) return;
+
+    const tetiklenen = tetiklenenleriYukle();
+    let degisti = false;
+
+    for (const kayit of bugunkuKayitlar) {
+      const slotlar = [
+        { ad: "Yemek (50 dk)", saat: kayit.yemek },
+        { ad: "10 dk Mola 1", saat: kayit.mola1 },
+        { ad: "10 dk Mola 2", saat: kayit.mola2 },
+        { ad: "10 dk Mola 3", saat: kayit.mola3 },
+        { ad: "10 dk Mola 4", saat: kayit.mola4 }
+      ];
+
+      for (const s of slotlar) {
+        if (!s.saat || !/^\d{2}:\d{2}$/.test(s.saat)) continue;
+        const [hh, mm] = s.saat.split(":").map(Number);
+        const hedefDakika = hh * 60 + mm;
+        const fark = hedefDakika - simdiDakika;
+
+        const key2dk = `${bugunStr}_${kayit.kisi || ""}_${s.ad}_${s.saat}_2dk`;
+        if (fark === 2 && !tetiklenen[key2dk]) {
+          tetiklenen[key2dk] = true;
+          degisti = true;
+          bildirimGonder("Mola Hatırlatıcı (2 Dakika Kaldı)", `${s.ad} saat ${s.saat} için 2 dakika kaldı.`);
+        }
+
+        const keyTam = `${bugunStr}_${kayit.kisi || ""}_${s.ad}_${s.saat}_tam`;
+        if (fark === 0 && !tetiklenen[keyTam]) {
+          tetiklenen[keyTam] = true;
+          degisti = true;
+          bildirimGonder("Planlanan Mola Saati Geldi", `${s.ad} saati (${s.saat}) geldi!`);
+        }
+      }
+    }
+
+    if (degisti) tetiklenenleriKaydet(tetiklenen);
+  }
+
+  saatleriKontrolEt();
+  setInterval(saatleriKontrolEt, 20000);
+})();
+</script>
+<script>
+(function () {
+  function yedekBariniYerlestir() {
+    const stepList = document.getElementById("stepRecordsList");
+    if (!stepList || document.getElementById("yedekIslemBari")) return;
+
+    const bar = document.createElement("div");
+    bar.id = "yedekIslemBari";
+    bar.className = "ext-panel-box";
+    bar.style.marginTop = "10px";
+    bar.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+        <strong style="color:var(--neon-cyan); font-size:0.86rem;">💾 Yedekleme & Geri Yükleme (Kayıtlar + Makale Ağacı)</strong>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button id="exportJsonBtn" type="button" class="cyan-outline" style="padding:6px 10px; font-size:0.8rem;">JSON İndir</button>
+          <button id="exportCsvBtn" type="button" class="secondary" style="padding:6px 10px; font-size:0.8rem;">CSV İndir</button>
+          <button id="importJsonBtn" type="button" class="ok-btn" style="padding:6px 10px; font-size:0.8rem;">JSON Yükle</button>
+        </div>
+      </div>
+      <input id="importJsonFileInput" type="file" accept=".json,application/json" class="hidden" />
+      <div id="yedekDurumMetni" class="status-msg" style="margin-top:6px;"></div>
+    `;
+
+    const sortBar = stepList.querySelector(".sort-bar");
+    if (sortBar) {
+      stepList.insertBefore(bar, sortBar);
+    } else {
+      stepList.appendChild(bar);
+    }
+
+    document.getElementById("exportJsonBtn").addEventListener("click", () => {
+      const paket = {
+        exportedAt: new Date().toISOString(),
+        records: Array.isArray(state?.records) ? state.records : [],
+        articleCategories: typeof extCatTree === "object" && extCatTree ? extCatTree : {}
+      };
+      const blob = new Blob([JSON.stringify(paket, null, 2)], { type: "application/json;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `servis-asistani-yedek-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      document.getElementById("yedekDurumMetni").textContent = `JSON yedek indirildi (${paket.records.length} kayıt).`;
+    });
+
+    document.getElementById("exportCsvBtn").addEventListener("click", () => {
+      const recs = Array.isArray(state?.records) ? state.records : [];
+      const basliklar = ["id", "category", "group", "title", "content", "uploadedBy", "uploadedAt"];
+      const kacis = (val) => `"${String(val ?? "").replace(/"/g, '""')}"`;
+      const satirlar = [
+        basliklar.join(","),
+        ...recs.map(raw => {
+          const r = typeof normalizeRecord === "function" ? normalizeRecord(raw) : raw;
+          return basliklar.map(k => kacis(r[k])).join(",");
+        })
+      ];
+      const blob = new Blob(["\uFEFF" + satirlar.join("\n")], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `servis-asistani-kayitlar-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      document.getElementById("yedekDurumMetni").textContent = `CSV dosyası indirildi (${recs.length} satır).`;
+    });
+
+    const fileInp = document.getElementById("importJsonFileInput");
+    document.getElementById("importJsonBtn").addEventListener("click", () => fileInp.click());
+
+    fileInp.addEventListener("change", async (e) => {
+      const f = e.target.files?.[0];
+      fileInp.value = "";
+      if (!f) return;
+
+      try {
+        const text = await f.text();
+        const parsed = JSON.parse(text);
+        const gelenKayitlar = Array.isArray(parsed?.records)
+          ? parsed.records
+          : (Array.isArray(parsed) ? parsed : []);
+        const gelenAgac = parsed?.articleCategories && typeof parsed.articleCategories === "object"
+          ? parsed.articleCategories
+          : null;
+
+        if (!gelenKayitlar.length && !gelenAgac) {
+          document.getElementById("yedekDurumMetni").textContent = "Geçerli yedek verisi bulunamadı.";
+          return;
+        }
+
+        const mevcutMap = new Map((state.records || []).map(r => [r.id, r]));
+        for (const raw of gelenKayitlar) {
+          const norm = typeof normalizeRecord === "function" ? normalizeRecord(raw) : raw;
+          if (norm?.id) mevcutMap.set(norm.id, norm);
+        }
+
+        state.records = Array.from(mevcutMap.values());
+        if (typeof saveLocalState === "function") saveLocalState(state);
+
+        if (gelenAgac && typeof extCatTree === "object") {
+          for (const [anaKat, altList] of Object.entries(gelenAgac)) {
+            if (!Array.isArray(extCatTree[anaKat])) extCatTree[anaKat] = [];
+            if (Array.isArray(altList)) {
+              for (const alt of altList) {
+                if (!extCatTree[anaKat].includes(alt)) extCatTree[anaKat].push(alt);
+              }
+            }
+          }
+          if (typeof extSaveCatTree === "function") extSaveCatTree();
+        }
+
+        if (typeof sbUpsertRecords === "function" && gelenKayitlar.length) {
+          try { await sbUpsertRecords(gelenKayitlar.map(r => normalizeRecord(r))); } catch {}
+        }
+
+        if (typeof renderRecordsModalList === "function") renderRecordsModalList();
+        if (typeof sonBilgiKartiniYerlestirVeGuncelle === "function") sonBilgiKartiniYerlestirVeGuncelle();
+
+        document.getElementById("yedekDurumMetni").textContent =
+          `Geri yükleme tamamlandı: Toplam ${state.records.length} kayıt aktif.`;
+      } catch (err) {
+        document.getElementById("yedekDurumMetni").textContent = `JSON okunamadı: ${err.message}`;
+      }
+    });
+  }
+
+  yedekBariniYerlestir();
+})();
+</script>
