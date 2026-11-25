@@ -4166,7 +4166,19 @@ Kayıttaki "Yapılması gereken" adımlar.`;
     _origRenderMatchedAnswer(clean);
     const areaEl = document.getElementById("answerArea");
     const confirmBox = areaEl?.querySelector(".confirm-box");
-    if (!confirmBox || confirmBox.querySelector("#openMatchedInRecordsBtn")) return;
+    if (!confirmBox) return;
+
+    const tripleBox = confirmBox.querySelector(".ext-triple-box");
+    if (tripleBox) {
+      confirmBox.querySelectorAll("pre").forEach((preEl) => {
+        const txt = preEl.textContent || "";
+        if (/\[(ARTFLOW_CEVABI|FS_CEVABI|YUZDE_ORAN)\]/i.test(txt)) {
+          preEl.remove();
+        }
+      });
+    }
+
+    if (confirmBox.querySelector("#openMatchedInRecordsBtn")) return;
 
     const matchedRec = enUygunKaydiBul(clean);
     if (!matchedRec) return;
