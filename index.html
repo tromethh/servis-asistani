@@ -4441,100 +4441,187 @@ Kayıttaki "Yapılması gereken" adımlar.`;
 </script>
 <script>
 (function () {
-  const SISTEM_KATEGORILER = new Set(["VardiyaPlanı", "AktifMola", "VardiyaDevirNotu", "İşleme Alınamayanlar"]);
   let sessizSenkAktif = false;
 
-  function tumYuklenenBilgileriAl() {
-    const hamKayitlar = Array.isArray(state?.records) ? state.records : [];
-    const normalKayitlar = hamKayitlar
-      .map(raw => (typeof normalizeRecord === "function" ? normalizeRecord(raw) : raw))
-      .filter(r => r && r.id && !SISTEM_KATEGORILER.has(r.category));
+  function yedekAlaniniYerlestir() {
+    const stepMain = document.getElementById("stepMainCategory");
+    if (!stepMain || document.getElementById("kayitlarYedekAlani")) return;
 
-    const kategoriler = typeof extCatTree === "object" && extCatTree ? extCatTree : {};
-    return { records: normalKayitlar, articleCategories: kategoriler };
-  }
+    const wrap = document.createElement("div");
+    wrap.id = "kayitlarYedekAlani";
+    wrap.style.cssText =
+      "margin-top:10px; padding-top:10px; border-top:1px solid var(--border);" +
+      "display:flex; flex-direction:column; align-items:flex-end; gap:8px;";
 
-  function tekTusTumBilgileriIndir(durumEl) {
-    const { records, articleCategories } = tumYuklenenBilgileriAl();
-    const paket = {
-      exportedAt: new Date().toISOString(),
-      totalRecords: records.length,
-      records,
-      articleCategories
-    };
-
-    const blob = new Blob([JSON.stringify(paket, null, 2)], {
-      type: "application/json;charset=utf-8;"
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    const tarihEtiketi = new Date().toISOString().slice(0, 10);
-    a.href = url;
-    a.download = `yuklenen-tum-bilgiler-${tarihEtiketi}.json`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-
-    if (durumEl) {
-      durumEl.textContent = `${records.length} kayıt indirildi (${tarihEtiketi}).`;
-    }
-  }
-
-  function yedekButonunuYerlestir() {
-    const stepList = document.getElementById("stepRecordsList");
-    if (!stepList || document.getElementById("tekTusYedekKutusu")) return;
-
-    const kutu = document.createElement("div");
-    kutu.id = "tekTusYedekKutusu";
-    kutu.className = "ext-panel-box";
-    kutu.style.marginTop = "10px";
-    kutu.innerHTML = `
-      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
-        <strong style="color:var(--neon-cyan); font-size:0.86rem;">Tüm Yüklenen Bilgiler Yedeği</strong>
-        <button id="tekTusTumBilgiIndirBtn" type="button" class="cyan-outline" style="padding:7px 12px; font-size:0.82rem;">
-          Tüm Bilgileri İndir
-        </button>
+    wrap.innerHTML = `
+      <button id="yedekKucukToggleBtn" type="button" class="secondary" style="padding:4px 10px; font-size:0.76rem; border-radius:999px; color:var(--neon-cyan); border-color:rgba(0,240,255,0.45);">
+        Yedek
+      </button>
+      <div id="yedekİslemSecenekleri" class="hidden" style="width:100%; background:var(--panel-2); border:1px solid var(--border); border-radius:10px; padding:10px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+          <span style="font-size:0.82rem; color:var(--muted);">Sistemdeki tüm bilgiler ve veriler</span>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button id="yedekİndirBtn" type="button" class="cyan-outline" style="padding:6px 12px; font-size:0.82rem;">İndir</button>
+            <button id="yedekYukleBtn" type="button" class="ok-btn" style="padding:6px 12px; font-size:0.82rem;">Yükle</button>
+          </div>
+        </div>
+        <input id="yedekDosyaSecInput" type="file" accept=".json,application/json" class="hidden" />
+        <div id="yedekDurumSatiri" class="status-msg" style="margin-top:6px;"></div>
       </div>
-      <div id="tekTusYedekDurum" class="status-msg" style="margin-top:6px;"></div>
     `;
 
-    const sortBar = stepList.querySelector(".sort-bar");
-    if (sortBar) {
-      stepList.insertBefore(kutu, sortBar);
-    } else {
-      stepList.appendChild(kutu);
-    }
+    stepMain.appendChild(wrap);
 
-    const btn = document.getElementById("tekTusTumBilgiIndirBtn");
-    const durumEl = document.getElementById("tekTusYedekDurum");
-    btn.addEventListener("click", async () => {
+    const toggleBtn = document.getElementById("yedekKucukToggleBtn");
+    const seceneklerBox = document.getElementById("yedekİslemSecenekleri");
+    const indirBtn = document.getElementById("yedekİndirBtn");
+    const yukleBtn = document.getElementById("yedekYukleBtn");
+    const fileInput = document.getElementById("yedekDosyaSecInput");
+    const durumEl = document.getElementById("yedekDurumSatiri");
+
+    toggleBtn.addEventListener("click", () => {
+      seceneklerBox.classList.toggle("hidden");
+    });
+
+    indirBtn.addEventListener("click", async () => {
       if (typeof syncFromCloud === "function") {
         try { await syncFromCloud(); } catch {}
       }
-      tekTusTumBilgileriIndir(durumEl);
+
+      const tumKayitlar = Array.isArray(state?.records)
+        ? state.records.map(r => (typeof normalizeRecord === "function" ? normalizeRecord(r) : r))
+        : [];
+      const makaleAgaci = typeof extCatTree === "object" && extCatTree ? extCatTree : {};
+
+      let vardiyalar = [];
+      try {
+        const vRaw = localStorage.getItem("servis_asistani_vardiyalar_v1");
+        vardiyalar = vRaw ? JSON.parse(vRaw) : [];
+      } catch {}
+
+      let devirNotu = null;
+      try {
+        const dRaw = localStorage.getItem("servis_asistani_devir_notu_v1");
+        devirNotu = dRaw ? JSON.parse(dRaw) : null;
+      } catch {}
+
+      const tamYedek = {
+        exportedAt: new Date().toISOString(),
+        totalRecords: tumKayitlar.length,
+        records: tumKayitlar,
+        articleCategories: makaleAgaci,
+        shifts: vardiyalar,
+        handoverNote: devirNotu
+      };
+
+      const blob = new Blob([JSON.stringify(tamYedek, null, 2)], {
+        type: "application/json;charset=utf-8;"
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      const gun = new Date().toISOString().slice(0, 10);
+      a.href = url;
+      a.download = `servis-asistani-tam-yedek-${gun}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+
+      if (durumEl) {
+        durumEl.textContent = `Tam yedek indirildi (${tumKayitlar.length} kayıt).`;
+      }
+    });
+
+    yukleBtn.addEventListener("click", () => fileInput.click());
+
+    fileInput.addEventListener("change", async (e) => {
+      const dosya = e.target.files?.[0];
+      fileInput.value = "";
+      if (!dosya) return;
+
+      try {
+        const metin = await dosya.text();
+        const veri = JSON.parse(metin);
+        const gelenKayitlar = Array.isArray(veri?.records)
+          ? veri.records
+          : (Array.isArray(veri) ? veri : []);
+        const gelenAgac = veri?.articleCategories && typeof veri.articleCategories === "object"
+          ? veri.articleCategories
+          : null;
+        const gelenVardiyalar = Array.isArray(veri?.shifts) ? veri.shifts : null;
+        const gelenDevirNotu = veri?.handoverNote && typeof veri.handoverNote === "object"
+          ? veri.handoverNote
+          : null;
+
+        if (gelenKayitlar.length && state && Array.isArray(state.records)) {
+          const harita = new Map(state.records.map(r => [r.id, r]));
+          for (const ham of gelenKayitlar) {
+            const norm = typeof normalizeRecord === "function" ? normalizeRecord(ham) : ham;
+            if (norm && norm.id) harita.set(norm.id, norm);
+          }
+          state.records = Array.from(harita.values());
+          if (typeof saveLocalState === "function") saveLocalState(state);
+          if (typeof sbUpsertRecords === "function") {
+            try { await sbUpsertRecords(gelenKayitlar.map(r => (typeof normalizeRecord === "function" ? normalizeRecord(r) : r))); } catch {}
+          }
+        }
+
+        if (gelenAgac && typeof extCatTree === "object") {
+          for (const [anaKat, altlar] of Object.entries(gelenAgac)) {
+            if (!Array.isArray(extCatTree[anaKat])) extCatTree[anaKat] = [];
+            if (Array.isArray(altlar)) {
+              for (const alt of altlar) {
+                if (!extCatTree[anaKat].includes(alt)) extCatTree[anaKat].push(alt);
+              }
+            }
+          }
+          if (typeof extSaveCatTree === "function") extSaveCatTree();
+        }
+
+        if (gelenVardiyalar) {
+          try { localStorage.setItem("servis_asistani_vardiyalar_v1", JSON.stringify(gelenVardiyalar)); } catch {}
+        }
+
+        if (gelenDevirNotu) {
+          try { localStorage.setItem("servis_asistani_devir_notu_v1", JSON.stringify(gelenDevirNotu)); } catch {}
+        }
+
+        if (typeof sonBilgiKartiniYerlestirVeGuncelle === "function") {
+          sonBilgiKartiniYerlestirVeGuncelle();
+        }
+        if (typeof renderRecordsModalList === "function") {
+          renderRecordsModalList();
+        }
+
+        if (durumEl) {
+          durumEl.textContent = `Yedek yüklendi (${state?.records?.length || 0} kayıt aktif).`;
+        }
+      } catch (err) {
+        if (durumEl) {
+          durumEl.textContent = `Yedek okunamadı: ${err.message}`;
+        }
+      }
     });
   }
 
-  async function sessizArkaPlanSenkronizasyonu() {
+  async function sessizSenkronizasyon() {
     if (sessizSenkAktif) return;
     if (document.visibilityState !== "visible") return;
     if (!currentSession || !currentSession.apiKey) return;
 
     sessizSenkAktif = true;
     try {
-      const oncekiSayi = Array.isArray(state?.records) ? state.records.length : 0;
-      const oncekiIlkId = Array.isArray(state?.records) && state.records[0] ? state.records[0].id : "";
+      const oncekiAdet = Array.isArray(state?.records) ? state.records.length : 0;
+      const oncekiIlk = Array.isArray(state?.records) && state.records[0] ? state.records[0].id : "";
 
       if (typeof syncFromCloud === "function") {
         await syncFromCloud();
       }
 
-      const sonrakiSayi = Array.isArray(state?.records) ? state.records.length : 0;
-      const sonrakiIlkId = Array.isArray(state?.records) && state.records[0] ? state.records[0].id : "";
-      veriDegistiMi = (oncekiSayi !== sonrakiSayi) || (oncekiIlkId !== sonrakiIlkId);
+      const sonrakiAdet = Array.isArray(state?.records) ? state.records.length : 0;
+      const sonrakiIlk = Array.isArray(state?.records) && state.records[0] ? state.records[0].id : "";
 
-      if (veriDegistiMi) {
+      if (oncekiAdet !== sonrakiAdet || oncekiIlk !== sonrakiIlk) {
         if (typeof sonBilgiKartiniYerlestirVeGuncelle === "function") {
           sonBilgiKartiniYerlestirVeGuncelle();
         }
@@ -4550,21 +4637,20 @@ Kayıttaki "Yapılması gereken" adımlar.`;
           renderRecordsModalList();
         }
       }
-    } catch {
-      // Sessiz senkronizasyon hata verirse kullanıcıyı rahatsız etmez
-    } finally {
+    } catch {}
+    finally {
       sessizSenkAktif = false;
     }
   }
 
-  yedekButonunuYerlestir();
+  yedekAlaniniYerlestir();
 
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") {
-      sessizArkaPlanSenkronizasyonu();
+      sessizSenkronizasyon();
     }
   });
 
-  setInterval(sessizArkaPlanSenkronizasyonu, 15000);
+  setInterval(sessizSenkronizasyon, 15000);
 })();
 </script>
