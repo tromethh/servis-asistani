@@ -4326,135 +4326,6 @@ Kayıttaki "Yapılması gereken" adımlar.`;
 </script>
 <script>
 (function () {
-  function yedekBariniYerlestir() {
-    const stepList = document.getElementById("stepRecordsList");
-    if (!stepList || document.getElementById("yedekIslemBari")) return;
-
-    const bar = document.createElement("div");
-    bar.id = "yedekIslemBari";
-    bar.className = "ext-panel-box";
-    bar.style.marginTop = "10px";
-    bar.innerHTML = `
-      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
-        <strong style="color:var(--neon-cyan); font-size:0.86rem;">💾 Yedekleme & Geri Yükleme (Kayıtlar + Makale Ağacı)</strong>
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-          <button id="exportJsonBtn" type="button" class="cyan-outline" style="padding:6px 10px; font-size:0.8rem;">JSON İndir</button>
-          <button id="exportCsvBtn" type="button" class="secondary" style="padding:6px 10px; font-size:0.8rem;">CSV İndir</button>
-          <button id="importJsonBtn" type="button" class="ok-btn" style="padding:6px 10px; font-size:0.8rem;">JSON Yükle</button>
-        </div>
-      </div>
-      <input id="importJsonFileInput" type="file" accept=".json,application/json" class="hidden" />
-      <div id="yedekDurumMetni" class="status-msg" style="margin-top:6px;"></div>
-    `;
-
-    const sortBar = stepList.querySelector(".sort-bar");
-    if (sortBar) {
-      stepList.insertBefore(bar, sortBar);
-    } else {
-      stepList.appendChild(bar);
-    }
-
-    document.getElementById("exportJsonBtn").addEventListener("click", () => {
-      const paket = {
-        exportedAt: new Date().toISOString(),
-        records: Array.isArray(state?.records) ? state.records : [],
-        articleCategories: typeof extCatTree === "object" && extCatTree ? extCatTree : {}
-      };
-      const blob = new Blob([JSON.stringify(paket, null, 2)], { type: "application/json;charset=utf-8;" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `servis-asistani-yedek-${new Date().toISOString().slice(0, 10)}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-      document.getElementById("yedekDurumMetni").textContent = `JSON yedek indirildi (${paket.records.length} kayıt).`;
-    });
-
-    document.getElementById("exportCsvBtn").addEventListener("click", () => {
-      const recs = Array.isArray(state?.records) ? state.records : [];
-      const basliklar = ["id", "category", "group", "title", "content", "uploadedBy", "uploadedAt"];
-      const kacis = (val) => `"${String(val ?? "").replace(/"/g, '""')}"`;
-      const satirlar = [
-        basliklar.join(","),
-        ...recs.map(raw => {
-          const r = typeof normalizeRecord === "function" ? normalizeRecord(raw) : raw;
-          return basliklar.map(k => kacis(r[k])).join(",");
-        })
-      ];
-      const blob = new Blob(["\uFEFF" + satirlar.join("\n")], { type: "text/csv;charset=utf-8;" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `servis-asistani-kayitlar-${new Date().toISOString().slice(0, 10)}.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
-      document.getElementById("yedekDurumMetni").textContent = `CSV dosyası indirildi (${recs.length} satır).`;
-    });
-
-    const fileInp = document.getElementById("importJsonFileInput");
-    document.getElementById("importJsonBtn").addEventListener("click", () => fileInp.click());
-
-    fileInp.addEventListener("change", async (e) => {
-      const f = e.target.files?.[0];
-      fileInp.value = "";
-      if (!f) return;
-
-      try {
-        const text = await f.text();
-        const parsed = JSON.parse(text);
-        const gelenKayitlar = Array.isArray(parsed?.records)
-          ? parsed.records
-          : (Array.isArray(parsed) ? parsed : []);
-        const gelenAgac = parsed?.articleCategories && typeof parsed.articleCategories === "object"
-          ? parsed.articleCategories
-          : null;
-
-        if (!gelenKayitlar.length && !gelenAgac) {
-          document.getElementById("yedekDurumMetni").textContent = "Geçerli yedek verisi bulunamadı.";
-          return;
-        }
-
-        const mevcutMap = new Map((state.records || []).map(r => [r.id, r]));
-        for (const raw of gelenKayitlar) {
-          const norm = typeof normalizeRecord === "function" ? normalizeRecord(raw) : raw;
-          if (norm?.id) mevcutMap.set(norm.id, norm);
-        }
-
-        state.records = Array.from(mevcutMap.values());
-        if (typeof saveLocalState === "function") saveLocalState(state);
-
-        if (gelenAgac && typeof extCatTree === "object") {
-          for (const [anaKat, altList] of Object.entries(gelenAgac)) {
-            if (!Array.isArray(extCatTree[anaKat])) extCatTree[anaKat] = [];
-            if (Array.isArray(altList)) {
-              for (const alt of altList) {
-                if (!extCatTree[anaKat].includes(alt)) extCatTree[anaKat].push(alt);
-              }
-            }
-          }
-          if (typeof extSaveCatTree === "function") extSaveCatTree();
-        }
-
-        if (typeof sbUpsertRecords === "function" && gelenKayitlar.length) {
-          try { await sbUpsertRecords(gelenKayitlar.map(r => normalizeRecord(r))); } catch {}
-        }
-
-        if (typeof renderRecordsModalList === "function") renderRecordsModalList();
-        if (typeof sonBilgiKartiniYerlestirVeGuncelle === "function") sonBilgiKartiniYerlestirVeGuncelle();
-
-        document.getElementById("yedekDurumMetni").textContent =
-          `Geri yükleme tamamlandı: Toplam ${state.records.length} kayıt aktif.`;
-      } catch (err) {
-        document.getElementById("yedekDurumMetni").textContent = `JSON okunamadı: ${err.message}`;
-      }
-    });
-  }
-
-  yedekBariniYerlestir();
-})();
-</script>
-<script>
-(function () {
   if (typeof window.renderRecordsModalList !== "function") return;
   const _origRenderRecordsModalList = window.renderRecordsModalList;
 
@@ -4566,5 +4437,134 @@ Kayıttaki "Yapılması gereken" adımlar.`;
       `;
     }).join("");
   };
+})();
+</script>
+<script>
+(function () {
+  const SISTEM_KATEGORILER = new Set(["VardiyaPlanı", "AktifMola", "VardiyaDevirNotu", "İşleme Alınamayanlar"]);
+  let sessizSenkAktif = false;
+
+  function tumYuklenenBilgileriAl() {
+    const hamKayitlar = Array.isArray(state?.records) ? state.records : [];
+    const normalKayitlar = hamKayitlar
+      .map(raw => (typeof normalizeRecord === "function" ? normalizeRecord(raw) : raw))
+      .filter(r => r && r.id && !SISTEM_KATEGORILER.has(r.category));
+
+    const kategoriler = typeof extCatTree === "object" && extCatTree ? extCatTree : {};
+    return { records: normalKayitlar, articleCategories: kategoriler };
+  }
+
+  function tekTusTumBilgileriIndir(durumEl) {
+    const { records, articleCategories } = tumYuklenenBilgileriAl();
+    const paket = {
+      exportedAt: new Date().toISOString(),
+      totalRecords: records.length,
+      records,
+      articleCategories
+    };
+
+    const blob = new Blob([JSON.stringify(paket, null, 2)], {
+      type: "application/json;charset=utf-8;"
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const tarihEtiketi = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = `yuklenen-tum-bilgiler-${tarihEtiketi}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+
+    if (durumEl) {
+      durumEl.textContent = `${records.length} kayıt indirildi (${tarihEtiketi}).`;
+    }
+  }
+
+  function yedekButonunuYerlestir() {
+    const stepList = document.getElementById("stepRecordsList");
+    if (!stepList || document.getElementById("tekTusYedekKutusu")) return;
+
+    const kutu = document.createElement("div");
+    kutu.id = "tekTusYedekKutusu";
+    kutu.className = "ext-panel-box";
+    kutu.style.marginTop = "10px";
+    kutu.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+        <strong style="color:var(--neon-cyan); font-size:0.86rem;">Tüm Yüklenen Bilgiler Yedeği</strong>
+        <button id="tekTusTumBilgiIndirBtn" type="button" class="cyan-outline" style="padding:7px 12px; font-size:0.82rem;">
+          Tüm Bilgileri İndir
+        </button>
+      </div>
+      <div id="tekTusYedekDurum" class="status-msg" style="margin-top:6px;"></div>
+    `;
+
+    const sortBar = stepList.querySelector(".sort-bar");
+    if (sortBar) {
+      stepList.insertBefore(kutu, sortBar);
+    } else {
+      stepList.appendChild(kutu);
+    }
+
+    const btn = document.getElementById("tekTusTumBilgiIndirBtn");
+    const durumEl = document.getElementById("tekTusYedekDurum");
+    btn.addEventListener("click", async () => {
+      if (typeof syncFromCloud === "function") {
+        try { await syncFromCloud(); } catch {}
+      }
+      tekTusTumBilgileriIndir(durumEl);
+    });
+  }
+
+  async function sessizArkaPlanSenkronizasyonu() {
+    if (sessizSenkAktif) return;
+    if (document.visibilityState !== "visible") return;
+    if (!currentSession || !currentSession.apiKey) return;
+
+    sessizSenkAktif = true;
+    try {
+      const oncekiSayi = Array.isArray(state?.records) ? state.records.length : 0;
+      const oncekiIlkId = Array.isArray(state?.records) && state.records[0] ? state.records[0].id : "";
+
+      if (typeof syncFromCloud === "function") {
+        await syncFromCloud();
+      }
+
+      const sonrakiSayi = Array.isArray(state?.records) ? state.records.length : 0;
+      const sonrakiIlkId = Array.isArray(state?.records) && state.records[0] ? state.records[0].id : "";
+      veriDegistiMi = (oncekiSayi !== sonrakiSayi) || (oncekiIlkId !== sonrakiIlkId);
+
+      if (veriDegistiMi) {
+        if (typeof sonBilgiKartiniYerlestirVeGuncelle === "function") {
+          sonBilgiKartiniYerlestirVeGuncelle();
+        }
+        const recordsModal = document.getElementById("recordsModal");
+        const stepRecordsList = document.getElementById("stepRecordsList");
+        if (
+          recordsModal &&
+          !recordsModal.classList.contains("hidden") &&
+          stepRecordsList &&
+          !stepRecordsList.classList.contains("hidden") &&
+          typeof renderRecordsModalList === "function"
+        ) {
+          renderRecordsModalList();
+        }
+      }
+    } catch {
+      // Sessiz senkronizasyon hata verirse kullanıcıyı rahatsız etmez
+    } finally {
+      sessizSenkAktif = false;
+    }
+  }
+
+  yedekButonunuYerlestir();
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+      sessizArkaPlanSenkronizasyonu();
+    }
+  });
+
+  setInterval(sessizArkaPlanSenkronizasyonu, 15000);
 })();
 </script>
