@@ -1073,7 +1073,43 @@
       font-size: 0.82rem;
       color: var(--muted);
     }
-  </style>
+  
+  .ask-clarify-backdrop{position:fixed;inset:0;z-index:9998;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(3,7,18,.78);backdrop-filter:blur(9px)}
+  .ask-clarify-card{width:min(100%,560px);max-height:min(82dvh,760px);overflow:auto;border:1px solid rgba(139,124,255,.5)!important;background:linear-gradient(155deg,#1b2034 0%,#101522 100%)!important;box-shadow:0 24px 90px rgba(0,0,0,.5)!important;padding:22px!important;border-radius:24px!important}
+  .ask-clarify-kicker{font-size:.68rem;font-weight:850;letter-spacing:.13em;color:#b9adff;margin-bottom:12px}
+  .ask-clarify-question{display:block;font-size:1.12rem;line-height:1.45;color:#fff}
+  .ask-clarify-hint{font-size:.82rem;color:#aeb8cc;line-height:1.5;margin:8px 0 16px}
+  .ask-clarify-options{display:grid;grid-template-columns:1fr;gap:9px}
+  .ask-clarify-choice{width:100%;display:flex!important;align-items:center!important;gap:11px;min-height:58px!important;text-align:left!important;white-space:normal!important;line-height:1.35!important;padding:12px 14px!important;border-radius:15px!important;background:rgba(139,124,255,.12)!important;border:1px solid rgba(166,151,255,.30)!important;color:#f1edff!important;font-size:.9rem!important}
+  .ask-clarify-choice:active{transform:scale(.985)}
+  .ask-choice-index{width:28px;height:28px;flex:0 0 28px;display:grid;place-items:center;border-radius:9px;background:rgba(166,151,255,.2);font-size:.75rem;font-weight:800}
+  .ask-choice-arrow{margin-left:auto;font-size:1.3rem;color:#b9adff}
+  .ask-clarify-other{margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1)}
+  .ask-clarify-other label{display:block;font-size:.76rem;color:#b9c2d3;margin-bottom:7px}
+  .ask-clarify-other-row{display:flex;gap:8px}
+  .ask-clarify-other-row input{flex:1;min-width:0;border-radius:12px;padding:11px 12px;background:#0b1020;color:#fff;border:1px solid rgba(255,255,255,.16)}
+  .ask-clarify-other-row button{width:46px;min-width:46px;border-radius:12px}
+  #questionInput{scroll-margin-bottom:100px}
+  @media(max-width:600px){.ask-clarify-backdrop{padding:12px}.ask-clarify-card{padding:18px!important;border-radius:20px!important;max-height:84dvh}.ask-clarify-question{font-size:1.02rem}.ask-clarify-choice{min-height:62px!important;font-size:.88rem!important}}
+
+  .ask-clarify-backdrop{position:fixed;inset:0;z-index:9998;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(3,7,18,.78);backdrop-filter:blur(9px)}
+  .ask-clarify-card{width:min(100%,560px);max-height:min(82dvh,760px);overflow:auto;border:1px solid rgba(139,124,255,.5)!important;background:linear-gradient(155deg,#1b2034 0%,#101522 100%)!important;box-shadow:0 24px 90px rgba(0,0,0,.5)!important;padding:22px!important;border-radius:24px!important}
+  .ask-clarify-kicker{font-size:.68rem;font-weight:850;letter-spacing:.13em;color:#b9adff;margin-bottom:12px}
+  .ask-clarify-question{display:block;font-size:1.12rem;line-height:1.45;color:#fff}
+  .ask-clarify-hint{font-size:.82rem;color:#aeb8cc;line-height:1.5;margin:8px 0 16px}
+  .ask-clarify-options{display:grid;grid-template-columns:1fr;gap:9px}
+  .ask-clarify-choice{width:100%;display:flex!important;align-items:center!important;gap:11px;min-height:58px!important;text-align:left!important;white-space:normal!important;line-height:1.35!important;padding:12px 14px!important;border-radius:15px!important;background:rgba(139,124,255,.12)!important;border:1px solid rgba(166,151,255,.30)!important;color:#f1edff!important;font-size:.9rem!important}
+  .ask-clarify-choice:active{transform:scale(.985)}
+  .ask-choice-index{width:28px;height:28px;flex:0 0 28px;display:grid;place-items:center;border-radius:9px;background:rgba(166,151,255,.2);font-size:.75rem;font-weight:800}
+  .ask-choice-arrow{margin-left:auto;font-size:1.3rem;color:#b9adff}
+  .ask-clarify-other{margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1)}
+  .ask-clarify-other label{display:block;font-size:.76rem;color:#b9c2d3;margin-bottom:7px}
+  .ask-clarify-other-row{display:flex;gap:8px}
+  .ask-clarify-other-row input{flex:1;min-width:0;border-radius:12px;padding:11px 12px;background:#0b1020;color:#fff;border:1px solid rgba(255,255,255,.16)}
+  .ask-clarify-other-row button{width:46px;min-width:46px;border-radius:12px}
+  #questionInput{scroll-margin-bottom:100px}
+  @media(max-width:600px){.ask-clarify-backdrop{padding:12px}.ask-clarify-card{padding:18px!important;border-radius:20px!important;max-height:84dvh}.ask-clarify-question{font-size:1.02rem}.ask-clarify-choice{min-height:62px!important;font-size:.88rem!important}.ask-composer{position:sticky!important;bottom:calc(84px + env(safe-area-inset-bottom));z-index:50!important;box-shadow:0 -8px 24px rgba(0,0,0,.22)}}
+</style>
 
 
 
@@ -1468,7 +1504,7 @@
         <button id="backHomeFromAskBtn" type="button" class="secondary">Ana Sayfa</button>
       </div>
       <div class="ask-entry-panel">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;"><span style="font-size:.72rem;color:var(--muted);">✦ Çok adımlı analiz · Sohbet bağlamı · Akıllı kayıt arama</span><button id="clearAIChatBtn" type="button" class="secondary" style="font-size:.68rem;padding:5px 8px;">Sohbeti sıfırla</button></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;"><span style="font-size:.72rem;color:var(--muted);">✦ Çok adımlı analiz · Sohbet bağlamı · Akıllı kayıt arama</span><button id="clearAIChatBtn" type="button" class="secondary" style="font-size:.68rem;padding:5px 8px;">Yeni sohbet</button></div>
         <label for="questionInput">Sorunuzu yazın veya fotoğraf ekleyin</label>
         <div class="ask-composer"><textarea id="questionInput" rows="1" placeholder="Sorunuzu yazın..."></textarea><button id="askBtn" type="button" class="ask-send-btn" aria-label="Sor">➤</button></div>
         <div class="question-photo-bar ask-photo-actions">
@@ -3098,24 +3134,34 @@ KULLANICI MESAJI: ${String(question || 'Ekli müşteri mesajını incele.').slic
 9) Aynı anahtar kelime birden fazla farklı işlem/prosedüre gidiyorsa (ör. RTB satın alma ile RTB servis gönderimi), cevap verme; önce hangi işlem olduğunu sor. Seçenekleri bilgi bankasındaki gerçek kayıt başlıklarından üret.`;
     }
 
-    async function analyzeQuestionForSearch(question) {
+    async function analyzeQuestionForSearch(question, conversationContext="") {
       const records=(state?.records||[]).map(normalizeRecord).filter(r=>!SISTEM_KAYIT_KATEGORILERI.has(r.category));
       const catalog=records.map((r,i)=>`${i+1}. [${r.category}/${r.group}] ${r.title}: ${String(r.content||"").replace(/\s+/g," ").slice(0,260)}`).join("\n").slice(0,90000);
-      const sys=`Sen teknik servis bilgi bankası için arama planlayıcısısın. Verilen kısa soruyu yorumla ve tüm kategorilerde aramayı genişlet. Yalnızca JSON döndür: {"expandedQuery":"...","clarifyRequired":false,"clarification":"...","options":[]}. Sorunun anlamı yeterince açıksa clarifyRequired=false yap ve eş anlamlılar, olası arıza adları, ilgili parçalar/işlemler içeren expandedQuery üret. Soru ciddi biçimde belirsizse (hangi cihaz/arıza belli değilse) clarifyRequired=true yap; tek, kısa, net bir açıklayıcı soru ve en fazla 4 seçenek üret. Kullanıcıyı gereksiz yere sorgulama. Kayıtlarda olmayan teknik varsayımı kesin bilgi gibi sunma.`;
+      const sys=`Sen teknik servis bilgi bankası için çok adımlı netleştirme ve arama planlayıcısısın. Kullanıcının kısa ifadesini, bilgi bankasındaki GERÇEK kayıt başlıkları ve kategori/gruplarıyla karşılaştır. Yalnızca JSON döndür: {"expandedQuery":"...","clarifyRequired":false,"clarification":"...","options":[]}. ÖNEMLİ: Kullanıcı "parça kodu", "filtre", "batarya", "bakım paketi", "garanti" gibi çok geniş bir başlık yazdıysa ve katalogda birden fazla ürün/model/süreç ailesi varsa tahmin ederek arama yapma; clarifyRequired=true yap ve katalogdaki gerçek grup/model adlarından 3-8 seçenek sun. Örneğin yüzlerce parça kodu kaydı farklı cihaz ailelerine ayrılıyorsa önce hangi cihaz/model ailesi olduğunu sor. İlk cevapta tüm ayrıntıları sormaya çalışma; her turda yalnızca bir önemli ayrıntıyı netleştir. Kullanıcı bir seçeneği seçince sonraki turda gerekirse alt model/ürün/parça türünü sor; yeterli ayrıntı oluşunca expandedQuery üret. Tek bir kayıt ailesi açıkça anlaşılıyorsa clarifyRequired=false yap. Katalogda bulunmayan model veya seçenek uydurma; seçenek metinlerini katalogdan türet. Kullanıcıyı gereksiz yere sorgulama.`;
       try {
-        const raw=await callGemini([{text:`SORU: ${question}\n\nBİLGİ BANKASI KATALOĞU (Makale, Süreç, Parça ve diğer kayıtlar):\n${catalog}`}],sys);
+        const raw=await callGemini([{text:`ÖNCEKİ SOHBET BAĞLAMI: ${conversationContext || "Yok"}\n\nSON SORU: ${question}\n\nBİLGİ BANKASI KATALOĞU (Makale, Süreç, Parça ve diğer kayıtlar):\n${catalog}`}],sys);
         const m=raw.match(/\{[\s\S]*\}/); if(!m) return {expandedQuery:question,clarifyRequired:false};
         const d=JSON.parse(m[0]);
-        return {expandedQuery:String(d.expandedQuery||question).slice(0,3000),clarifyRequired:d.clarifyRequired===true,clarification:String(d.clarification||"Sorunu biraz daha açıklar mısınız?"),options:Array.isArray(d.options)?d.options.slice(0,4).map(String):[]};
+        return {expandedQuery:String(d.expandedQuery||question).slice(0,3000),clarifyRequired:d.clarifyRequired===true,clarification:String(d.clarification||"Sorunu biraz daha açıklar mısınız?"),options:Array.isArray(d.options)?d.options.slice(0,8).map(String):[]};
       } catch(err) { console.warn("Arama ön analizi atlandı:",err); return {expandedQuery:question,clarifyRequired:false}; }
     }
 
     function showQuestionClarification(original, analysis) {
       const area=document.getElementById("answerArea");
-      const opts=(analysis.options||[]).map(x=>`<button type="button" class="secondary" data-clarify-option="${escapeHtml(x)}" style="font-size:.78rem;padding:7px 9px;">${escapeHtml(x)}</button>`).join("");
-      area.innerHTML=`<div class="card ask-clarify-card" style="padding:16px;max-width:760px;margin:10px auto;"><div class="ask-clarify-kicker">BİR ADIM NETLEŞTİRELİM</div><strong style="font-size:1rem;">${escapeHtml(analysis.clarification||"Hangi süreci öğrenmek istiyorsunuz?")}</strong><p style="font-size:.8rem;color:var(--muted);margin:7px 0 12px;">Doğru işlemi seçin; yalnızca o sürecin adımlarını açıklayayım.</p><div class="ask-clarify-options">${opts}</div><label for="clarifiedQuestionInput" style="font-size:.78rem;margin-top:12px;display:block;">Başka bir ayrıntı eklemek isterseniz</label><textarea id="clarifiedQuestionInput" rows="2" style="width:100%;font-size:.86rem;min-height:58px;">${escapeHtml(original)}</textarea><button id="runClarifiedSearchBtn" type="button" style="margin-top:9px;padding:10px 14px;font-size:.82rem;width:100%;">Bu seçimle devam et</button></div>`;
-      area.querySelectorAll("[data-clarify-option]").forEach(b=>b.addEventListener("click",()=>{const t=document.getElementById("clarifiedQuestionInput");t.value=(t.value.trim()+" — "+b.dataset.clarifyOption).trim();}));
-      document.getElementById("runClarifiedSearchBtn").addEventListener("click",()=>{const t=document.getElementById("clarifiedQuestionInput");const q=t.value.trim();if(!q)return;document.getElementById("questionInput").value=q;document.getElementById("askBtn").click();});
+      const opts=(analysis.options||[]).map((x,i)=>`<button type="button" class="secondary ask-clarify-choice" data-clarify-option="${escapeHtml(x)}"><span class="ask-choice-index">${i+1}</span><span>${escapeHtml(x)}</span><span class="ask-choice-arrow">›</span></button>`).join("");
+      area.innerHTML=`<div class="ask-clarify-backdrop"><div class="card ask-clarify-card" role="dialog" aria-modal="true" aria-label="Seçim gerekli"><div class="ask-clarify-kicker">BİR ADIM NETLEŞTİRELİM</div><strong class="ask-clarify-question">${escapeHtml(analysis.clarification||"Hangi başlığı öğrenmek istiyorsunuz?")}</strong><p class="ask-clarify-hint">Bir seçeneğe dokunun. Seçiminiz otomatik işlenecek; ayrıca devam butonuna basmanız gerekmeyecek.</p><div class="ask-clarify-options">${opts}</div><div class="ask-clarify-other"><label for="clarifiedQuestionInput">Listede yoksa başka bir ayrıntı yazın</label><div class="ask-clarify-other-row"><input id="clarifiedQuestionInput" type="text" placeholder="Örn. farklı bir model..."/><button id="sendClarifiedTextBtn" type="button" aria-label="Gönder">➤</button></div></div></div></div>`;
+      const choose=(choice)=>{
+        const q=(String(original||"").trim()+" — "+String(choice||"").trim()).trim();
+        if(!choice||!q)return;
+        document.getElementById("questionInput").value=q;
+        document.getElementById("questionInput").dispatchEvent(new Event("input",{bubbles:true}));
+        area.innerHTML="";
+        document.getElementById("askBtn").click();
+      };
+      area.querySelectorAll("[data-clarify-option]").forEach(b=>b.addEventListener("click",()=>choose(b.dataset.clarifyOption)));
+      const other=document.getElementById("clarifiedQuestionInput");
+      document.getElementById("sendClarifiedTextBtn")?.addEventListener("click",()=>choose(other.value));
+      other?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();choose(other.value);}});
     }
 
     function renderMatchedAnswer(clean) {
@@ -3303,6 +3349,9 @@ KESİN KURALLAR:
       const areaEl = document.getElementById("answerArea");
       if (!question && !attachedQuestionPhoto) { statusEl.textContent = "Lütfen bir soru yazın veya sorunun fotoğrafını ekleyin."; return; }
       const userText = question || "Eklediğim müşteri mesajı fotoğrafını incele ve ilgili teknik kayıtları bul.";
+      document.getElementById("questionInput").value = "";
+      document.getElementById("questionInput").style.height = "auto";
+      const composerLabel=document.querySelector('label[for="questionInput"]'); if(composerLabel) composerLabel.textContent="Konuşmayı sürdürün · Yeni bir soru yazın";
       const sendBtn=document.getElementById("askBtn"); sendBtn.disabled=true;
       try {
         if (!state.records.length) await syncFromCloud();
@@ -3312,7 +3361,27 @@ KESİN KURALLAR:
         let searchText = userText;
         let retrieved = aiRetrieveRecords([userText, ...history.slice(-4).map(m=>m.text||'')].join(' '), 12);
 
-        // Fotoğraflar her zaman önce okunur. Metin sorularında ise yerel arama sonuç vermezse
+        // Kısa/genel metinlerde önce katalogdan doğru ürün veya süreç ailesini seçtir.
+        // Böylece "parça kodu" gibi sorgular yüzlerce kayıttan rastgele cevap üretmez.
+        const previousWasClarification = history.length > 0 && history[history.length-1].role === "assistant" && String(history[history.length-1].text||"").includes("[[CLARIFICATION_STEP]]");
+        const broadCatalogQuery = /parça kodu|parca kodu|yedek parça|yedek parca|bakım paketi|bakim paketi|\brtb\b|\bgaranti\b|\bbatarya\b|\bfiltre\b|\bmotor\b/i.test(userText) && aiTokens(userText).length <= 5;
+        if (!attachedQuestionPhoto && (broadCatalogQuery || previousWasClarification)) {
+          statusEl.textContent = "Konu netleştiriliyor · Bilgi bankasındaki ürün ve süreç grupları kontrol ediliyor...";
+          const planner = await analyzeQuestionForSearch(userText, conversation);
+          if (planner?.clarifyRequired && planner.options?.length) {
+            showQuestionClarification(userText, planner);
+            const clarificationText = "[[CLARIFICATION_STEP]]\n" + planner.clarification + "\n" + planner.options.map((x,i)=>`${i+1}. ${x}`).join("\n");
+            aiSaveChatHistory([...history,{role:"user",text:userText},{role:"assistant",text:clarificationText}].slice(-AI_CHAT_MAX_TURNS*2));
+            statusEl.textContent = "Birden fazla ürün veya süreç grubu bulundu · Birini seçerek devam edin.";
+            return;
+          }
+          if (planner?.expandedQuery) {
+            searchText = planner.expandedQuery;
+            retrieved = aiRetrieveRecords([searchText, ...history.slice(-2).map(m=>m.text||'')].join(' '), 15);
+          }
+        }
+
+        // Fotoğraflar her zaman önce okunur. Metin sorularında yerel arama sonuç vermezse
         // AI yalnızca arama terimlerini genişletmek için çağrılır.
         if (attachedQuestionPhoto || !retrieved.length) {
           statusEl.textContent = attachedQuestionPhoto
@@ -3327,7 +3396,7 @@ KESİN KURALLAR:
         const processClarification = !analysis?.clarifyRequired ? aiNeedsProcessClarification(userText, retrieved) : null;
         if (processClarification) {
           showQuestionClarification(userText, processClarification);
-          const clarificationText = processClarification.clarification + "\n" + processClarification.options.map((x,i)=>`${i+1}. ${x}`).join("\n");
+          const clarificationText = "[[CLARIFICATION_STEP]]\n" + processClarification.clarification + "\n" + processClarification.options.map((x,i)=>`${i+1}. ${x}`).join("\n");
           aiSaveChatHistory([...history,{role:"user",text:userText},{role:"assistant",text:clarificationText}].slice(-AI_CHAT_MAX_TURNS*2));
           statusEl.textContent = "Birden fazla süreç bulundu · Önce doğru işlemi seçelim.";
           return;
@@ -3347,7 +3416,10 @@ KESİN KURALLAR:
         }
 
         if (analysis?.clarifyRequired) {
-          showQuestionClarification(userText,{clarification:analysis.clarification || "Müşteri mesajındaki bir ayrıntıyı netleştirelim.",options:analysis.options||[]});
+          const clarification={clarification:analysis.clarification || "Müşteri mesajındaki bir ayrıntıyı netleştirelim.",options:analysis.options||[]};
+          showQuestionClarification(userText,clarification);
+          const clarificationText="[[CLARIFICATION_STEP]]\n"+clarification.clarification+"\n"+clarification.options.join("\n");
+          aiSaveChatHistory([...history,{role:"user",text:userText},{role:"assistant",text:clarificationText}].slice(-AI_CHAT_MAX_TURNS*2));
           statusEl.textContent="Yanıtı güvenilir hazırlamak için ek bilgi gerekiyor.";
           return;
         }
@@ -3369,6 +3441,7 @@ KESİN KURALLAR:
         }
         if(analysis?.summary){const caseBox=document.createElement('div');caseBox.className='card';caseBox.style.marginTop='10px';caseBox.innerHTML=`<strong>Müşteri mesajından çıkarılan özet</strong><p>${escapeHtml(analysis.summary)}</p>${analysis.symptoms.length?`<p><strong>Belirtiler:</strong> ${escapeHtml(analysis.symptoms.join(' · '))}</p>`:''}`;areaEl.appendChild(caseBox);}
         statusEl.textContent = `Tamamlandı · ${retrieved.length} kayıt değerlendirildi · Sohbet bağlamı kullanıldı.`;
+        const composerLabel=document.querySelector('label[for="questionInput"]'); if(composerLabel) composerLabel.textContent="Konuşmayı sürdürün · Yeni bir soru yazın";
       } catch(err) {
         statusEl.textContent="Hata: "+err.message;
         areaEl.innerHTML=`<div class="error-msg">Yanıt hazırlanırken hata oluştu: ${escapeHtml(err.message)}</div>`;
@@ -5321,6 +5394,25 @@ KESİN KURALLAR:
   #bugunEklenenlerListe{max-height:190px!important;margin-top:7px!important}
   #bugunEklenenlerListe .record-item{padding:7px!important;margin-bottom:5px!important}
   #sonBilgiUstKart{padding:9px 11px!important;border-radius:12px!important}
+
+  .ask-clarify-backdrop{position:fixed;inset:0;z-index:9998;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(3,7,18,.78);backdrop-filter:blur(9px)}
+  .ask-clarify-card{width:min(100%,560px);max-height:min(82dvh,760px);overflow:auto;border:1px solid rgba(139,124,255,.5)!important;background:linear-gradient(155deg,#1b2034 0%,#101522 100%)!important;box-shadow:0 24px 90px rgba(0,0,0,.5)!important;padding:22px!important;border-radius:24px!important}
+  .ask-clarify-kicker{font-size:.68rem;font-weight:850;letter-spacing:.13em;color:#b9adff;margin-bottom:12px}
+  .ask-clarify-question{display:block;font-size:1.12rem;line-height:1.45;color:#fff}
+  .ask-clarify-hint{font-size:.82rem;color:#aeb8cc;line-height:1.5;margin:8px 0 16px}
+  .ask-clarify-options{display:grid;grid-template-columns:1fr;gap:9px}
+  .ask-clarify-choice{width:100%;display:flex!important;align-items:center!important;gap:11px;min-height:58px!important;text-align:left!important;white-space:normal!important;line-height:1.35!important;padding:12px 14px!important;border-radius:15px!important;background:rgba(139,124,255,.12)!important;border:1px solid rgba(166,151,255,.30)!important;color:#f1edff!important;font-size:.9rem!important}
+  .ask-clarify-choice:active{transform:scale(.985)}
+  .ask-choice-index{width:28px;height:28px;flex:0 0 28px;display:grid;place-items:center;border-radius:9px;background:rgba(166,151,255,.2);font-size:.75rem;font-weight:800}
+  .ask-choice-arrow{margin-left:auto;font-size:1.3rem;color:#b9adff}
+  .ask-clarify-other{margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1)}
+  .ask-clarify-other label{display:block;font-size:.76rem;color:#b9c2d3;margin-bottom:7px}
+  .ask-clarify-other-row{display:flex;gap:8px}
+  .ask-clarify-other-row input{flex:1;min-width:0;border-radius:12px;padding:11px 12px;background:#0b1020;color:#fff;border:1px solid rgba(255,255,255,.16)}
+  .ask-clarify-other-row button{width:46px;min-width:46px;border-radius:12px}
+  #questionInput{scroll-margin-bottom:100px}
+  @media(max-width:600px){.ask-clarify-backdrop{padding:12px}.ask-clarify-card{padding:18px!important;border-radius:20px!important;max-height:84dvh}.ask-clarify-question{font-size:1.02rem}.ask-clarify-choice{min-height:62px!important;font-size:.88rem!important}}
+
 </style>
 
 
@@ -5347,6 +5439,25 @@ KESİN KURALLAR:
   #vardiyaTeamMini{max-width:100%!important;width:100%!important;position:static!important;order:3!important;overflow-x:auto!important}
   #centerHomeStage{padding-bottom:12px!important}
   @media(max-width:600px){#appBottomNav{min-height:78px!important}#appMain{padding-bottom:calc(112px + env(safe-area-inset-bottom))!important}.home-clock{padding-top:8px}.home-shortcuts button{padding:10px 7px}}
+
+  .ask-clarify-backdrop{position:fixed;inset:0;z-index:9998;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(3,7,18,.78);backdrop-filter:blur(9px)}
+  .ask-clarify-card{width:min(100%,560px);max-height:min(82dvh,760px);overflow:auto;border:1px solid rgba(139,124,255,.5)!important;background:linear-gradient(155deg,#1b2034 0%,#101522 100%)!important;box-shadow:0 24px 90px rgba(0,0,0,.5)!important;padding:22px!important;border-radius:24px!important}
+  .ask-clarify-kicker{font-size:.68rem;font-weight:850;letter-spacing:.13em;color:#b9adff;margin-bottom:12px}
+  .ask-clarify-question{display:block;font-size:1.12rem;line-height:1.45;color:#fff}
+  .ask-clarify-hint{font-size:.82rem;color:#aeb8cc;line-height:1.5;margin:8px 0 16px}
+  .ask-clarify-options{display:grid;grid-template-columns:1fr;gap:9px}
+  .ask-clarify-choice{width:100%;display:flex!important;align-items:center!important;gap:11px;min-height:58px!important;text-align:left!important;white-space:normal!important;line-height:1.35!important;padding:12px 14px!important;border-radius:15px!important;background:rgba(139,124,255,.12)!important;border:1px solid rgba(166,151,255,.30)!important;color:#f1edff!important;font-size:.9rem!important}
+  .ask-clarify-choice:active{transform:scale(.985)}
+  .ask-choice-index{width:28px;height:28px;flex:0 0 28px;display:grid;place-items:center;border-radius:9px;background:rgba(166,151,255,.2);font-size:.75rem;font-weight:800}
+  .ask-choice-arrow{margin-left:auto;font-size:1.3rem;color:#b9adff}
+  .ask-clarify-other{margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1)}
+  .ask-clarify-other label{display:block;font-size:.76rem;color:#b9c2d3;margin-bottom:7px}
+  .ask-clarify-other-row{display:flex;gap:8px}
+  .ask-clarify-other-row input{flex:1;min-width:0;border-radius:12px;padding:11px 12px;background:#0b1020;color:#fff;border:1px solid rgba(255,255,255,.16)}
+  .ask-clarify-other-row button{width:46px;min-width:46px;border-radius:12px}
+  #questionInput{scroll-margin-bottom:100px}
+  @media(max-width:600px){.ask-clarify-backdrop{padding:12px}.ask-clarify-card{padding:18px!important;border-radius:20px!important;max-height:84dvh}.ask-clarify-question{font-size:1.02rem}.ask-clarify-choice{min-height:62px!important;font-size:.88rem!important}}
+
 </style>
 <script id="home-ui-polish-v3">
 (function(){
@@ -5384,6 +5495,25 @@ KESİN KURALLAR:
   #vardiyaPlanKapatBtn{font-size:0!important}
   #vardiyaPlanKapatBtn:after{content:'← Geri';font-size:.82rem}
   @media(max-width:380px){.ask-photo-buttons button{font-size:.66rem!important;padding:7px 6px!important}.ask-photo-actions #questionPhotoName{max-width:86px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
+
+  .ask-clarify-backdrop{position:fixed;inset:0;z-index:9998;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(3,7,18,.78);backdrop-filter:blur(9px)}
+  .ask-clarify-card{width:min(100%,560px);max-height:min(82dvh,760px);overflow:auto;border:1px solid rgba(139,124,255,.5)!important;background:linear-gradient(155deg,#1b2034 0%,#101522 100%)!important;box-shadow:0 24px 90px rgba(0,0,0,.5)!important;padding:22px!important;border-radius:24px!important}
+  .ask-clarify-kicker{font-size:.68rem;font-weight:850;letter-spacing:.13em;color:#b9adff;margin-bottom:12px}
+  .ask-clarify-question{display:block;font-size:1.12rem;line-height:1.45;color:#fff}
+  .ask-clarify-hint{font-size:.82rem;color:#aeb8cc;line-height:1.5;margin:8px 0 16px}
+  .ask-clarify-options{display:grid;grid-template-columns:1fr;gap:9px}
+  .ask-clarify-choice{width:100%;display:flex!important;align-items:center!important;gap:11px;min-height:58px!important;text-align:left!important;white-space:normal!important;line-height:1.35!important;padding:12px 14px!important;border-radius:15px!important;background:rgba(139,124,255,.12)!important;border:1px solid rgba(166,151,255,.30)!important;color:#f1edff!important;font-size:.9rem!important}
+  .ask-clarify-choice:active{transform:scale(.985)}
+  .ask-choice-index{width:28px;height:28px;flex:0 0 28px;display:grid;place-items:center;border-radius:9px;background:rgba(166,151,255,.2);font-size:.75rem;font-weight:800}
+  .ask-choice-arrow{margin-left:auto;font-size:1.3rem;color:#b9adff}
+  .ask-clarify-other{margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1)}
+  .ask-clarify-other label{display:block;font-size:.76rem;color:#b9c2d3;margin-bottom:7px}
+  .ask-clarify-other-row{display:flex;gap:8px}
+  .ask-clarify-other-row input{flex:1;min-width:0;border-radius:12px;padding:11px 12px;background:#0b1020;color:#fff;border:1px solid rgba(255,255,255,.16)}
+  .ask-clarify-other-row button{width:46px;min-width:46px;border-radius:12px}
+  #questionInput{scroll-margin-bottom:100px}
+  @media(max-width:600px){.ask-clarify-backdrop{padding:12px}.ask-clarify-card{padding:18px!important;border-radius:20px!important;max-height:84dvh}.ask-clarify-question{font-size:1.02rem}.ask-clarify-choice{min-height:62px!important;font-size:.88rem!important}}
+
 </style>
 
 <!-- V25: müşteri vaka analizi, görselden belirti çıkarımı ve genişletilmiş bilgi bankası araması -->
@@ -5431,6 +5561,25 @@ KESİN KURALLAR:
     #appBottomNav .nav-item{font-size:.68rem!important}
   }
   @media(max-width:360px){.ask-photo-buttons button{font-size:.69rem!important;padding:7px 8px!important}.ask-stats-shortcuts button{font-size:.7rem!important}}
+
+  .ask-clarify-backdrop{position:fixed;inset:0;z-index:9998;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(3,7,18,.78);backdrop-filter:blur(9px)}
+  .ask-clarify-card{width:min(100%,560px);max-height:min(82dvh,760px);overflow:auto;border:1px solid rgba(139,124,255,.5)!important;background:linear-gradient(155deg,#1b2034 0%,#101522 100%)!important;box-shadow:0 24px 90px rgba(0,0,0,.5)!important;padding:22px!important;border-radius:24px!important}
+  .ask-clarify-kicker{font-size:.68rem;font-weight:850;letter-spacing:.13em;color:#b9adff;margin-bottom:12px}
+  .ask-clarify-question{display:block;font-size:1.12rem;line-height:1.45;color:#fff}
+  .ask-clarify-hint{font-size:.82rem;color:#aeb8cc;line-height:1.5;margin:8px 0 16px}
+  .ask-clarify-options{display:grid;grid-template-columns:1fr;gap:9px}
+  .ask-clarify-choice{width:100%;display:flex!important;align-items:center!important;gap:11px;min-height:58px!important;text-align:left!important;white-space:normal!important;line-height:1.35!important;padding:12px 14px!important;border-radius:15px!important;background:rgba(139,124,255,.12)!important;border:1px solid rgba(166,151,255,.30)!important;color:#f1edff!important;font-size:.9rem!important}
+  .ask-clarify-choice:active{transform:scale(.985)}
+  .ask-choice-index{width:28px;height:28px;flex:0 0 28px;display:grid;place-items:center;border-radius:9px;background:rgba(166,151,255,.2);font-size:.75rem;font-weight:800}
+  .ask-choice-arrow{margin-left:auto;font-size:1.3rem;color:#b9adff}
+  .ask-clarify-other{margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1)}
+  .ask-clarify-other label{display:block;font-size:.76rem;color:#b9c2d3;margin-bottom:7px}
+  .ask-clarify-other-row{display:flex;gap:8px}
+  .ask-clarify-other-row input{flex:1;min-width:0;border-radius:12px;padding:11px 12px;background:#0b1020;color:#fff;border:1px solid rgba(255,255,255,.16)}
+  .ask-clarify-other-row button{width:46px;min-width:46px;border-radius:12px}
+  #questionInput{scroll-margin-bottom:100px}
+  @media(max-width:600px){.ask-clarify-backdrop{padding:12px}.ask-clarify-card{padding:18px!important;border-radius:20px!important;max-height:84dvh}.ask-clarify-question{font-size:1.02rem}.ask-clarify-choice{min-height:62px!important;font-size:.88rem!important}}
+
 </style>
 </body>
 </html>
@@ -5584,6 +5733,25 @@ KESİN KURALLAR:
     border: 1.5px solid var(--danger);
     color: #ff9eb0;
   }
+
+  .ask-clarify-backdrop{position:fixed;inset:0;z-index:9998;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(3,7,18,.78);backdrop-filter:blur(9px)}
+  .ask-clarify-card{width:min(100%,560px);max-height:min(82dvh,760px);overflow:auto;border:1px solid rgba(139,124,255,.5)!important;background:linear-gradient(155deg,#1b2034 0%,#101522 100%)!important;box-shadow:0 24px 90px rgba(0,0,0,.5)!important;padding:22px!important;border-radius:24px!important}
+  .ask-clarify-kicker{font-size:.68rem;font-weight:850;letter-spacing:.13em;color:#b9adff;margin-bottom:12px}
+  .ask-clarify-question{display:block;font-size:1.12rem;line-height:1.45;color:#fff}
+  .ask-clarify-hint{font-size:.82rem;color:#aeb8cc;line-height:1.5;margin:8px 0 16px}
+  .ask-clarify-options{display:grid;grid-template-columns:1fr;gap:9px}
+  .ask-clarify-choice{width:100%;display:flex!important;align-items:center!important;gap:11px;min-height:58px!important;text-align:left!important;white-space:normal!important;line-height:1.35!important;padding:12px 14px!important;border-radius:15px!important;background:rgba(139,124,255,.12)!important;border:1px solid rgba(166,151,255,.30)!important;color:#f1edff!important;font-size:.9rem!important}
+  .ask-clarify-choice:active{transform:scale(.985)}
+  .ask-choice-index{width:28px;height:28px;flex:0 0 28px;display:grid;place-items:center;border-radius:9px;background:rgba(166,151,255,.2);font-size:.75rem;font-weight:800}
+  .ask-choice-arrow{margin-left:auto;font-size:1.3rem;color:#b9adff}
+  .ask-clarify-other{margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1)}
+  .ask-clarify-other label{display:block;font-size:.76rem;color:#b9c2d3;margin-bottom:7px}
+  .ask-clarify-other-row{display:flex;gap:8px}
+  .ask-clarify-other-row input{flex:1;min-width:0;border-radius:12px;padding:11px 12px;background:#0b1020;color:#fff;border:1px solid rgba(255,255,255,.16)}
+  .ask-clarify-other-row button{width:46px;min-width:46px;border-radius:12px}
+  #questionInput{scroll-margin-bottom:100px}
+  @media(max-width:600px){.ask-clarify-backdrop{padding:12px}.ask-clarify-card{padding:18px!important;border-radius:20px!important;max-height:84dvh}.ask-clarify-question{font-size:1.02rem}.ask-clarify-choice{min-height:62px!important;font-size:.88rem!important}}
+
 </style>
 
 <div id="quizModalBackdrop" class="hidden">
@@ -5970,6 +6138,25 @@ ${kaynak}`;
     background: rgba(0, 245, 160, 0.24);
     box-shadow: 0 0 18px rgba(0, 245, 160, 0.45);
   }
+
+  .ask-clarify-backdrop{position:fixed;inset:0;z-index:9998;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(3,7,18,.78);backdrop-filter:blur(9px)}
+  .ask-clarify-card{width:min(100%,560px);max-height:min(82dvh,760px);overflow:auto;border:1px solid rgba(139,124,255,.5)!important;background:linear-gradient(155deg,#1b2034 0%,#101522 100%)!important;box-shadow:0 24px 90px rgba(0,0,0,.5)!important;padding:22px!important;border-radius:24px!important}
+  .ask-clarify-kicker{font-size:.68rem;font-weight:850;letter-spacing:.13em;color:#b9adff;margin-bottom:12px}
+  .ask-clarify-question{display:block;font-size:1.12rem;line-height:1.45;color:#fff}
+  .ask-clarify-hint{font-size:.82rem;color:#aeb8cc;line-height:1.5;margin:8px 0 16px}
+  .ask-clarify-options{display:grid;grid-template-columns:1fr;gap:9px}
+  .ask-clarify-choice{width:100%;display:flex!important;align-items:center!important;gap:11px;min-height:58px!important;text-align:left!important;white-space:normal!important;line-height:1.35!important;padding:12px 14px!important;border-radius:15px!important;background:rgba(139,124,255,.12)!important;border:1px solid rgba(166,151,255,.30)!important;color:#f1edff!important;font-size:.9rem!important}
+  .ask-clarify-choice:active{transform:scale(.985)}
+  .ask-choice-index{width:28px;height:28px;flex:0 0 28px;display:grid;place-items:center;border-radius:9px;background:rgba(166,151,255,.2);font-size:.75rem;font-weight:800}
+  .ask-choice-arrow{margin-left:auto;font-size:1.3rem;color:#b9adff}
+  .ask-clarify-other{margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1)}
+  .ask-clarify-other label{display:block;font-size:.76rem;color:#b9c2d3;margin-bottom:7px}
+  .ask-clarify-other-row{display:flex;gap:8px}
+  .ask-clarify-other-row input{flex:1;min-width:0;border-radius:12px;padding:11px 12px;background:#0b1020;color:#fff;border:1px solid rgba(255,255,255,.16)}
+  .ask-clarify-other-row button{width:46px;min-width:46px;border-radius:12px}
+  #questionInput{scroll-margin-bottom:100px}
+  @media(max-width:600px){.ask-clarify-backdrop{padding:12px}.ask-clarify-card{padding:18px!important;border-radius:20px!important;max-height:84dvh}.ask-clarify-question{font-size:1.02rem}.ask-clarify-choice{min-height:62px!important;font-size:.88rem!important}}
+
 </style>
 
 <script>
@@ -6153,6 +6340,25 @@ ${kaynak}`;
     color: var(--neon-cyan);
     border-color: var(--neon-cyan);
   }
+
+  .ask-clarify-backdrop{position:fixed;inset:0;z-index:9998;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(3,7,18,.78);backdrop-filter:blur(9px)}
+  .ask-clarify-card{width:min(100%,560px);max-height:min(82dvh,760px);overflow:auto;border:1px solid rgba(139,124,255,.5)!important;background:linear-gradient(155deg,#1b2034 0%,#101522 100%)!important;box-shadow:0 24px 90px rgba(0,0,0,.5)!important;padding:22px!important;border-radius:24px!important}
+  .ask-clarify-kicker{font-size:.68rem;font-weight:850;letter-spacing:.13em;color:#b9adff;margin-bottom:12px}
+  .ask-clarify-question{display:block;font-size:1.12rem;line-height:1.45;color:#fff}
+  .ask-clarify-hint{font-size:.82rem;color:#aeb8cc;line-height:1.5;margin:8px 0 16px}
+  .ask-clarify-options{display:grid;grid-template-columns:1fr;gap:9px}
+  .ask-clarify-choice{width:100%;display:flex!important;align-items:center!important;gap:11px;min-height:58px!important;text-align:left!important;white-space:normal!important;line-height:1.35!important;padding:12px 14px!important;border-radius:15px!important;background:rgba(139,124,255,.12)!important;border:1px solid rgba(166,151,255,.30)!important;color:#f1edff!important;font-size:.9rem!important}
+  .ask-clarify-choice:active{transform:scale(.985)}
+  .ask-choice-index{width:28px;height:28px;flex:0 0 28px;display:grid;place-items:center;border-radius:9px;background:rgba(166,151,255,.2);font-size:.75rem;font-weight:800}
+  .ask-choice-arrow{margin-left:auto;font-size:1.3rem;color:#b9adff}
+  .ask-clarify-other{margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1)}
+  .ask-clarify-other label{display:block;font-size:.76rem;color:#b9c2d3;margin-bottom:7px}
+  .ask-clarify-other-row{display:flex;gap:8px}
+  .ask-clarify-other-row input{flex:1;min-width:0;border-radius:12px;padding:11px 12px;background:#0b1020;color:#fff;border:1px solid rgba(255,255,255,.16)}
+  .ask-clarify-other-row button{width:46px;min-width:46px;border-radius:12px}
+  #questionInput{scroll-margin-bottom:100px}
+  @media(max-width:600px){.ask-clarify-backdrop{padding:12px}.ask-clarify-card{padding:18px!important;border-radius:20px!important;max-height:84dvh}.ask-clarify-question{font-size:1.02rem}.ask-clarify-choice{min-height:62px!important;font-size:.88rem!important}}
+
 </style>
 
 <script>
@@ -6693,6 +6899,25 @@ ${kaynak}`;
     border-color: var(--neon-cyan);
     transform: translateY(-1px);
   }
+
+  .ask-clarify-backdrop{position:fixed;inset:0;z-index:9998;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(3,7,18,.78);backdrop-filter:blur(9px)}
+  .ask-clarify-card{width:min(100%,560px);max-height:min(82dvh,760px);overflow:auto;border:1px solid rgba(139,124,255,.5)!important;background:linear-gradient(155deg,#1b2034 0%,#101522 100%)!important;box-shadow:0 24px 90px rgba(0,0,0,.5)!important;padding:22px!important;border-radius:24px!important}
+  .ask-clarify-kicker{font-size:.68rem;font-weight:850;letter-spacing:.13em;color:#b9adff;margin-bottom:12px}
+  .ask-clarify-question{display:block;font-size:1.12rem;line-height:1.45;color:#fff}
+  .ask-clarify-hint{font-size:.82rem;color:#aeb8cc;line-height:1.5;margin:8px 0 16px}
+  .ask-clarify-options{display:grid;grid-template-columns:1fr;gap:9px}
+  .ask-clarify-choice{width:100%;display:flex!important;align-items:center!important;gap:11px;min-height:58px!important;text-align:left!important;white-space:normal!important;line-height:1.35!important;padding:12px 14px!important;border-radius:15px!important;background:rgba(139,124,255,.12)!important;border:1px solid rgba(166,151,255,.30)!important;color:#f1edff!important;font-size:.9rem!important}
+  .ask-clarify-choice:active{transform:scale(.985)}
+  .ask-choice-index{width:28px;height:28px;flex:0 0 28px;display:grid;place-items:center;border-radius:9px;background:rgba(166,151,255,.2);font-size:.75rem;font-weight:800}
+  .ask-choice-arrow{margin-left:auto;font-size:1.3rem;color:#b9adff}
+  .ask-clarify-other{margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1)}
+  .ask-clarify-other label{display:block;font-size:.76rem;color:#b9c2d3;margin-bottom:7px}
+  .ask-clarify-other-row{display:flex;gap:8px}
+  .ask-clarify-other-row input{flex:1;min-width:0;border-radius:12px;padding:11px 12px;background:#0b1020;color:#fff;border:1px solid rgba(255,255,255,.16)}
+  .ask-clarify-other-row button{width:46px;min-width:46px;border-radius:12px}
+  #questionInput{scroll-margin-bottom:100px}
+  @media(max-width:600px){.ask-clarify-backdrop{padding:12px}.ask-clarify-card{padding:18px!important;border-radius:20px!important;max-height:84dvh}.ask-clarify-question{font-size:1.02rem}.ask-clarify-choice{min-height:62px!important;font-size:.88rem!important}}
+
 </style>
 
 <script>
@@ -7108,6 +7333,25 @@ ${kaynak}`;
   .upload-page-choice small{display:block;color:var(--muted);font-size:.82rem;font-weight:500}
   .upload-page-arrow{margin-left:auto;color:var(--neon-cyan);font-size:1.8rem}
   @media(min-width:700px){.upload-page-options{grid-template-columns:repeat(2,minmax(0,1fr))}.upload-page-choice:last-child{grid-column:1/-1}}
+
+  .ask-clarify-backdrop{position:fixed;inset:0;z-index:9998;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(3,7,18,.78);backdrop-filter:blur(9px)}
+  .ask-clarify-card{width:min(100%,560px);max-height:min(82dvh,760px);overflow:auto;border:1px solid rgba(139,124,255,.5)!important;background:linear-gradient(155deg,#1b2034 0%,#101522 100%)!important;box-shadow:0 24px 90px rgba(0,0,0,.5)!important;padding:22px!important;border-radius:24px!important}
+  .ask-clarify-kicker{font-size:.68rem;font-weight:850;letter-spacing:.13em;color:#b9adff;margin-bottom:12px}
+  .ask-clarify-question{display:block;font-size:1.12rem;line-height:1.45;color:#fff}
+  .ask-clarify-hint{font-size:.82rem;color:#aeb8cc;line-height:1.5;margin:8px 0 16px}
+  .ask-clarify-options{display:grid;grid-template-columns:1fr;gap:9px}
+  .ask-clarify-choice{width:100%;display:flex!important;align-items:center!important;gap:11px;min-height:58px!important;text-align:left!important;white-space:normal!important;line-height:1.35!important;padding:12px 14px!important;border-radius:15px!important;background:rgba(139,124,255,.12)!important;border:1px solid rgba(166,151,255,.30)!important;color:#f1edff!important;font-size:.9rem!important}
+  .ask-clarify-choice:active{transform:scale(.985)}
+  .ask-choice-index{width:28px;height:28px;flex:0 0 28px;display:grid;place-items:center;border-radius:9px;background:rgba(166,151,255,.2);font-size:.75rem;font-weight:800}
+  .ask-choice-arrow{margin-left:auto;font-size:1.3rem;color:#b9adff}
+  .ask-clarify-other{margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1)}
+  .ask-clarify-other label{display:block;font-size:.76rem;color:#b9c2d3;margin-bottom:7px}
+  .ask-clarify-other-row{display:flex;gap:8px}
+  .ask-clarify-other-row input{flex:1;min-width:0;border-radius:12px;padding:11px 12px;background:#0b1020;color:#fff;border:1px solid rgba(255,255,255,.16)}
+  .ask-clarify-other-row button{width:46px;min-width:46px;border-radius:12px}
+  #questionInput{scroll-margin-bottom:100px}
+  @media(max-width:600px){.ask-clarify-backdrop{padding:12px}.ask-clarify-card{padding:18px!important;border-radius:20px!important;max-height:84dvh}.ask-clarify-question{font-size:1.02rem}.ask-clarify-choice{min-height:62px!important;font-size:.88rem!important}}
+
 </style>
 <style id="premium-balanced-redesign">
   :root{--bg:#0d0f16;--panel:#171a25;--panel-2:#202433;--text:#f4f5fb;--muted:#a5adbf;--neon-purple:#8b72e8;--neon-purple-bright:#a995ff;--neon-cyan:#55d6cf;--border:rgba(169,149,255,.20);--radius:18px;--ok:#61d9ae}
@@ -7181,6 +7425,25 @@ ${kaynak}`;
   .vardiya-break-grid{grid-template-columns:1fr;gap:8px}.vardiya-break-grid label{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)}.vardiya-break-grid input{width:132px;flex:0 0 132px;margin:0}
 
   .home-test-shortcut{width:100%;max-width:420px;padding:11px 14px;border-radius:13px;background:#1b2030!important;border:1px solid rgba(169,149,255,.2)!important;color:#cfc5ff!important;font-weight:750}
+
+  .ask-clarify-backdrop{position:fixed;inset:0;z-index:9998;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(3,7,18,.78);backdrop-filter:blur(9px)}
+  .ask-clarify-card{width:min(100%,560px);max-height:min(82dvh,760px);overflow:auto;border:1px solid rgba(139,124,255,.5)!important;background:linear-gradient(155deg,#1b2034 0%,#101522 100%)!important;box-shadow:0 24px 90px rgba(0,0,0,.5)!important;padding:22px!important;border-radius:24px!important}
+  .ask-clarify-kicker{font-size:.68rem;font-weight:850;letter-spacing:.13em;color:#b9adff;margin-bottom:12px}
+  .ask-clarify-question{display:block;font-size:1.12rem;line-height:1.45;color:#fff}
+  .ask-clarify-hint{font-size:.82rem;color:#aeb8cc;line-height:1.5;margin:8px 0 16px}
+  .ask-clarify-options{display:grid;grid-template-columns:1fr;gap:9px}
+  .ask-clarify-choice{width:100%;display:flex!important;align-items:center!important;gap:11px;min-height:58px!important;text-align:left!important;white-space:normal!important;line-height:1.35!important;padding:12px 14px!important;border-radius:15px!important;background:rgba(139,124,255,.12)!important;border:1px solid rgba(166,151,255,.30)!important;color:#f1edff!important;font-size:.9rem!important}
+  .ask-clarify-choice:active{transform:scale(.985)}
+  .ask-choice-index{width:28px;height:28px;flex:0 0 28px;display:grid;place-items:center;border-radius:9px;background:rgba(166,151,255,.2);font-size:.75rem;font-weight:800}
+  .ask-choice-arrow{margin-left:auto;font-size:1.3rem;color:#b9adff}
+  .ask-clarify-other{margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1)}
+  .ask-clarify-other label{display:block;font-size:.76rem;color:#b9c2d3;margin-bottom:7px}
+  .ask-clarify-other-row{display:flex;gap:8px}
+  .ask-clarify-other-row input{flex:1;min-width:0;border-radius:12px;padding:11px 12px;background:#0b1020;color:#fff;border:1px solid rgba(255,255,255,.16)}
+  .ask-clarify-other-row button{width:46px;min-width:46px;border-radius:12px}
+  #questionInput{scroll-margin-bottom:100px}
+  @media(max-width:600px){.ask-clarify-backdrop{padding:12px}.ask-clarify-card{padding:18px!important;border-radius:20px!important;max-height:84dvh}.ask-clarify-question{font-size:1.02rem}.ask-clarify-choice{min-height:62px!important;font-size:.88rem!important}}
+
 </style>
 
 
@@ -7221,6 +7484,25 @@ ${kaynak}`;
   @keyframes reminderMarquee{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
   @media(prefers-reduced-motion:reduce){.reminder-marquee-line{animation:none!important;transform:none!important;width:auto!important;white-space:normal!important}}
   @media(max-width:420px){.header-inner{gap:8px!important}.header-left{gap:7px!important}#currentUserBadge{font-size:.8rem!important;padding:5px 9px!important}.home-shortcuts{gap:6px!important}}
+
+  .ask-clarify-backdrop{position:fixed;inset:0;z-index:9998;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(3,7,18,.78);backdrop-filter:blur(9px)}
+  .ask-clarify-card{width:min(100%,560px);max-height:min(82dvh,760px);overflow:auto;border:1px solid rgba(139,124,255,.5)!important;background:linear-gradient(155deg,#1b2034 0%,#101522 100%)!important;box-shadow:0 24px 90px rgba(0,0,0,.5)!important;padding:22px!important;border-radius:24px!important}
+  .ask-clarify-kicker{font-size:.68rem;font-weight:850;letter-spacing:.13em;color:#b9adff;margin-bottom:12px}
+  .ask-clarify-question{display:block;font-size:1.12rem;line-height:1.45;color:#fff}
+  .ask-clarify-hint{font-size:.82rem;color:#aeb8cc;line-height:1.5;margin:8px 0 16px}
+  .ask-clarify-options{display:grid;grid-template-columns:1fr;gap:9px}
+  .ask-clarify-choice{width:100%;display:flex!important;align-items:center!important;gap:11px;min-height:58px!important;text-align:left!important;white-space:normal!important;line-height:1.35!important;padding:12px 14px!important;border-radius:15px!important;background:rgba(139,124,255,.12)!important;border:1px solid rgba(166,151,255,.30)!important;color:#f1edff!important;font-size:.9rem!important}
+  .ask-clarify-choice:active{transform:scale(.985)}
+  .ask-choice-index{width:28px;height:28px;flex:0 0 28px;display:grid;place-items:center;border-radius:9px;background:rgba(166,151,255,.2);font-size:.75rem;font-weight:800}
+  .ask-choice-arrow{margin-left:auto;font-size:1.3rem;color:#b9adff}
+  .ask-clarify-other{margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1)}
+  .ask-clarify-other label{display:block;font-size:.76rem;color:#b9c2d3;margin-bottom:7px}
+  .ask-clarify-other-row{display:flex;gap:8px}
+  .ask-clarify-other-row input{flex:1;min-width:0;border-radius:12px;padding:11px 12px;background:#0b1020;color:#fff;border:1px solid rgba(255,255,255,.16)}
+  .ask-clarify-other-row button{width:46px;min-width:46px;border-radius:12px}
+  #questionInput{scroll-margin-bottom:100px}
+  @media(max-width:600px){.ask-clarify-backdrop{padding:12px}.ask-clarify-card{padding:18px!important;border-radius:20px!important;max-height:84dvh}.ask-clarify-question{font-size:1.02rem}.ask-clarify-choice{min-height:62px!important;font-size:.88rem!important}}
+
 </style>
 <script id="home-navigation-header-marquee-v4-script">
 (function(){
@@ -7294,6 +7576,25 @@ ${kaynak}`;
   #centerHomeStage .random-question-shortcut svg{width:22px!important;height:22px!important;fill:none!important;stroke:currentColor!important;stroke-width:1.8!important;stroke-linecap:round!important;stroke-linejoin:round!important}
   #centerHomeStage .random-question-shortcut:active{transform:scale(.94)!important}
   @media(prefers-reduced-motion:no-preference){#centerHomeStage .random-question-shortcut{transition:transform .16s ease,box-shadow .16s ease!important}#centerHomeStage .random-question-shortcut:hover{box-shadow:0 0 18px rgba(35,190,126,.3)!important}}
+
+  .ask-clarify-backdrop{position:fixed;inset:0;z-index:9998;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(3,7,18,.78);backdrop-filter:blur(9px)}
+  .ask-clarify-card{width:min(100%,560px);max-height:min(82dvh,760px);overflow:auto;border:1px solid rgba(139,124,255,.5)!important;background:linear-gradient(155deg,#1b2034 0%,#101522 100%)!important;box-shadow:0 24px 90px rgba(0,0,0,.5)!important;padding:22px!important;border-radius:24px!important}
+  .ask-clarify-kicker{font-size:.68rem;font-weight:850;letter-spacing:.13em;color:#b9adff;margin-bottom:12px}
+  .ask-clarify-question{display:block;font-size:1.12rem;line-height:1.45;color:#fff}
+  .ask-clarify-hint{font-size:.82rem;color:#aeb8cc;line-height:1.5;margin:8px 0 16px}
+  .ask-clarify-options{display:grid;grid-template-columns:1fr;gap:9px}
+  .ask-clarify-choice{width:100%;display:flex!important;align-items:center!important;gap:11px;min-height:58px!important;text-align:left!important;white-space:normal!important;line-height:1.35!important;padding:12px 14px!important;border-radius:15px!important;background:rgba(139,124,255,.12)!important;border:1px solid rgba(166,151,255,.30)!important;color:#f1edff!important;font-size:.9rem!important}
+  .ask-clarify-choice:active{transform:scale(.985)}
+  .ask-choice-index{width:28px;height:28px;flex:0 0 28px;display:grid;place-items:center;border-radius:9px;background:rgba(166,151,255,.2);font-size:.75rem;font-weight:800}
+  .ask-choice-arrow{margin-left:auto;font-size:1.3rem;color:#b9adff}
+  .ask-clarify-other{margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1)}
+  .ask-clarify-other label{display:block;font-size:.76rem;color:#b9c2d3;margin-bottom:7px}
+  .ask-clarify-other-row{display:flex;gap:8px}
+  .ask-clarify-other-row input{flex:1;min-width:0;border-radius:12px;padding:11px 12px;background:#0b1020;color:#fff;border:1px solid rgba(255,255,255,.16)}
+  .ask-clarify-other-row button{width:46px;min-width:46px;border-radius:12px}
+  #questionInput{scroll-margin-bottom:100px}
+  @media(max-width:600px){.ask-clarify-backdrop{padding:12px}.ask-clarify-card{padding:18px!important;border-radius:20px!important;max-height:84dvh}.ask-clarify-question{font-size:1.02rem}.ask-clarify-choice{min-height:62px!important;font-size:.88rem!important}}
+
 </style>
 <style id="compact-new-assistant-tools">
   .ask-stats-shortcuts{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
@@ -7302,6 +7603,25 @@ ${kaynak}`;
   #answerArea .card{padding:14px!important}
   #answerArea h2{font-size:1rem!important}
   #answerArea .confirm-box,#answerArea .followup-box{padding:11px!important}
+
+  .ask-clarify-backdrop{position:fixed;inset:0;z-index:9998;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(3,7,18,.78);backdrop-filter:blur(9px)}
+  .ask-clarify-card{width:min(100%,560px);max-height:min(82dvh,760px);overflow:auto;border:1px solid rgba(139,124,255,.5)!important;background:linear-gradient(155deg,#1b2034 0%,#101522 100%)!important;box-shadow:0 24px 90px rgba(0,0,0,.5)!important;padding:22px!important;border-radius:24px!important}
+  .ask-clarify-kicker{font-size:.68rem;font-weight:850;letter-spacing:.13em;color:#b9adff;margin-bottom:12px}
+  .ask-clarify-question{display:block;font-size:1.12rem;line-height:1.45;color:#fff}
+  .ask-clarify-hint{font-size:.82rem;color:#aeb8cc;line-height:1.5;margin:8px 0 16px}
+  .ask-clarify-options{display:grid;grid-template-columns:1fr;gap:9px}
+  .ask-clarify-choice{width:100%;display:flex!important;align-items:center!important;gap:11px;min-height:58px!important;text-align:left!important;white-space:normal!important;line-height:1.35!important;padding:12px 14px!important;border-radius:15px!important;background:rgba(139,124,255,.12)!important;border:1px solid rgba(166,151,255,.30)!important;color:#f1edff!important;font-size:.9rem!important}
+  .ask-clarify-choice:active{transform:scale(.985)}
+  .ask-choice-index{width:28px;height:28px;flex:0 0 28px;display:grid;place-items:center;border-radius:9px;background:rgba(166,151,255,.2);font-size:.75rem;font-weight:800}
+  .ask-choice-arrow{margin-left:auto;font-size:1.3rem;color:#b9adff}
+  .ask-clarify-other{margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1)}
+  .ask-clarify-other label{display:block;font-size:.76rem;color:#b9c2d3;margin-bottom:7px}
+  .ask-clarify-other-row{display:flex;gap:8px}
+  .ask-clarify-other-row input{flex:1;min-width:0;border-radius:12px;padding:11px 12px;background:#0b1020;color:#fff;border:1px solid rgba(255,255,255,.16)}
+  .ask-clarify-other-row button{width:46px;min-width:46px;border-radius:12px}
+  #questionInput{scroll-margin-bottom:100px}
+  @media(max-width:600px){.ask-clarify-backdrop{padding:12px}.ask-clarify-card{padding:18px!important;border-radius:20px!important;max-height:84dvh}.ask-clarify-question{font-size:1.02rem}.ask-clarify-choice{min-height:62px!important;font-size:.88rem!important}}
+
 </style>
 
 <script id="answer-stats-feature">
@@ -7373,6 +7693,25 @@ ${kaynak}`;
   #appBottomNav{z-index:10001!important;pointer-events:auto!important}
   #vardiyaPlanModalBackdrop{z-index:10000!important;bottom:82px!important}
   #vardiyaPlanModalBackdrop.hidden{display:none!important}
+
+  .ask-clarify-backdrop{position:fixed;inset:0;z-index:9998;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(3,7,18,.78);backdrop-filter:blur(9px)}
+  .ask-clarify-card{width:min(100%,560px);max-height:min(82dvh,760px);overflow:auto;border:1px solid rgba(139,124,255,.5)!important;background:linear-gradient(155deg,#1b2034 0%,#101522 100%)!important;box-shadow:0 24px 90px rgba(0,0,0,.5)!important;padding:22px!important;border-radius:24px!important}
+  .ask-clarify-kicker{font-size:.68rem;font-weight:850;letter-spacing:.13em;color:#b9adff;margin-bottom:12px}
+  .ask-clarify-question{display:block;font-size:1.12rem;line-height:1.45;color:#fff}
+  .ask-clarify-hint{font-size:.82rem;color:#aeb8cc;line-height:1.5;margin:8px 0 16px}
+  .ask-clarify-options{display:grid;grid-template-columns:1fr;gap:9px}
+  .ask-clarify-choice{width:100%;display:flex!important;align-items:center!important;gap:11px;min-height:58px!important;text-align:left!important;white-space:normal!important;line-height:1.35!important;padding:12px 14px!important;border-radius:15px!important;background:rgba(139,124,255,.12)!important;border:1px solid rgba(166,151,255,.30)!important;color:#f1edff!important;font-size:.9rem!important}
+  .ask-clarify-choice:active{transform:scale(.985)}
+  .ask-choice-index{width:28px;height:28px;flex:0 0 28px;display:grid;place-items:center;border-radius:9px;background:rgba(166,151,255,.2);font-size:.75rem;font-weight:800}
+  .ask-choice-arrow{margin-left:auto;font-size:1.3rem;color:#b9adff}
+  .ask-clarify-other{margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1)}
+  .ask-clarify-other label{display:block;font-size:.76rem;color:#b9c2d3;margin-bottom:7px}
+  .ask-clarify-other-row{display:flex;gap:8px}
+  .ask-clarify-other-row input{flex:1;min-width:0;border-radius:12px;padding:11px 12px;background:#0b1020;color:#fff;border:1px solid rgba(255,255,255,.16)}
+  .ask-clarify-other-row button{width:46px;min-width:46px;border-radius:12px}
+  #questionInput{scroll-margin-bottom:100px}
+  @media(max-width:600px){.ask-clarify-backdrop{padding:12px}.ask-clarify-card{padding:18px!important;border-radius:20px!important;max-height:84dvh}.ask-clarify-question{font-size:1.02rem}.ask-clarify-choice{min-height:62px!important;font-size:.88rem!important}}
+
 </style>
 
 <style id="son-bilgi-fullpage-navigation-fix-v16">
@@ -7380,6 +7719,25 @@ ${kaynak}`;
   #sonBilgiDetayBackdrop.hidden{display:none!important}
   #sonBilgiDetayCard{width:100%!important;max-width:none!important;height:100%!important;max-height:none!important;min-height:100dvh!important;overflow-y:auto!important;box-sizing:border-box!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:18px 16px calc(108px + env(safe-area-inset-bottom))!important;background:var(--bg,#10131d)!important}
   @media(min-width:700px){#sonBilgiDetayCard{padding-left:max(24px,calc((100vw - 720px)/2))!important;padding-right:max(24px,calc((100vw - 720px)/2))!important}}
+
+  .ask-clarify-backdrop{position:fixed;inset:0;z-index:9998;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(3,7,18,.78);backdrop-filter:blur(9px)}
+  .ask-clarify-card{width:min(100%,560px);max-height:min(82dvh,760px);overflow:auto;border:1px solid rgba(139,124,255,.5)!important;background:linear-gradient(155deg,#1b2034 0%,#101522 100%)!important;box-shadow:0 24px 90px rgba(0,0,0,.5)!important;padding:22px!important;border-radius:24px!important}
+  .ask-clarify-kicker{font-size:.68rem;font-weight:850;letter-spacing:.13em;color:#b9adff;margin-bottom:12px}
+  .ask-clarify-question{display:block;font-size:1.12rem;line-height:1.45;color:#fff}
+  .ask-clarify-hint{font-size:.82rem;color:#aeb8cc;line-height:1.5;margin:8px 0 16px}
+  .ask-clarify-options{display:grid;grid-template-columns:1fr;gap:9px}
+  .ask-clarify-choice{width:100%;display:flex!important;align-items:center!important;gap:11px;min-height:58px!important;text-align:left!important;white-space:normal!important;line-height:1.35!important;padding:12px 14px!important;border-radius:15px!important;background:rgba(139,124,255,.12)!important;border:1px solid rgba(166,151,255,.30)!important;color:#f1edff!important;font-size:.9rem!important}
+  .ask-clarify-choice:active{transform:scale(.985)}
+  .ask-choice-index{width:28px;height:28px;flex:0 0 28px;display:grid;place-items:center;border-radius:9px;background:rgba(166,151,255,.2);font-size:.75rem;font-weight:800}
+  .ask-choice-arrow{margin-left:auto;font-size:1.3rem;color:#b9adff}
+  .ask-clarify-other{margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1)}
+  .ask-clarify-other label{display:block;font-size:.76rem;color:#b9c2d3;margin-bottom:7px}
+  .ask-clarify-other-row{display:flex;gap:8px}
+  .ask-clarify-other-row input{flex:1;min-width:0;border-radius:12px;padding:11px 12px;background:#0b1020;color:#fff;border:1px solid rgba(255,255,255,.16)}
+  .ask-clarify-other-row button{width:46px;min-width:46px;border-radius:12px}
+  #questionInput{scroll-margin-bottom:100px}
+  @media(max-width:600px){.ask-clarify-backdrop{padding:12px}.ask-clarify-card{padding:18px!important;border-radius:20px!important;max-height:84dvh}.ask-clarify-question{font-size:1.02rem}.ask-clarify-choice{min-height:62px!important;font-size:.88rem!important}}
+
 </style>
 
 <style id="v18-inline-answer-stats">
@@ -7387,4 +7745,23 @@ ${kaynak}`;
   #answerStatsPage.hidden{display:none!important}
   #answerStatsPage .ask-stats-panel{box-shadow:none}
   #openAnswerStatsBtn[aria-expanded="true"]{border-color:rgba(85,214,207,.5)!important}
+
+  .ask-clarify-backdrop{position:fixed;inset:0;z-index:9998;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(3,7,18,.78);backdrop-filter:blur(9px)}
+  .ask-clarify-card{width:min(100%,560px);max-height:min(82dvh,760px);overflow:auto;border:1px solid rgba(139,124,255,.5)!important;background:linear-gradient(155deg,#1b2034 0%,#101522 100%)!important;box-shadow:0 24px 90px rgba(0,0,0,.5)!important;padding:22px!important;border-radius:24px!important}
+  .ask-clarify-kicker{font-size:.68rem;font-weight:850;letter-spacing:.13em;color:#b9adff;margin-bottom:12px}
+  .ask-clarify-question{display:block;font-size:1.12rem;line-height:1.45;color:#fff}
+  .ask-clarify-hint{font-size:.82rem;color:#aeb8cc;line-height:1.5;margin:8px 0 16px}
+  .ask-clarify-options{display:grid;grid-template-columns:1fr;gap:9px}
+  .ask-clarify-choice{width:100%;display:flex!important;align-items:center!important;gap:11px;min-height:58px!important;text-align:left!important;white-space:normal!important;line-height:1.35!important;padding:12px 14px!important;border-radius:15px!important;background:rgba(139,124,255,.12)!important;border:1px solid rgba(166,151,255,.30)!important;color:#f1edff!important;font-size:.9rem!important}
+  .ask-clarify-choice:active{transform:scale(.985)}
+  .ask-choice-index{width:28px;height:28px;flex:0 0 28px;display:grid;place-items:center;border-radius:9px;background:rgba(166,151,255,.2);font-size:.75rem;font-weight:800}
+  .ask-choice-arrow{margin-left:auto;font-size:1.3rem;color:#b9adff}
+  .ask-clarify-other{margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1)}
+  .ask-clarify-other label{display:block;font-size:.76rem;color:#b9c2d3;margin-bottom:7px}
+  .ask-clarify-other-row{display:flex;gap:8px}
+  .ask-clarify-other-row input{flex:1;min-width:0;border-radius:12px;padding:11px 12px;background:#0b1020;color:#fff;border:1px solid rgba(255,255,255,.16)}
+  .ask-clarify-other-row button{width:46px;min-width:46px;border-radius:12px}
+  #questionInput{scroll-margin-bottom:100px}
+  @media(max-width:600px){.ask-clarify-backdrop{padding:12px}.ask-clarify-card{padding:18px!important;border-radius:20px!important;max-height:84dvh}.ask-clarify-question{font-size:1.02rem}.ask-clarify-choice{min-height:62px!important;font-size:.88rem!important}}
+
 </style>
