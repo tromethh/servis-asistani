@@ -1,3 +1,6 @@
+`servis_asistani_v19_duzeltilmis.html:1-7280`
+
+```html
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -2726,7 +2729,7 @@ Ardından yalnızca şu JSON formatında yanıt ver (başka açıklama yazma):
           { text: prompt }
         ]);
 
-        const parsed = parseAutoClassification(rawReply, fileName);
+        let parsed = parseAutoClassification(rawReply, fileName);
         if (extOverride?.category) parsed.category = extOverride.category;
         if (extOverride?.group) parsed.group = extOverride.group;
 
@@ -7278,3 +7281,4 @@ ${kaynak}`;
   #answerStatsPage .ask-stats-panel{box-shadow:none}
   #openAnswerStatsBtn[aria-expanded="true"]{border-color:rgba(85,214,207,.5)!important}
 </style>
+```
