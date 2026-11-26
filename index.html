@@ -1,4 +1,4 @@
-`servis_asistani_v22_giris_duzeltildi.html:1-7239`
+`servis_asistani_v23_ucretsiz_optimizasyon.html:1-7242`
 
 ```html
 <!DOCTYPE html>
@@ -1551,9 +1551,10 @@
   </main>
 
   <script>
-    // 26.11.2026: güncel Gemini modelleri; eski 2.5 model kimlikleri varsayılan zincirden çıkarıldı.
+    // Edge Function şu anda Gemini 3.8 Flash kullanıyor.
+    // Tek model kullanımı, kota hatasında gereksiz tekrarları önler.
     const GEMINI_FALLBACK_MODELS = [
-      "gemini-2.5-flash"
+      "gemini-3.8-flash"
     ];
 
     const SUPABASE_URL = "https://oojtiixfmwdnvpimbtlm.supabase.co";
@@ -1597,13 +1598,10 @@
     }
 
     function saveSession(apiKey, user) {
-      const cleanKey = String(apiKey || "").trim();
-      currentSession = { apiKey: cleanKey, user };
-      const payload = JSON.stringify({ apiKey: cleanKey, user });
-      // iOS Safari / yerel HTML dosyalarında storage erişimi engellenebilir.
-      // Oturum bellekte tutulur; storage hatası giriş akışını durdurmaz.
-      try { sessionStorage.setItem(SESSION_KEY, payload); } catch (e) {}
-      try { localStorage.setItem(SESSION_KEY, payload); } catch (e) {}
+      const payload = JSON.stringify({ apiKey: String(apiKey).trim(), user });
+      sessionStorage.setItem(SESSION_KEY, payload);
+      localStorage.setItem(SESSION_KEY, payload);
+      currentSession = { apiKey: String(apiKey).trim(), user };
     }
 
     function clearSession() {
@@ -2620,7 +2618,8 @@
         const modelName = models[i];
         if (onModelProgress) onModelProgress(modelName, i + 1, models.length);
         let attempt = 0;
-        const maxRetries = 1;
+        // Ücretsiz kotayı korumak için aynı isteği otomatik tekrar gönderme.
+        const maxRetries = 0;
 
         while (attempt <= maxRetries) {
           try {
@@ -2638,7 +2637,11 @@
         }
       }
 
-      throw new Error(`Hiçbir model işlemi tamamlayamadı. ${errors.join(" | ")}`);
+      const errorText = errors.join(" | ");
+      if (/429|quota|resource_exhausted|limit:.*requests/i.test(errorText)) {
+        throw new Error("Gemini ücretsiz kullanım kotası dolmuş. Kodda sorun yok; kota yenilendiğinde tekrar deneyebilirsin. Gereksiz API çağrısı yapılmaması için istek otomatik tekrarlanmadı.");
+      }
+      throw new Error(`Hiçbir model işlemi tamamlayamadı. ${errorText}`);
     }
 
     function parseAutoClassification(rawText, fallbackFileName) {
