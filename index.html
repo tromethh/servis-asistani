@@ -1120,6 +1120,7 @@
       
       <div id="vardiyaTeamMini" class="vardiya-team-mini hidden" aria-label="Ekip vardiya durumları"></div>
       <div class="header-left">
+        <div class="app-brand premium-brand"><span class="brand-mark">S</span><span><strong>SERVİS</strong><small>KNOWLEDGE WORKSPACE</small></span></div>
         <span id="currentUserBadge" class="user-pill hidden">-</span>
         <button id="recordsBtn" type="button" class="records-top-btn hidden">Bilgi Bankası</button>
       </div>
@@ -1451,29 +1452,58 @@
   </div>
 
   <main id="appMain" class="hidden">
-    <div id="centerHomeStage" class="center-stage">
-      <div id="homeClock" class="home-clock"><div id="homeClockTime">--:--:--</div><div id="homeClockDate">Yükleniyor...</div></div>
-      <div class="home-shortcuts"><button type="button" id="homePartsShortcut">⌕ <span>Parça Kodları</span></button><button type="button" id="homeArticlesShortcut">▤ <span>Makale</span></button><button type="button" id="homeProcessesShortcut">▣ <span>Süreçler</span></button></div>
-      <div class="home-intro"><div class="eyebrow">SERVİS BİLGİ MERKEZİ</div><h1>Nasıl yardımcı olabilirim?</h1><p>Soru çöz, yeni bilgi ekle veya kayıtlarına göz at.</p></div>
-      <div class="square-pair">
-        <button id="squareAskBtn" type="button" class="neon-square-btn">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-          <span>Soru sor</span>
-        </button>
-
-        <button id="squareUploadBtn" type="button" class="neon-square-btn upload-sq">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-            <polyline points="17 8 12 3 7 8"></polyline>
-            <line x1="12" y1="3" x2="12" y2="15"></line>
-          </svg>
-          <span>Bilgi yükle</span>
-        </button>
+    <div id="centerHomeStage" class="center-stage premium-home">
+      <div class="home-command-top">
+        <div class="home-greeting">
+          <div class="eyebrow"><span class="live-dot"></span> SERVİS OPERASYON MERKEZİ</div>
+          <h1>İşini kolaylaştır.<br><span>Çözümünü hızlandır.</span></h1>
+          <p>Teknik bilgiye ulaş, vakayı çöz veya ekibin bilgi bankasını büyüt.</p>
+          <div class="home-command" role="search">
+            <span class="home-command-icon" aria-hidden="true">⌕</span>
+            <input id="homeQuickQuestion" type="text" autocomplete="off" placeholder="Bir parça kodu, süreç veya teknik sorun ara…" aria-label="Asistana hızlı soru sor" />
+            <button id="homeQuickAskBtn" type="button">Asistana sor <span aria-hidden="true">↗</span></button>
+          </div>
+          <div class="home-suggestion-row">
+            <span>Hızlı başla</span>
+            <button type="button" data-home-prompt="Parça kodu bulmak istiyorum">Parça kodu</button>
+            <button type="button" data-home-prompt="Bir teknik süreci anlat">Teknik süreç</button>
+            <button type="button" data-home-prompt="Bir makaleyi bulmak istiyorum">Makaleler</button>
+          </div>
+        </div>
+        <aside class="home-focus-card">
+          <div class="focus-card-top"><span class="focus-icon">✦</span><span>AKILLI SERVİS ASİSTANI</span><span class="focus-status">HAZIR</span></div>
+          <div class="focus-orbit" aria-hidden="true"><div class="orbit-ring ring-one"></div><div class="orbit-ring ring-two"></div><div class="orbit-core">✦</div><span class="orbit-node node-a">⌕</span><span class="orbit-node node-b">▤</span><span class="orbit-node node-c">✓</span></div>
+          <h2>Bilgi bankanla<br>birlikte çalışır.</h2>
+          <p>Yanıtlarını kayıtlı teknik bilgilerden oluşturur. Yeterli kaynak yoksa bunu açıkça belirtir.</p>
+          <div class="focus-footer"><span><i></i> Kaynak odaklı yanıt</span><span>Güvenilir bilgi</span></div>
+        </aside>
       </div>
 
+      <div class="home-section-heading"><div><span class="eyebrow">ÇALIŞMA ALANLARI</span><h2>Bugün ne yapmak istiyorsun?</h2></div><span class="home-section-note">Tüm araçların tek yerde</span></div>
+      <div class="home-work-grid">
+        <button id="squareAskBtn" type="button" class="home-work-card work-ask">
+          <span class="work-card-icon">⌕</span><span class="work-card-copy"><strong>Teknik asistana sor</strong><small>Fotoğrafla veya yazarak vakayı incele, kaynaklı yanıt al.</small></span><span class="work-card-arrow">↗</span><span class="work-card-meta">SOHBET · VAKA ANALİZİ</span>
+        </button>
+        <button id="squareUploadBtn" type="button" class="home-work-card work-upload">
+          <span class="work-card-icon">＋</span><span class="work-card-copy"><strong>Bilgi bankasına ekle</strong><small>Fotoğraf, belge veya metni sisteme kazandır.</small></span><span class="work-card-arrow">↗</span><span class="work-card-meta">FOTOĞRAF · BELGE · METİN</span>
+        </button>
+      </div>
+      <div class="home-lower-grid">
+        <section class="home-quick-panel">
+          <div class="home-panel-heading"><div><span class="eyebrow">HIZLI ERİŞİM</span><h3>Bilgi merkezine git</h3></div><span class="panel-spark">✧</span></div>
+          <div class="home-shortcuts">
+            <button type="button" id="homePartsShortcut"><span class="shortcut-symbol">⌕</span><span>Parça kodları</span><b>↗</b></button>
+            <button type="button" id="homeArticlesShortcut"><span class="shortcut-symbol">▤</span><span>Makaleler</span><b>↗</b></button>
+            <button type="button" id="homeProcessesShortcut"><span class="shortcut-symbol">▣</span><span>Süreçler</span><b>↗</b></button>
+          </div>
+        </section>
+        <section class="home-shift-panel">
+          <div class="home-panel-heading"><div><span class="eyebrow">GÜNLÜK AKIŞ</span><h3>Çalışma durumun</h3></div><span class="shift-panel-icon">◷</span></div>
+          <div class="home-time-line"><div><span class="home-time-label">ŞU AN</span><strong id="homeClockTime">--:--</strong><small id="homeClockDate">Yükleniyor...</small></div><div class="home-time-divider"></div><div class="home-time-message"><strong>Hazırsan başlayalım.</strong><span>Vardiya ve mola araçlarına alt menüden ulaşabilirsin.</span></div></div>
+          <button type="button" class="home-shift-link" data-nav="shift">Vardiya alanını aç <span>→</span></button>
+        </section>
+      </div>
+      <div id="homeClock" class="home-clock-anchor" aria-hidden="true"></div>
     </div>
 
     <section id="uploadPageCard" class="card hidden" aria-labelledby="uploadPageTitle">
@@ -5581,6 +5611,43 @@ KESİN KURALLAR:
   @media(max-width:600px){.ask-clarify-backdrop{padding:12px}.ask-clarify-card{padding:18px!important;border-radius:20px!important;max-height:84dvh}.ask-clarify-question{font-size:1.02rem}.ask-clarify-choice{min-height:62px!important;font-size:.88rem!important}}
 
 </style>
+
+  <script id="premium-workspace-interactions">
+    (() => {
+      const quickInput = document.getElementById('homeQuickQuestion');
+      const askQuick = () => {
+        const value = quickInput?.value?.trim();
+        if (!value) { document.getElementById('squareAskBtn')?.click(); return; }
+        document.getElementById('squareAskBtn')?.click();
+        const target = document.getElementById('questionInput');
+        if (target) { target.value = value; target.dispatchEvent(new Event('input', { bubbles: true })); target.focus(); }
+        quickInput.value = '';
+      };
+      document.getElementById('homeQuickAskBtn')?.addEventListener('click', askQuick);
+      quickInput?.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); askQuick(); } });
+      document.querySelectorAll('[data-home-prompt]').forEach(btn => btn.addEventListener('click', () => {
+        quickInput.value = btn.getAttribute('data-home-prompt') || '';
+        quickInput.focus();
+      }));
+      document.querySelectorAll('.home-shift-link').forEach(btn => btn.addEventListener('click', () => document.querySelector('[data-nav="shift"]')?.click()));
+    })();
+  </script>
+
+
+<style id="premium-workspace-redesign">
+:root{--bg:#080e16;--panel:#101a27;--panel-2:#162333;--text:#f2f6fa;--muted:#98a8b9;--neon-purple:#9a8cff;--neon-purple-bright:#b5aaff;--neon-cyan:#8fe0d2;--neon-magenta:#d99abd;--danger:#f07883;--danger-bg:rgba(240,120,131,.12);--warn:#e8bb78;--warn-bg:rgba(232,187,120,.12);--ok:#8ed9bd;--ok-bg:rgba(142,217,189,.12);--border:rgba(172,196,218,.13);--radius:18px;--surface:#101a27;--line:rgba(172,196,218,.14)}
+*{box-sizing:border-box}html{background:var(--bg);scroll-behavior:smooth}body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;background:radial-gradient(ellipse at 8% 0%,rgba(91,139,158,.14),transparent 34%),radial-gradient(ellipse at 100% 18%,rgba(104,91,160,.12),transparent 32%),#080e16;color:var(--text);letter-spacing:.005em}header{background:rgba(8,14,22,.82)!important;border-bottom:1px solid rgba(180,204,222,.10)!important;box-shadow:0 8px 32px rgba(0,0,0,.18)!important;backdrop-filter:blur(22px)!important;padding:13px 24px!important}.header-inner{max-width:1180px!important;min-height:44px!important;flex-wrap:nowrap!important}.header-left{gap:12px!important;align-items:center!important}.premium-brand{display:flex;align-items:center;gap:10px;margin-right:14px}.premium-brand .brand-mark{display:grid;place-items:center;width:36px;height:36px;border-radius:12px;background:linear-gradient(145deg,#a9e6d8,#4d9e99);color:#10242a;font-weight:900;font-size:1.12rem;box-shadow:0 5px 18px rgba(105,203,186,.18)}.premium-brand>span:last-child{display:flex;flex-direction:column;line-height:1.05}.premium-brand strong{font-size:.83rem;letter-spacing:.16em}.premium-brand small{font-size:.52rem;letter-spacing:.16em;color:#8094a7;margin-top:5px}.user-pill{background:rgba(139,184,185,.10)!important;border:1px solid rgba(143,224,210,.24)!important;color:#d8eee9!important;box-shadow:none!important;padding:7px 12px!important;font-size:.78rem!important}.records-top-btn,.notif-btn{background:rgba(255,255,255,.045)!important;border:1px solid var(--border)!important;color:#c5d5df!important;box-shadow:none!important}.notif-btn{padding:8px 12px!important}main{max-width:1180px!important;padding:30px 24px 118px!important}.card,.gate-card,.modal-card,.vardiya-plan-card{background:linear-gradient(160deg,rgba(20,32,47,.97),rgba(13,22,33,.98))!important;border:1px solid rgba(177,202,220,.13)!important;border-radius:20px!important;box-shadow:0 18px 55px rgba(0,0,0,.24)!important}.card h2,.gate-title{color:#d7e9e8!important}button{border-radius:12px!important;font-weight:650;transition:transform .18s ease,border-color .18s ease,background .18s ease,box-shadow .18s ease}button:active{transform:scale(.985)}button:not(.secondary):not(.danger):not(.warn):not(.cyan-outline):not(.upload-choice-btn):not(.nav-item):not(.neon-square-btn){background:linear-gradient(135deg,#80cfc1,#5aa99f)!important;color:#0b2022!important;border:1px solid rgba(181,240,226,.38)!important;box-shadow:0 6px 18px rgba(76,171,157,.13)!important}button.secondary,.secondary{background:rgba(255,255,255,.045)!important;border:1px solid var(--border)!important;color:#d1dce5!important;box-shadow:none!important}button.cyan-outline,.cyan-outline{background:rgba(130,204,194,.08)!important;border:1px solid rgba(143,224,210,.3)!important;color:#a9e5db!important;box-shadow:none!important}input,select,textarea{background:#0c1622!important;border:1px solid rgba(166,193,214,.18)!important;border-radius:12px!important;color:#eff5f8!important}input:focus,select:focus,textarea:focus{border-color:rgba(143,224,210,.65)!important;box-shadow:0 0 0 3px rgba(143,224,210,.09)!important;outline:none!important}label{color:#a8b8c6!important}.eyebrow{color:#87c9be!important;letter-spacing:.16em!important;font-size:.65rem!important;font-weight:750!important}.hidden{display:none!important}
+/* Workspace home */
+.home-clock-anchor{display:none!important}
+#centerHomeStage.premium-home{display:block!important;min-height:0!important;padding:0!important;gap:0!important}.home-command-top{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(280px,.8fr);gap:24px;align-items:stretch;margin:2px 0 36px}.home-greeting{padding:24px 0 14px}.home-greeting .eyebrow{display:flex;align-items:center;gap:9px}.live-dot{width:7px;height:7px;border-radius:50%;background:#87d8c5;box-shadow:0 0 0 5px rgba(135,216,197,.1)}.home-greeting h1{font-size:clamp(2.15rem,4.8vw,3.8rem);line-height:1.08;letter-spacing:-.055em;margin:20px 0 14px;font-weight:760}.home-greeting h1 span{color:#9bd9cf}.home-greeting>p{color:#9aabba;font-size:1rem;max-width:560px;margin:0 0 26px;line-height:1.7}.home-command{display:flex;align-items:center;gap:10px;padding:8px 9px 8px 17px;max-width:720px;background:rgba(18,31,45,.88);border:1px solid rgba(165,203,205,.22);border-radius:16px;box-shadow:0 14px 38px rgba(0,0,0,.18);min-height:66px}.home-command-icon{font-size:1.7rem;color:#9bd9cf;line-height:1}.home-command input{border:0!important;background:transparent!important;box-shadow:none!important;padding:12px 4px!important;min-width:0;font-size:.92rem!important;flex:1}.home-command input::placeholder{color:#708397}.home-command button{white-space:nowrap;padding:13px 17px!important;border-radius:11px!important}.home-suggestion-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:14px}.home-suggestion-row>span{font-size:.72rem;color:#71869a;margin-right:3px}.home-suggestion-row button{padding:7px 11px!important;border:1px solid rgba(159,187,204,.15)!important;background:rgba(255,255,255,.035)!important;color:#b8c7d3!important;font-size:.72rem!important;box-shadow:none!important;border-radius:999px!important}.home-suggestion-row button:hover{border-color:rgba(143,224,210,.4)!important;color:#c8eee7!important}.home-focus-card{position:relative;overflow:hidden;min-height:330px;padding:22px 24px 18px;border-radius:22px;border:1px solid rgba(152,197,195,.19);background:radial-gradient(circle at 50% 40%,rgba(99,166,159,.16),transparent 46%),linear-gradient(145deg,#152a36,#111c2a 65%,#171b30);box-shadow:0 22px 55px rgba(0,0,0,.2)}.focus-card-top{display:flex;align-items:center;gap:8px;font-size:.61rem;letter-spacing:.13em;color:#a7c1c6;font-weight:750}.focus-icon{display:grid;place-items:center;width:25px;height:25px;border-radius:8px;background:rgba(143,224,210,.12);color:#9ce1d4;font-size:1rem}.focus-status{margin-left:auto;color:#91d6c7;font-size:.55rem;letter-spacing:.12em;border:1px solid rgba(143,224,210,.25);border-radius:99px;padding:5px 8px}.focus-orbit{height:145px;position:relative;display:grid;place-items:center}.orbit-ring{position:absolute;border:1px solid rgba(145,210,204,.17);border-radius:50%;transform:rotate(-22deg)}.ring-one{width:112px;height:112px}.ring-two{width:164px;height:94px;border-color:rgba(162,153,220,.22);transform:rotate(34deg)}.orbit-core{width:62px;height:62px;border-radius:21px;display:grid;place-items:center;font-size:1.8rem;color:#153139;background:linear-gradient(145deg,#b7eee1,#68bcb1);box-shadow:0 0 35px rgba(116,204,190,.26)}.orbit-node{position:absolute;display:grid;place-items:center;width:29px;height:29px;border-radius:10px;background:#203a46;border:1px solid rgba(171,223,214,.22);color:#b7e7df;font-size:.9rem}.node-a{top:16px;left:calc(50% - 72px)}.node-b{right:calc(50% - 79px);top:35px}.node-c{bottom:5px;left:calc(50% - 15px)}.home-focus-card h2{font-size:1.27rem;line-height:1.25;letter-spacing:-.025em;margin:0 0 8px;color:#edf7f5}.home-focus-card>p{font-size:.77rem;line-height:1.6;color:#9db1bd;margin:0;max-width:370px}.focus-footer{display:flex;justify-content:space-between;gap:8px;border-top:1px solid rgba(176,206,213,.12);padding-top:12px;margin-top:14px;color:#8da7b2;font-size:.65rem}.focus-footer span:first-child{color:#a9dcd2}.focus-footer i{display:inline-block;width:6px;height:6px;background:#8dd6c4;border-radius:50%;margin-right:5px}.home-section-heading,.home-panel-heading{display:flex;align-items:end;justify-content:space-between;gap:12px}.home-section-heading{margin-bottom:15px}.home-section-heading h2{font-size:1.32rem;letter-spacing:-.03em;margin:5px 0 0}.home-section-note{font-size:.72rem;color:#71879a}.home-work-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.home-work-card{position:relative;min-height:160px;text-align:left!important;display:grid;grid-template-columns:52px 1fr 20px;grid-template-rows:1fr auto;align-items:start;gap:14px;padding:23px!important;border-radius:18px!important;border:1px solid rgba(153,192,200,.17)!important;background:linear-gradient(145deg,rgba(21,40,54,.98),rgba(16,27,41,.98))!important;color:#edf5f6!important;box-shadow:0 12px 35px rgba(0,0,0,.16)!important}.home-work-card:hover{transform:translateY(-3px);border-color:rgba(143,224,210,.38)!important;box-shadow:0 18px 42px rgba(0,0,0,.25)!important}.work-upload{background:linear-gradient(145deg,rgba(26,42,52,.98),rgba(18,31,43,.98))!important}.work-card-icon{width:50px;height:50px;display:grid;place-items:center;border-radius:15px;background:rgba(143,224,210,.11);color:#9de2d6;font-size:1.75rem;grid-row:1}.work-upload .work-card-icon{background:rgba(157,167,226,.12);color:#c1c6f2}.work-card-copy{display:flex;flex-direction:column;gap:7px;padding-top:3px}.work-card-copy strong{font-size:1.02rem;color:#f0f6f7}.work-card-copy small{font-size:.78rem;line-height:1.55;color:#91a5b4;font-weight:450;max-width:390px}.work-card-arrow{color:#8bbdb6;font-size:1.2rem;justify-self:end}.work-card-meta{grid-column:2/4;align-self:end;color:#728c9b;font-size:.58rem;letter-spacing:.14em;font-weight:750}.home-lower-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:16px}.home-quick-panel,.home-shift-panel{padding:20px 21px;border:1px solid rgba(159,188,204,.13);border-radius:18px;background:rgba(16,27,40,.76)}.home-panel-heading{align-items:center;margin-bottom:16px}.home-panel-heading h3{margin:4px 0 0;font-size:.98rem;letter-spacing:-.02em}.panel-spark,.shift-panel-icon{font-size:1.15rem;color:#9bd9cf}.home-shortcuts{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px!important;margin:0!important}.home-shortcuts button{display:grid!important;grid-template-columns:28px 1fr 12px;align-items:center;gap:6px;text-align:left!important;padding:11px 9px!important;min-width:0;border:1px solid rgba(162,190,205,.13)!important;background:rgba(255,255,255,.025)!important;color:#c4d1d9!important;border-radius:12px!important;box-shadow:none!important;font-size:.7rem!important}.home-shortcuts button:hover{border-color:rgba(143,224,210,.35)!important;background:rgba(143,224,210,.055)!important}.shortcut-symbol{display:grid;place-items:center;width:26px;height:26px;border-radius:8px;background:rgba(143,224,210,.09);color:#9bd9cf;font-size:1rem}.home-shortcuts button b{font-weight:500;color:#718c9c}.home-time-line{display:flex;align-items:center;gap:17px}.home-time-line>div:first-child{display:flex;flex-direction:column;min-width:86px}.home-time-label{font-size:.56rem;letter-spacing:.14em;color:#7891a0}.home-time-line strong{font-size:1.7rem;letter-spacing:-.04em;line-height:1.2;margin:3px 0}.home-time-line small{font-size:.66rem;color:#8298a7}.home-time-divider{width:1px;height:48px;background:rgba(165,194,205,.15)}.home-time-message{display:flex;flex-direction:column;gap:5px}.home-time-message strong{font-size:.76rem;letter-spacing:0}.home-time-message span{font-size:.68rem;color:#8298a7;line-height:1.45}.home-shift-link{background:transparent!important;border:0!important;box-shadow:none!important;color:#9bd9cf!important;padding:12px 0 0!important;font-size:.7rem!important}.home-shift-link span{margin-left:5px}
+/* Inner pages share the same visual language */
+#uploadPageCard,#askWindowCard,#uploadQueueCard{max-width:900px;margin:0 auto 18px;padding:24px!important}#uploadPageTitle,#askWindowCard h2{font-size:1.35rem!important;letter-spacing:-.03em}.upload-page-choice{background:rgba(255,255,255,.025)!important;border:1px solid rgba(164,192,207,.15)!important;border-radius:15px!important;padding:17px!important}.upload-page-choice:hover{border-color:rgba(143,224,210,.42)!important;background:rgba(143,224,210,.045)!important}.upload-page-choice-icon{width:44px;height:44px;border-radius:13px;background:rgba(143,224,210,.1);display:grid;place-items:center}.ask-entry-panel{background:transparent!important}.ask-composer{border:1px solid rgba(143,224,210,.25)!important;background:#0c1723!important;border-radius:16px!important;padding:8px!important}.ask-composer textarea{background:transparent!important;border:0!important;box-shadow:none!important}.ask-send-btn{border-radius:12px!important}.app-bottom-nav{background:rgba(9,16,25,.9)!important;backdrop-filter:blur(24px)!important;border:1px solid rgba(170,200,215,.13)!important;box-shadow:0 10px 42px rgba(0,0,0,.42)!important;border-radius:22px!important;max-width:610px!important;left:50%!important;transform:translateX(-50%)!important;bottom:calc(12px + env(safe-area-inset-bottom))!important;width:calc(100% - 28px)!important;padding:8px 12px!important;min-height:72px!important;grid-template-columns:repeat(4,minmax(0,1fr))!important}.app-bottom-nav .nav-item{color:#8395a6!important;font-size:.66rem!important}.app-bottom-nav .nav-item .nav-icon{background:rgba(255,255,255,.055)!important;color:#b3c4ce!important;border-radius:12px!important;width:34px!important;height:31px!important;font-size:1.05rem!important}.app-bottom-nav .nav-item.active{color:#dff7f1!important}.app-bottom-nav .nav-item.active .nav-icon{background:rgba(143,224,210,.16)!important;color:#a8e9dc!important;outline:1px solid rgba(143,224,210,.24)!important}.app-bottom-nav .nav-item-main .nav-icon{width:38px!important;height:34px!important;border-radius:12px!important;background:linear-gradient(145deg,#9fe5d7,#5eafa4)!important;color:#102629!important;box-shadow:none!important}.app-bottom-nav .nav-item-upload .nav-icon{background:linear-gradient(145deg,#b9c4f4,#858fd0)!important;color:#171d37!important}.app-bottom-nav .nav-item-main.active .nav-icon{outline:2px solid rgba(255,255,255,.15)!important;outline-offset:2px}.ask-clarify-card{background:#111d2a!important;border:1px solid rgba(143,224,210,.22)!important;box-shadow:0 24px 80px rgba(0,0,0,.55)!important}.ask-clarify-choice{background:#182838!important;border:1px solid rgba(160,193,205,.17)!important;color:#e6f1f2!important}.ask-clarify-choice:hover{border-color:rgba(143,224,210,.48)!important}.status-msg{color:#a6d9cf!important}
+@media(max-width:760px){header{padding:10px 14px!important}.header-inner{gap:8px!important}.premium-brand{margin-right:auto}.premium-brand small{display:none}.header-left{gap:7px!important}#recordsBtn{font-size:.68rem!important;padding:7px 9px!important}main{padding:18px 14px 112px!important}.home-command-top{grid-template-columns:1fr;gap:14px;margin-bottom:27px}.home-greeting{padding:12px 2px 4px}.home-greeting h1{font-size:clamp(2rem,9vw,3rem);margin:15px 0 10px}.home-greeting>p{font-size:.87rem;margin-bottom:19px}.home-command{min-height:58px;padding:6px 7px 6px 13px}.home-command input{font-size:.78rem!important}.home-command button{padding:11px 12px!important;font-size:.72rem!important}.home-suggestion-row{gap:6px}.home-suggestion-row>span{width:100%;margin-bottom:1px}.home-suggestion-row button{font-size:.65rem!important;padding:7px 9px!important}.home-focus-card{min-height:0;padding:17px 18px 15px;border-radius:18px}.focus-orbit{height:112px}.ring-one{width:88px;height:88px}.ring-two{width:135px;height:76px}.orbit-core{width:50px;height:50px;border-radius:17px}.node-a{left:calc(50% - 60px);top:12px}.node-b{right:calc(50% - 64px);top:24px}.node-c{bottom:0}.home-focus-card h2{font-size:1.1rem}.home-focus-card>p{font-size:.72rem}.home-section-heading h2{font-size:1.12rem}.home-section-note{display:none}.home-work-grid{grid-template-columns:1fr;gap:10px}.home-work-card{min-height:128px;padding:17px!important;grid-template-columns:46px 1fr 16px;gap:11px}.work-card-icon{width:44px;height:44px;border-radius:13px;font-size:1.5rem}.work-card-copy strong{font-size:.91rem}.work-card-copy small{font-size:.72rem}.work-card-meta{font-size:.53rem}.home-lower-grid{grid-template-columns:1fr;gap:10px;margin-top:11px}.home-quick-panel,.home-shift-panel{padding:16px;border-radius:16px}.home-shortcuts button{grid-template-columns:25px 1fr 9px;padding:10px 7px!important;font-size:.63rem!important}.shortcut-symbol{width:23px;height:23px}.app-bottom-nav{bottom:calc(8px + env(safe-area-inset-bottom))!important;width:calc(100% - 20px)!important;min-height:66px!important;padding:6px 7px!important;border-radius:18px!important}.app-bottom-nav .nav-item{font-size:.58rem!important}.app-bottom-nav .nav-item .nav-icon{width:31px!important;height:29px!important}.app-bottom-nav .nav-item-main .nav-icon{width:34px!important;height:31px!important}#uploadPageCard,#askWindowCard,#uploadQueueCard{padding:17px!important;margin-top:0!important}.home-time-line{gap:12px}.home-time-message span{font-size:.63rem}}
+@media(max-width:390px){.premium-brand strong{font-size:.72rem}.user-pill{font-size:.68rem!important;padding:6px 8px!important}.home-command button{font-size:.66rem!important;padding:10px 9px!important}.home-command input{font-size:.72rem!important}.home-shortcuts{gap:5px!important}.home-shortcuts button{font-size:.58rem!important}.app-bottom-nav .nav-item{font-size:.54rem!important}}
+@media(min-width:1100px){main{padding-top:38px!important}.home-command-top{margin-bottom:42px}.home-focus-card{min-height:350px}.home-work-card{min-height:170px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+</style>
+
 </body>
 </html>
 <!-- ==================== HATIRLATMA KARTI & KENDİNİ TEST ET MODÜLÜ ==================== -->
