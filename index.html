@@ -2600,46 +2600,18 @@
     }
 
     async function callGemini(parts, systemInstruction, onModelProgress = null) {
-      const apiKey = (currentSession?.apiKey || "").trim();
-      if (!apiKey) {
+      // AQ giriş anahtarı yalnızca oturum doğrulaması içindir; AI sağlayıcı anahtarı değildir.
+      const sessionKey = (currentSession?.apiKey || "").trim();
+      if (!sessionKey) {
         clearSession();
         applyAuthState();
         throw new Error("Giriş Anahtarı Girilmesi Gerekmektedir");
       }
 
-      const models = Array.isArray(GEMINI_FALLBACK_MODELS) && GEMINI_FALLBACK_MODELS.length
-        ? GEMINI_FALLBACK_MODELS
-        : ["gemini-3.8-flash", "gemini-3.5-flash-lite"];
-
-      const errors = [];
-      for (let i = 0; i < models.length; i++) {
-        const modelName = models[i];
-        if (onModelProgress) onModelProgress(modelName, i + 1, models.length);
-        let attempt = 0;
-        // Ücretsiz kotayı korumak için aynı isteği otomatik tekrar gönderme.
-        const maxRetries = 0;
-
-        while (attempt <= maxRetries) {
-          try {
-            return await trySingleModel(apiKey, modelName, parts, systemInstruction);
-          } catch (err) {
-            const isHighDemand = /high demand|overloaded|429|503|unavailable/i.test(err.message);
-            if (isHighDemand && attempt < maxRetries) {
-              attempt++;
-              await sleep(700);
-              continue;
-            }
-            errors.push(`${modelName}: ${err.message}`);
-            break;
-          }
-        }
-      }
-
-      const errorText = errors.join(" | ");
-      if (/429|quota|resource_exhausted|limit:.*requests/i.test(errorText)) {
-        throw new Error("Gemini ücretsiz kullanım kotası dolmuş. Kodda sorun yok; kota yenilendiğinde tekrar deneyebilirsin. Gereksiz API çağrısı yapılmaması için istek otomatik tekrarlanmadı.");
-      }
-      throw new Error(`Hiçbir model işlemi tamamlayamadı. ${errorText}`);
+      // Gemini ve OpenRouter seçimi Edge Function içinde yapılır.
+      // Aynı isteği birden fazla model adıyla tekrar göndermek çift API çağrısına neden oluyordu.
+      if (onModelProgress) onModelProgress("Gemini / OpenRouter", 1, 1);
+      return await trySingleModel(sessionKey, "auto", parts, systemInstruction);
     }
 
     function parseAutoClassification(rawText, fallbackFileName) {
