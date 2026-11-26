@@ -1,6 +1,3 @@
-`servis_asistani_v24_akilli_bilgi_bankasi.html:1-7282`
-
-```html
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -1551,6 +1548,7 @@
   </main>
 
   <script>
+    // V25: Fotoğraf/metin vaka analizi + bilgi bankası araması.
     // Edge Function şu anda Gemini 3.8 Flash kullanıyor.
     // Tek model kullanımı, kota hatasında gereksiz tekrarları önler.
     const GEMINI_FALLBACK_MODELS = [
@@ -3073,6 +3071,40 @@ Ardından yalnızca şu JSON formatında yanıt ver (başka açıklama yazma):
       }
       return selected;
     }
+
+    // V25: Müşterinin serbest anlatımını (ve varsa fotoğrafını) teknik arama ifadelerine dönüştürür.
+    // Bu aşama teşhis koymaz; yalnızca bilgi bankasında aranacak belirtileri/terimleri çıkarır.
+    async function aiAnalyzeCustomerCase(question, photo) {
+      const prompt = `Kullanıcının mesajını ve varsa ekli müşteri notu fotoğrafını incele.
+Görevin yalnızca metinde açıkça bulunan bilgileri çıkarmak ve bilgi bankasında aranabilecek Türkçe/İngilizce teknik terimleri üretmektir.
+TEKNİK TEŞHİS KOYMA, çözüm veya prosedür UYDURMA. Belirsizliği koru.
+Yalnızca geçerli JSON döndür:
+{\"customerMessageSummary\":\"...\",\"symptoms\":[\"...\"],\"technicalSearchTerms\":[\"...\"],\"codesAndNames\":[\"...\"],\"missingDetails\":[\"...\"],\"clarifyRequired\":false,\"clarificationQuestion\":\"\"}
+Kurallar: Eş anlamlı ve gündelik ifadeleri arama terimlerine ekle; fakat metinde olmayan arıza, parça, kod veya neden ekleme. Fotoğraf okunamıyorsa bunu açıkça belirt. Kullanıcı yalnızca kısa bir kod/başlık soruyorsa gereksiz netleştirme isteme.
+
+KULLANICI MESAJI: ${String(question || 'Ekli müşteri mesajını incele.').slice(0,5000)}`;
+      const parts=[];
+      if (photo?.base64) parts.push({inlineData:{mimeType:photo.mimeType||'image/jpeg',data:photo.base64}});
+      parts.push({text:prompt});
+      const raw=await callGemini(parts, 'Sen teknik servis vaka metni çıkarım yardımcısısın. Yalnızca istenen JSON nesnesini döndür. Fotoğraftaki veya metindeki bilgi dışında hiçbir teknik bilgi ekleme.');
+      const match=raw.match(/\{[\s\S]*\}/);
+      if(!match) throw new Error('Vaka analizi yapılandırılmış sonuç üretmedi. Soruyu tekrar deneyebilir veya fotoğrafı daha net yükleyebilirsin.');
+      const data=JSON.parse(match[0]);
+      const arr=(v)=>Array.isArray(v)?v.map(x=>String(x||'').trim()).filter(Boolean).slice(0,12):[];
+      return {
+        summary:String(data.customerMessageSummary||'').slice(0,1800),
+        symptoms:arr(data.symptoms), terms:arr(data.technicalSearchTerms),
+        codes:arr(data.codesAndNames), missing:arr(data.missingDetails), options:arr(data.options),
+        clarifyRequired:data.clarifyRequired===true,
+        clarification:String(data.clarificationQuestion||'').slice(0,500)
+      };
+    }
+
+    function aiBuildCaseSearchText(question, analysis) {
+      if(!analysis) return question;
+      return [question, analysis.summary, ...analysis.symptoms, ...analysis.terms, ...analysis.codes].filter(Boolean).join(' | ').slice(0,7000);
+    }
+
     function aiLoadChatHistory() {
       try { const all=JSON.parse(localStorage.getItem(AI_CHAT_HISTORY_KEY)||"{}"); return Array.isArray(all[servisAktifKullanici()]) ? all[servisAktifKullanici()].slice(-AI_CHAT_MAX_TURNS*2) : []; }
       catch { return []; }
@@ -3275,41 +3307,64 @@ KESİN KURALLAR:
       const statusEl = document.getElementById("askStatus");
       const areaEl = document.getElementById("answerArea");
       if (!question && !attachedQuestionPhoto) { statusEl.textContent = "Lütfen bir soru yazın veya sorunun fotoğrafını ekleyin."; return; }
-      const userText = question || "Eklediğim görseli incele; içindeki soru, hata veya teknik bilgiyi açıkla.";
+      const userText = question || "Eklediğim müşteri mesajı fotoğrafını incele ve ilgili teknik kayıtları bul.";
       const sendBtn=document.getElementById("askBtn"); sendBtn.disabled=true;
       try {
         if (!state.records.length) await syncFromCloud();
-        statusEl.textContent = "Sorunuz anlaşılıyor; ilgili kayıtlar seçiliyor...";
-        areaEl.innerHTML = renderSweetLoadingBox("Custom Servis AI düşünüyor...","Soru, konuşma bağlamı ve bilgi bankası birlikte değerlendiriliyor.",1);
-        const retrieved = aiRetrieveRecords(userText,12);
-        if (!retrieved.length) {
-          const noMatch = "FS Desteği Alınması Gerekli. Bilgi bankasında bu soruyu doğrulayacak yeterli kayıt bulunamadı.";
-          lastQuestionContext={question:userText,hasPhoto:Boolean(attachedQuestionPhoto),responseText:noMatch};
-          renderMatchedAnswer(noMatch);
-          statusEl.textContent="Tamamlandı · Uygun kayıt bulunamadı; API çağrısı yapılmadı.";
-          return;
-        }
         const history = aiLoadChatHistory();
         const conversation = aiBuildConversationText(history);
-        const parts=[];
-        if (attachedQuestionPhoto?.base64) parts.push({inlineData:{mimeType:attachedQuestionPhoto.mimeType||"image/jpeg",data:attachedQuestionPhoto.base64}});
-        parts.push({text:`ÖNCEKİ KONUŞMA (en yeni mesajlar sonda):\n${conversation || "Bu konuşmada önceki mesaj yok."}\n\nİLGİLİ BİLGİ BANKASI KAYITLARI:\n${aiBuildKnowledgeContext(retrieved)}\n\nKULLANICININ SON MESAJI:\n${userText}\n\nBulunan kayıt sayısı: ${retrieved.length}. Kayıt numaralarını kaynak gösterirken [KAYNAK 1] biçimini kullan.`});
-        statusEl.textContent = `Analiz ediliyor · ${retrieved.length} ilgili kayıt bulundu...`;
+        let analysis = null;
+        let searchText = userText;
+        let retrieved = aiRetrieveRecords([userText, ...history.slice(-4).map(m=>m.text||'')].join(' '), 12);
+
+        // Fotoğraflar her zaman önce okunur. Metin sorularında ise yerel arama sonuç vermezse
+        // AI yalnızca arama terimlerini genişletmek için çağrılır.
+        if (attachedQuestionPhoto || !retrieved.length) {
+          statusEl.textContent = attachedQuestionPhoto
+            ? "Müşteri mesajı fotoğrafı okunuyor; belirtiler ve teknik terimler çıkarılıyor..."
+            : "İfade anlaşılıyor; farklı teknik terimler ve olası adlar araştırılıyor...";
+          areaEl.innerHTML = renderSweetLoadingBox("Müşteri vakası analiz ediliyor...", "Önce anlatım çözümleniyor, ardından bilgi bankasında aranıyor.", 1);
+          analysis = await aiAnalyzeCustomerCase(userText, attachedQuestionPhoto);
+          searchText = aiBuildCaseSearchText(userText, analysis);
+          retrieved = aiRetrieveRecords(searchText, 15);
+        }
+
+        if (!retrieved.length) {
+          const noMatch = "FS Desteği Alınması Gerekli. Bilgi bankasında bu soruyu doğrulayacak yeterli kayıt bulunamadı.";
+          const detail = analysis?.summary ? `<div class=\"card\" style=\"margin-top:10px;padding:12px;\"><strong>Mesajdan anlaşılan</strong><p>${escapeHtml(analysis.summary)}</p>${analysis.symptoms.length?`<strong>Belirtiler</strong><p>${escapeHtml(analysis.symptoms.join(' · '))}</p>`:''}</div>` : '';
+          lastQuestionContext={question:userText,hasPhoto:Boolean(attachedQuestionPhoto),responseText:noMatch};
+          renderMatchedAnswer(noMatch);
+          if(detail) areaEl.insertAdjacentHTML('beforeend',detail);
+          statusEl.textContent="Tamamlandı · Yeterli doğrulanmış kayıt bulunamadı; cevap uydurulmadı.";
+          const updated=[...history,{role:"user",text:userText},{role:"assistant",text:noMatch}].slice(-AI_CHAT_MAX_TURNS*2);
+          aiSaveChatHistory(updated);
+          await saveQuestionAnswerHistory(userText,noMatch);
+          return;
+        }
+
+        if (analysis?.clarifyRequired) {
+          showQuestionClarification(userText,{clarification:analysis.clarification || "Müşteri mesajındaki bir ayrıntıyı netleştirelim.",options:analysis.options||[]});
+          statusEl.textContent="Yanıtı güvenilir hazırlamak için ek bilgi gerekiyor.";
+          return;
+        }
+
+        const caseContext = analysis ? `\nMÜŞTERİ VAKASI ANALİZİ (yalnızca mesajdan çıkarılan veriler):\nÖzet: ${analysis.summary}\nBelirtiler: ${analysis.symptoms.join('; ')}\nArama terimleri: ${analysis.terms.join('; ')}\nKodlar/isimler: ${analysis.codes.join('; ')}\nEksik ayrıntılar: ${analysis.missing.join('; ')}\n` : '';
+        const parts=[{text:`ÖNCEKİ KONUŞMA (en yeni mesajlar sonda):\n${conversation || "Bu konuşmada önceki mesaj yok."}${caseContext}\nİLGİLİ BİLGİ BANKASI KAYITLARI:\n${aiBuildKnowledgeContext(retrieved)}\n\nKULLANICININ SON MESAJI:\n${userText}\n\nBulunan kayıt sayısı: ${retrieved.length}. Yalnızca bu kayıtlara dayan. Kaynakları [KAYNAK 1] biçiminde göster. Müşteriye yardımcı olma sürecini anlat; kayıtların desteklemediği işlem adımlarını üretme. Eksik kritik bilgi varsa kullanıcıya sor.`}];
+        statusEl.textContent = `Bilgi bankası değerlendiriliyor · ${retrieved.length} ilgili kayıt bulundu...`;
+        areaEl.innerHTML = renderSweetLoadingBox("Teknik cevap hazırlanıyor...", "İlgili kayıtlar ve sohbet geçmişi birlikte değerlendiriliyor.", 2);
         const reply = (await callGemini(parts,aiSystemInstruction(),(modelName)=>{statusEl.textContent=`Custom Servis AI · ${modelName} ile yanıt hazırlanıyor...`;})).trim();
         const updated=[...history,{role:"user",text:userText},{role:"assistant",text:reply}].slice(-AI_CHAT_MAX_TURNS*2);
         aiSaveChatHistory(updated);
         await saveQuestionAnswerHistory(userText,reply);
         lastQuestionContext={question:userText,hasPhoto:Boolean(attachedQuestionPhoto),responseText:reply};
         renderMatchedAnswer(reply);
-        // Yanıtın altına gerçek retrieval kaynaklarını ekle; modelin kaynak iddiası tek başına yeterli sayılmaz.
         if(retrieved.length){
           const sourceBox=document.createElement("div"); sourceBox.className="card"; sourceBox.style.marginTop="10px";
-          sourceBox.innerHTML=`<strong style="font-size:.9rem;">Bu soruda taranan ilgili kayıtlar</strong><div style="margin-top:8px;display:grid;gap:6px;">${retrieved.map((r,i)=>`<div style="padding:8px;border:1px solid var(--line);border-radius:9px;font-size:.78rem;"><strong>[KAYNAK ${i+1}] ${escapeHtml(r.title)}</strong><div style="color:var(--muted);margin-top:2px;">${escapeHtml(r.category)} · ${escapeHtml(r.group)} · Eşleşme: ${r.score}</div></div>`).join("")}</div>`;
+          sourceBox.innerHTML=`<strong style="font-size:.9rem;">Bu vakada bulunan bilgi bankası kayıtları</strong><div style="margin-top:8px;display:grid;gap:6px;">${retrieved.map((r,i)=>`<div style="padding:8px;border:1px solid var(--line);border-radius:9px;font-size:.78rem;"><strong>[KAYNAK ${i+1}] ${escapeHtml(r.title)}</strong><div style="color:var(--muted);margin-top:2px;">${escapeHtml(r.category)} · ${escapeHtml(r.group)} · Eşleşme: ${r.score}</div></div>`).join("")}</div>`;
           areaEl.appendChild(sourceBox);
-        } else {
-          const note=document.createElement("div");note.className="status-msg";note.style.marginTop="8px";note.textContent="Bu soruyla doğrudan eşleşen yeterli kayıt bulunamadı. FS desteği alınması gereklidir.";areaEl.appendChild(note);
         }
-        statusEl.textContent = `Tamamlandı · ${retrieved.length} kayıt tarandı · Sohbet bağlamı kullanıldı.`;
+        if(analysis?.summary){const caseBox=document.createElement('div');caseBox.className='card';caseBox.style.marginTop='10px';caseBox.innerHTML=`<strong>Müşteri mesajından çıkarılan özet</strong><p>${escapeHtml(analysis.summary)}</p>${analysis.symptoms.length?`<p><strong>Belirtiler:</strong> ${escapeHtml(analysis.symptoms.join(' · '))}</p>`:''}`;areaEl.appendChild(caseBox);}
+        statusEl.textContent = `Tamamlandı · ${retrieved.length} kayıt değerlendirildi · Sohbet bağlamı kullanıldı.`;
       } catch(err) {
         statusEl.textContent="Hata: "+err.message;
         areaEl.innerHTML=`<div class="error-msg">Yanıt hazırlanırken hata oluştu: ${escapeHtml(err.message)}</div>`;
@@ -5327,6 +5382,7 @@ KESİN KURALLAR:
   @media(max-width:380px){.ask-photo-buttons button{font-size:.66rem!important;padding:7px 6px!important}.ask-photo-actions #questionPhotoName{max-width:86px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
 </style>
 
+<!-- V25: müşteri vaka analizi, görselden belirti çıkarımı ve genişletilmiş bilgi bankası araması -->
 </body>
 </html>
 <!-- ==================== HATIRLATMA KARTI & KENDİNİ TEST ET MODÜLÜ ==================== -->
@@ -7283,4 +7339,3 @@ ${kaynak}`;
   #answerStatsPage .ask-stats-panel{box-shadow:none}
   #openAnswerStatsBtn[aria-expanded="true"]{border-color:rgba(85,214,207,.5)!important}
 </style>
-```
