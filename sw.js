@@ -1,5 +1,5 @@
 
-const CACHE = 'nova-fs-v3';
+const CACHE = 'dyson-servis-v6';
 
 const CORE = [
   './',
