@@ -755,8 +755,8 @@ newContent=await callAI([...imageParts,{text:prompt}],'Sen mevcut teknik servis 
 newContent=extracted.join('\\n\\n');
 }
 if(!newContent.trim())throw new Error('Ek dosyalardan yeni bir içerik çıkarılamadı.');
-const separator='\\n\\n--- SONRADAN EKLENEN FOTOĞRAFLAR / DOSYALAR ---\\n\\n';
-$('reviewContent').value=currentContent+separator+'Kaynak: '+extraFiles.map(f=>f.name).join(', ')+'\\n'+newContent.trim();
+const separator='\n\n\n--- SONRADAN EKLENEN FOTOĞRAFLAR / DOSYALAR ---\n\n';
+$('reviewContent').value=currentContent.trimEnd()+separator+'Kaynak: '+extraFiles.map(f=>f.name).join(', ')+'\n\n\n'+newContent.trim();
 $('reviewMeta').textContent=(state.pendingFiles.length)+' dosya işlendi · Ek içerik eklendi · '+new Date().toLocaleString('tr-TR')+' · Kaydetmeden önce kontrol edin';
 toast('Yeni fotoğraflardaki bilgiler mevcut kaydın sonuna eklendi.');
 }catch(e){
