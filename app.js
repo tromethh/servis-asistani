@@ -329,7 +329,7 @@ async function setUploadProgress(show,title='',message='',percent=8,step=0){cons
 async function callAI(parts,systemInstruction){
 const url=cfg.supabaseUrl.replace(/\/$/,'')+'/functions/v1/'+(cfg.aiFunction||'servis-ai-generate');
 const controller=new AbortController();
-const timer=setTimeout(()=>controller.abort(),65000);
+const timer=setTimeout(()=>controller.abort(),125000);
 try{
 const r=await fetch(url,{
 method:'POST',
