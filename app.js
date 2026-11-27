@@ -36,9 +36,37 @@ function cfgReady(){return !!(cfg.supabaseUrl&&cfg.supabaseAnonKey);}
 function headers(extra={}){return {'apikey':cfg.supabaseAnonKey,'Authorization':`Bearer ${cfg.supabaseAnonKey}`,...extra};}
 async function sbRequest(path,options={}){
   if(!cfgReady())throw new Error('Supabase ayarları eksik. config.js dosyasını kontrol edin.');
-  const r=await fetch(cfg.supabaseUrl.replace(/\/$/,'')+path,{...options,headers:headers(options.headers||{})});
-  if(!r.ok){let msg='Supabase isteği başarısız ('+r.status+')';try{const j=await r.json();msg=j.message||j.error||j.hint||msg}catch{}throw new Error(msg);}
-  if(r.status===204)return null; return r.json();
+
+  const r=await fetch(
+    cfg.supabaseUrl.replace(/\/$/,'')+path,
+    {
+      ...options,
+      headers:headers(options.headers||{})
+    }
+  );
+
+  const responseText = await r.text();
+
+  if(!r.ok){
+    let msg='Supabase isteği başarısız ('+r.status+')';
+
+    if(responseText){
+      try{
+        const j=JSON.parse(responseText);
+        msg=j.message||j.error||j.hint||msg;
+      }catch{}
+    }
+
+    throw new Error(msg);
+  }
+
+  if(r.status===204 || !responseText.trim()) return null;
+
+  try{
+    return JSON.parse(responseText);
+  }catch{
+    throw new Error('Supabase geçersiz bir yanıt döndürdü.');
+  }
 }
 function normalize(r){return {id:String(r.id||''),category:String(r.category||'Genel'),group:String(r.group||'Geneli'),title:String(r.title||'Başlıksız kayıt'),content:String(r.content||''),updated_at:r.updated_at||r.updatedAt||r.uploadedAt||new Date().toISOString()};}
 function persistRecords(){saveJSON('nova_records_cache',state.records);}
