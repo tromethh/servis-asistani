@@ -470,7 +470,11 @@ $('cropImage').src=img.src;
 $('cropSelection').style.display='none';
 $('cropTitle').textContent=`Fotoğraf ${state.crop.index+1} / ${state.crop.queue.length}`;
 $('cropFileName').textContent=f.name;
-$('cropOverlay').classList.remove('hidden');
+const cropLayer=$('cropOverlay');
+// Kırpma katmanını body'nin doğrudan altına taşı: ana sayfa/modal stacking context'lerinden etkilenmesin.
+if(cropLayer.parentElement!==document.body)document.body.appendChild(cropLayer);
+cropLayer.style.position='fixed';cropLayer.style.inset='0';cropLayer.style.zIndex='2147483647';
+cropLayer.classList.remove('hidden');
 };
 img.onerror=()=>{
 state.pendingFiles.push(f);
