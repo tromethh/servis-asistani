@@ -607,37 +607,43 @@ btn.disabled=true;
 status('addStatus','Dosyalar hazırlanıyor ve analiz ediliyor…');setUploadProgress(true,'Dosyalar hazırlanıyor','Görseller yükleme sırasıyla işlenecek.',8,0);
 
 try{
-let extracted=[],aiTitle='',aiCategory=category,aiGroup=group;
+let extracted=[],imageParts=[],imageNames=[],aiTitle='',aiCategory=category,aiGroup=group;
 
 for(let fileIndex=0;fileIndex<files.length;fileIndex++){
-const f=files[fileIndex];setUploadProgress(true,`Dosya ${fileIndex+1} / ${files.length} analiz ediliyor`,f.name,10+Math.round(fileIndex/files.length*70),1);
+const f=files[fileIndex];
+setUploadProgress(true,'Dosya '+(fileIndex+1)+' / '+files.length+' hazırlanıyor',f.name,10+Math.round(fileIndex/files.length*70),1);
 if(f.size>18*1024*1024)throw new Error(f.name+' 18 MB sınırını aşıyor.');
 
 if(f.type==='application/pdf'||f.name.toLowerCase().endsWith('.pdf')){
 status('addStatus',f.name+' okunuyor…');
 const text=await pdfText(f);
-extracted.push(`DOSYA: ${f.name}\n${text||'PDF metni okunamadı; taranmış PDF için sayfa görselleri ekleyin.'}`);
+extracted.push('DOSYA: '+f.name+'\n'+(text||'PDF metni okunamadı; taranmış PDF için sayfa görselleri ekleyin.'));
 }
 else if(f.type.startsWith('image/')){
-status('addStatus',f.name+' yapay zekâ ile analiz ediliyor…');
-const image=await imageForAI(f);
-const prompt=`Bu teknik destek görselini yalnızca OCR gibi ele alma; metinleri, tabloları, işaretleri, cihaz/parça görsellerini ve bunların ilişkilerini birlikte incele. Soru-cevapları, hata kodlarını, model/parça numaralarını ve görsel işaretleri mümkün olduğunca eksiksiz çıkar. Görselde olmayan bilgi uydurma.
-Yanıtı şu JSON yapısında ver: {"title":"kısa başlık","category":"uygun kategori","group":"uygun alt kategori veya Geneli","content":"düzenli, başlıklı ve eksiksiz teknik bilgi"}. Dosya: ${f.name}`;
-
-const raw=await callAI([image,{text:prompt}],'Sen teknik servis dokümanlarını metin ve görsel bağlamıyla analiz eden asistansın.\nSadece kaynaktaki bilgiyi çıkar; tahminleri gerçek gibi sunma.');
-const parsed=parseJSON(raw);
-
-if(parsed){
-if(!aiTitle&&parsed.title)aiTitle=String(parsed.title);
-if(parsed.category)aiCategory=String(parsed.category);
-if(parsed.group)aiGroup=String(parsed.group);
-extracted.push(`DOSYA: ${f.name}\n${parsed.content||raw}`);
-}else{
-extracted.push(`DOSYA: ${f.name}\n${raw}`);
-}
+status('addStatus',f.name+' hazırlanıyor…');
+imageParts.push(await imageForAI(f));
+imageNames.push(f.name);
 }
 else{
 throw new Error(f.name+' desteklenmeyen dosya türünde.');
+}
+}
+
+if(imageParts.length){
+setUploadProgress(true,'Fotoğraflar birlikte analiz ediliyor',imageParts.length+' görsel tek yapay zekâ isteğinde işleniyor.',82,1);
+const prompt='Aşağıda aynı teknik kayıt için yüklenmiş birden fazla fotoğraf var. Fotoğrafları ayrı ayrı değil, tek bir dokümanın/sürecin parçaları olarak birlikte değerlendir. Dosya sırasını koru: '+imageNames.map((n,i)=>(i+1)+'. '+n).join('; ')+'.\n\n'+
+'Görsellerdeki metinleri, tabloları, işaretleri, cihaz/parça görsellerini ve ilişkilerini birlikte incele. Soru-cevapları, hata kodlarını, model/parça numaralarını ve görsel işaretleri mümkün olduğunca eksiksiz çıkar. Tekrarlanan bilgileri birleştir; çelişen veya okunamayan kısımları belirt. Görselde olmayan bilgi uydurma.\n'+
+'Kullanıcının eklediği açıklama: '+(content||'Yok')+'.\nPDF metinleri ve diğer kaynaklar: '+(extracted.join('\n\n')||'Yok')+'.\n\n'+
+'Yanıtı yalnızca şu JSON yapısında ver: {"title":"kısa başlık","category":"uygun kategori","group":"uygun alt kategori veya Geneli","content":"düzenli, başlıklı ve eksiksiz teknik bilgi"}.';
+const raw=await callAI([...imageParts,{text:prompt}],'Sen teknik servis dokümanlarını birden fazla görseli birlikte değerlendirerek analiz eden asistansın. Sadece kaynakta bulunan bilgiyi çıkar; tahminleri gerçek gibi sunma. Geçerli JSON döndür.');
+const parsed=parseJSON(raw);
+if(parsed){
+if(parsed.title)aiTitle=String(parsed.title);
+if(parsed.category)aiCategory=String(parsed.category);
+if(parsed.group)aiGroup=String(parsed.group);
+extracted.push('BİRLİKTE ANALİZ EDİLEN FOTOĞRAFLAR: '+imageNames.join(', ')+'\n'+(parsed.content||raw));
+}else{
+extracted.push('BİRLİKTE ANALİZ EDİLEN FOTOĞRAFLAR: '+imageNames.join(', ')+'\n'+raw);
 }
 }
 
