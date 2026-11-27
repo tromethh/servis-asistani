@@ -1113,8 +1113,16 @@
 
 
 
+
+
+
 </head>
 <body>
+  <div id="globalClockBar" aria-label="Güncel tarih ve saat">
+    <span class="global-clock-brand">SERVİS ASİSTANI</span>
+    <span id="globalClockDate">--</span>
+    <strong id="globalClockTime">--:--:--</strong>
+  </div>
   <header>
     <div class="header-inner">
       
@@ -1528,6 +1536,12 @@
       </div>
     </section>
 
+    <div id="askWorkspaceOverlay" class="ask-workspace-overlay hidden" aria-hidden="true">
+      <div class="ask-workspace-shell">
+        <div class="ask-workspace-topbar">
+          <div class="ask-workspace-title"><span class="ask-workspace-mark">D</span><span><strong>Teknik Asistan</strong><small>Bilgi bankası destekli vaka analizi</small></span></div>
+          <button id="closeAskWorkspaceBtn" type="button" class="ask-workspace-close" aria-label="Sohbeti kapat">✕ <span>Kapat</span></button>
+        </div>
     <div id="askWindowCard" class="card hidden">
       <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px;">
         <h2 style="margin:0;">Soru Sor</h2>
@@ -1571,10 +1585,11 @@
     </section>
     </div>
 
-    <div id="answerArea"></div>
-
-
-
+        <div class="ask-workspace-thread" id="askWorkspaceThread">
+          <div id="answerArea" class="ask-thread-content"></div>
+        </div>
+      </div>
+    </div>
 
     <div id="uploadQueueCard" class="card hidden">
       <div class="queue-header">
@@ -1740,13 +1755,35 @@
     const askCamInput = document.getElementById("askCamInput");
     const askImgInput = document.getElementById("askImgInput");
 
-    document.getElementById("squareAskBtn").addEventListener("click", () => {
+    function openAskWorkspace() {
       centerHomeStage.classList.add("hidden");
       uploadPageCard.classList.add("hidden");
       uploadQueueCard.classList.add("hidden");
       askWindowCard.classList.remove("hidden");
-      document.getElementById("questionInput").focus();
-    });
+      document.getElementById("askWorkspaceOverlay").classList.remove("hidden");
+      document.getElementById("askWorkspaceOverlay").setAttribute("aria-hidden", "false");
+      document.body.classList.add("ask-workspace-open");
+      document.getElementById("questionInput").focus({preventScroll:true});
+    }
+    document.getElementById("squareAskBtn").addEventListener("click", openAskWorkspace);
+    document.getElementById("closeAskWorkspaceBtn").addEventListener("click", () => window.closeAskWorkspace());
+    window.closeAskWorkspace = function() {
+      const overlay=document.getElementById("askWorkspaceOverlay");
+      overlay?.classList.add("hidden"); overlay?.setAttribute("aria-hidden","true");
+      document.body.classList.remove("ask-workspace-open");
+      document.getElementById("questionInput").value="";
+      document.getElementById("questionInput").style.height="auto";
+      document.getElementById("answerArea").innerHTML="";
+      document.getElementById("askStatus").textContent="";
+      document.getElementById("favoritesPanel")?.classList.add("hidden");
+      document.getElementById("answerStatsPage")?.classList.add("hidden");
+      clearQuestionPhoto();
+      const label=document.querySelector('label[for="questionInput"]'); if(label) label.textContent="Sorunuzu yazın veya fotoğraf ekleyin";
+      try { const all=JSON.parse(localStorage.getItem(AI_CHAT_HISTORY_KEY)||"{}"); delete all[servisAktifKullanici()]; localStorage.setItem(AI_CHAT_HISTORY_KEY,JSON.stringify(all)); } catch {}
+      lastQuestionContext=null;
+      centerHomeStage.classList.remove("hidden");
+      window.scrollTo({top:0,behavior:"instant"});
+    };
 
     function openUploadPage() {
       centerHomeStage.classList.add("hidden");
@@ -1784,11 +1821,7 @@
       textEntryModal.classList.add("hidden");
     });
 
-    document.getElementById("backHomeFromAskBtn").addEventListener("click", () => {
-      askWindowCard.classList.add("hidden");
-      answerArea.innerHTML = "";
-      centerHomeStage.classList.remove("hidden");
-    });
+    document.getElementById("backHomeFromAskBtn").addEventListener("click", () => window.closeAskWorkspace());
 
     document.getElementById("backHomeFromUploadBtn").addEventListener("click", () => {
       uploadQueueCard.classList.add("hidden");
@@ -3179,19 +3212,21 @@ KULLANICI MESAJI: ${String(question || 'Ekli müşteri mesajını incele.').slic
     function showQuestionClarification(original, analysis) {
       const area=document.getElementById("answerArea");
       const opts=(analysis.options||[]).map((x,i)=>`<button type="button" class="secondary ask-clarify-choice" data-clarify-option="${escapeHtml(x)}"><span class="ask-choice-index">${i+1}</span><span>${escapeHtml(x)}</span><span class="ask-choice-arrow">›</span></button>`).join("");
-      area.innerHTML=`<div class="ask-clarify-backdrop"><div class="card ask-clarify-card" role="dialog" aria-modal="true" aria-label="Seçim gerekli"><div class="ask-clarify-kicker">BİR ADIM NETLEŞTİRELİM</div><strong class="ask-clarify-question">${escapeHtml(analysis.clarification||"Hangi başlığı öğrenmek istiyorsunuz?")}</strong><p class="ask-clarify-hint">Bir seçeneğe dokunun. Seçiminiz otomatik işlenecek; ayrıca devam butonuna basmanız gerekmeyecek.</p><div class="ask-clarify-options">${opts}</div><div class="ask-clarify-other"><label for="clarifiedQuestionInput">Listede yoksa başka bir ayrıntı yazın</label><div class="ask-clarify-other-row"><input id="clarifiedQuestionInput" type="text" placeholder="Örn. farklı bir model..."/><button id="sendClarifiedTextBtn" type="button" aria-label="Gönder">➤</button></div></div></div></div>`;
+      area.innerHTML=`<div class="ask-clarify-card ask-clarify-inline" role="group" aria-label="Ek bilgi gerekli"><div class="ask-clarify-kicker">BİR ADIM NETLEŞTİRELİM</div><strong class="ask-clarify-question">${escapeHtml(analysis.clarification||"Hangi başlığı öğrenmek istiyorsunuz?")}</strong><p class="ask-clarify-hint">Doğru kaydı bulabilmemiz için bir seçenek belirleyin. Seçiminiz aynı sohbet içinde araştırılacak.</p><div class="ask-clarify-options">${opts}</div><div class="ask-clarify-other"><label for="clarifiedQuestionInput">Farklı bir ayrıntı yazın</label><div class="ask-clarify-other-row"><input id="clarifiedQuestionInput" type="text" placeholder="Model veya ürün adını yazın..."/><button id="sendClarifiedTextBtn" type="button" aria-label="Gönder">➤</button></div></div></div>`;
       const choose=(choice)=>{
         const q=(String(original||"").trim()+" — "+String(choice||"").trim()).trim();
         if(!choice||!q)return;
         document.getElementById("questionInput").value=q;
         document.getElementById("questionInput").dispatchEvent(new Event("input",{bubbles:true}));
-        area.innerHTML="";
+        area.innerHTML=renderSweetLoadingBox("Seçiminiz araştırılıyor...","Sohbet açık kalıyor. Bilgi bankasındaki ilgili kayıtlar yeniden taranıyor.",1);
+        document.getElementById("askStatus").textContent="Seçiminiz alındı · Bilgi bankası yeniden araştırılıyor...";
         document.getElementById("askBtn").click();
       };
       area.querySelectorAll("[data-clarify-option]").forEach(b=>b.addEventListener("click",()=>choose(b.dataset.clarifyOption)));
       const other=document.getElementById("clarifiedQuestionInput");
       document.getElementById("sendClarifiedTextBtn")?.addEventListener("click",()=>choose(other.value));
       other?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();choose(other.value);}});
+      document.getElementById("askWorkspaceThread")?.scrollTo({top:document.getElementById("askWorkspaceThread").scrollHeight,behavior:"smooth"});
     }
 
     function renderMatchedAnswer(clean) {
@@ -3383,6 +3418,8 @@ KESİN KURALLAR:
       document.getElementById("questionInput").style.height = "auto";
       const composerLabel=document.querySelector('label[for="questionInput"]'); if(composerLabel) composerLabel.textContent="Konuşmayı sürdürün · Yeni bir soru yazın";
       const sendBtn=document.getElementById("askBtn"); sendBtn.disabled=true;
+      areaEl.innerHTML = renderSweetLoadingBox("Araştırma başlatılıyor...", "Sorunuz ve sohbet bağlamı bilgi bankasıyla karşılaştırılıyor.", 1);
+      statusEl.textContent = "Sohbet açık · Bilgi bankası taranıyor...";
       try {
         if (!state.records.length) await syncFromCloud();
         const history = aiLoadChatHistory();
@@ -5491,7 +5528,7 @@ KESİN KURALLAR:
 </style>
 <script id="home-ui-polish-v3">
 (function(){
-  const tick=()=>{const n=new Date();const t=document.getElementById('homeClockTime'),d=document.getElementById('homeClockDate');if(t)t.textContent=n.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});if(d)d.textContent=n.toLocaleDateString('tr-TR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});};
+  const tick=()=>{const n=new Date();const time=n.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),date=n.toLocaleDateString('tr-TR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});const t=document.getElementById('homeClockTime'),d=document.getElementById('homeClockDate'),gt=document.getElementById('globalClockTime'),gd=document.getElementById('globalClockDate');if(t)t.textContent=time;if(d)d.textContent=date;if(gt)gt.textContent=time;if(gd)gd.textContent=date;};
   tick();setInterval(tick,1000);
   const records=()=>document.getElementById('recordsBtn')?.click();
   // Kısayol yönlendirmeleri v4 gezinme betiğinde yönetilir.
@@ -5648,6 +5685,52 @@ KESİN KURALLAR:
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 </style>
 
+<style id="v30-mobile-first-workspace">
+:root{--dyson-ink:#10131a;--dyson-panel:#191e27;--dyson-panel-2:#202733;--dyson-line:rgba(220,230,240,.12);--dyson-text:#f4f6f8;--dyson-muted:#a4afbd;--dyson-blue:#4f8cff;--dyson-violet:#8a6cff;--dyson-pink:#c64d91}
+html,body{max-width:100%;overflow-x:hidden;background:#0d1118!important;color:var(--dyson-text)!important}
+#globalClockBar{position:fixed;z-index:1200;top:0;left:0;right:0;height:48px;display:flex;align-items:center;gap:12px;padding:0 max(14px,env(safe-area-inset-left));background:rgba(9,12,18,.97);border-bottom:1px solid var(--dyson-line);backdrop-filter:blur(20px);color:#dce4ee}
+.global-clock-brand{font-size:.58rem;font-weight:850;letter-spacing:.16em;color:#8fa4bd}
+#globalClockDate{font-size:.68rem;color:#8794a5;margin-left:auto;text-transform:capitalize;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#globalClockTime{font-size:1.12rem;font-weight:800;letter-spacing:.06em;font-variant-numeric:tabular-nums;color:#fff;min-width:82px;text-align:right}
+body{padding-top:48px!important}body>header{position:relative!important;padding:8px 14px!important;background:#111720!important;border-bottom:1px solid var(--dyson-line)!important;box-shadow:none!important}
+#appMain{padding-top:14px!important}
+/* Keep the regular app deliberately calm and single-column on phones. */
+#centerHomeStage.premium-home{max-width:720px;margin:0 auto!important}
+.home-command-top{grid-template-columns:1fr!important;gap:12px!important;margin:0 0 20px!important}
+.home-greeting{padding:12px 2px 4px!important}.home-greeting h1{font-size:clamp(1.85rem,8vw,2.65rem)!important;line-height:1.08!important;margin:12px 0!important}.home-greeting>p{font-size:.84rem!important;line-height:1.55!important;margin-bottom:16px!important}
+.home-focus-card{display:none!important}.home-work-grid,.home-lower-grid{grid-template-columns:1fr!important;gap:10px!important}
+.home-work-card{min-height:94px!important;padding:15px!important;grid-template-columns:42px 1fr 16px!important;gap:10px!important;border-radius:16px!important;background:#171e29!important;border:1px solid var(--dyson-line)!important;box-shadow:none!important}
+.work-card-icon{width:40px!important;height:40px!important;border-radius:12px!important;background:rgba(79,140,255,.14)!important;color:#8db3ff!important}.work-upload .work-card-icon{background:rgba(198,77,145,.13)!important;color:#e18ab9!important}.work-card-copy strong{font-size:.9rem!important}.work-card-copy small{font-size:.7rem!important}.work-card-meta{font-size:.5rem!important}
+.home-quick-panel,.home-shift-panel{background:#151c26!important;border:1px solid var(--dyson-line)!important;border-radius:15px!important;padding:14px!important}.home-section-heading h2{font-size:1.05rem!important}.home-section-note{display:none!important}
+.app-bottom-nav{background:rgba(13,17,24,.97)!important;border:1px solid var(--dyson-line)!important;box-shadow:0 8px 30px rgba(0,0,0,.42)!important;border-radius:18px!important;max-width:520px!important;width:calc(100% - 20px)!important;left:50%!important;transform:translateX(-50%)!important;bottom:calc(7px + env(safe-area-inset-bottom))!important;min-height:65px!important;padding:5px 7px!important;display:flex!important;justify-content:space-around!important;gap:4px!important}
+.app-bottom-nav .nav-item{flex:1!important;width:auto!important;min-width:0!important;font-size:.57rem!important;color:#8d9aaa!important}.app-bottom-nav .nav-item .nav-icon{width:31px!important;height:29px!important;border-radius:10px!important;background:#242d39!important;color:#c3cedb!important;font-size:1rem!important}.app-bottom-nav .nav-item-main{margin:0!important;align-self:center!important;flex:1!important}.app-bottom-nav .nav-item-main .nav-icon{width:34px!important;height:31px!important;border-radius:10px!important;background:linear-gradient(145deg,#4f8cff,#765bdb)!important;color:white!important;box-shadow:none!important}
+/* Full-screen ask workspace: one persistent screen from first question to final follow-up. */
+.ask-workspace-overlay{position:fixed;z-index:1100;inset:48px 0 0;background:#0d1118;display:flex;justify-content:center;overflow:hidden}
+.ask-workspace-shell{width:100%;max-width:850px;height:100%;display:flex;flex-direction:column;min-height:0;background:#10151e;border-left:1px solid rgba(220,230,240,.07);border-right:1px solid rgba(220,230,240,.07)}
+.ask-workspace-topbar{height:62px;flex:0 0 62px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--dyson-line);background:#121923}
+.ask-workspace-title{display:flex;align-items:center;gap:10px}.ask-workspace-title>span:last-child{display:flex;flex-direction:column;gap:3px}.ask-workspace-title strong{font-size:.92rem;letter-spacing:.01em}.ask-workspace-title small{font-size:.64rem;color:#8e9bad}.ask-workspace-mark{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:linear-gradient(145deg,#4f8cff,#785bdb);font-weight:900;color:white}
+.ask-workspace-close{display:flex;align-items:center;gap:7px;padding:8px 11px!important;background:#222b37!important;border:1px solid var(--dyson-line)!important;color:#d8e0e9!important;font-size:.72rem!important;box-shadow:none!important}
+.ask-workspace-thread{order:1;display:block;flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:16px 14px 22px;scrollbar-width:thin;scrollbar-color:#394556 transparent}
+#askWindowCard{display:block!important;order:2;flex:0 0 auto;width:100%;max-width:none;margin:0!important;padding:10px 14px calc(12px + env(safe-area-inset-bottom))!important;border:0!important;border-top:1px solid var(--dyson-line)!important;border-radius:0!important;background:#141b25!important;box-shadow:0 -12px 32px rgba(0,0,0,.24)!important}
+#askWindowCard.hidden{display:none!important}#askWindowCard>div:first-child{display:none!important}
+.ask-entry-panel{background:transparent!important;padding:0!important}.ask-entry-panel>div:first-child{display:none!important}.ask-entry-panel>label{display:none!important}
+.ask-composer{display:flex!important;align-items:flex-end!important;gap:8px!important;background:#202936!important;border:1px solid rgba(143,170,204,.24)!important;border-radius:17px!important;padding:7px!important;box-shadow:none!important}
+#questionInput{min-height:42px!important;max-height:112px!important;padding:10px!important;font-size:16px!important;line-height:1.4!important;color:#f5f7fa!important}
+.ask-send-btn{width:43px!important;height:43px!important;min-width:43px!important;border-radius:13px!important;background:linear-gradient(145deg,#4f8cff,#765bdd)!important;color:#fff!important;font-size:1.05rem!important}
+.ask-photo-actions{margin-top:8px!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important}.ask-photo-buttons{display:flex!important;gap:6px!important;flex-wrap:wrap!important}.ask-photo-buttons button{font-size:.66rem!important;padding:7px 9px!important;border-radius:10px!important}.ask-photo-actions #questionPhotoName{font-size:.63rem!important;max-width:130px!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#questionPhotoPreview{max-height:100px!important;margin-top:7px!important}.ask-stats-shortcuts{display:none!important}#favoritesPanel{display:none!important}
+#answerArea{display:flex;flex-direction:column;gap:12px;order:1;width:100%;max-width:100%;margin:0 auto!important;padding:0 0 18px!important;min-height:100px}
+#answerArea:empty{display:none}
+#answerArea>.card,#answerArea>.ask-clarify-inline{width:100%!important;max-width:100%!important;margin:0!important;border-radius:16px!important;background:#171f2b!important;border:1px solid var(--dyson-line)!important;box-shadow:none!important;padding:16px!important;overflow-wrap:anywhere}
+#answerArea .status-msg{color:#b9c6d5!important}
+.ask-clarify-inline{position:relative!important;inset:auto!important;max-height:none!important;overflow:visible!important}
+.ask-clarify-kicker{color:#8fb2ff!important;font-size:.62rem!important;letter-spacing:.14em!important}.ask-clarify-question{font-size:1rem!important;line-height:1.45!important;color:#f4f6f8!important}.ask-clarify-hint{font-size:.76rem!important;color:#9eacbd!important;margin:8px 0 13px!important}.ask-clarify-options{display:grid!important;grid-template-columns:1fr!important;gap:7px!important}
+.ask-clarify-choice{min-height:52px!important;padding:11px 12px!important;border-radius:12px!important;background:#202b3a!important;border:1px solid rgba(143,170,204,.18)!important;color:#edf3fa!important;font-size:.82rem!important;text-align:left!important}.ask-choice-index{background:rgba(79,140,255,.16)!important;color:#9ebeff!important}.ask-choice-arrow{color:#9ebeff!important}.ask-clarify-other{border-color:var(--dyson-line)!important}.ask-clarify-other label{color:#aeb9c8!important}.ask-clarify-other-row input{background:#202936!important;border:1px solid var(--dyson-line)!important;color:white!important}
+.ask-workspace-thread .sweet-loading-box{width:100%!important;max-width:none!important;margin:0!important}
+body.ask-workspace-open{overflow:hidden!important}body.ask-workspace-open #appBottomNav{display:none!important}body.ask-workspace-open>header{display:none!important}
+@media(min-width:761px){.ask-workspace-thread{padding:24px 28px 28px}#askWindowCard{padding:12px 28px 18px!important}.ask-workspace-topbar{padding:0 28px}}
+@media(max-width:600px){#globalClockBar{height:46px;gap:7px;padding:0 11px}.global-clock-brand{font-size:.52rem;letter-spacing:.1em}#globalClockDate{font-size:.59rem}#globalClockTime{font-size:1rem;min-width:74px}body{padding-top:46px!important}body>header{display:block!important;padding:7px 12px!important}.ask-workspace-overlay{inset:46px 0 0}.ask-workspace-topbar{height:56px;flex-basis:56px;padding:0 12px}.ask-workspace-thread{padding:12px 11px 16px}#askWindowCard{padding:9px 10px calc(10px + env(safe-area-inset-bottom))!important}.ask-workspace-title strong{font-size:.86rem}.ask-workspace-title small{font-size:.59rem}.ask-workspace-close{padding:7px 9px!important}.ask-clarify-inline{padding:14px!important}.home-command-top{margin-bottom:15px!important}.home-greeting h1{font-size:2rem!important}.home-work-card{min-height:88px!important}}
+</style>
 </body>
 </html>
 <!-- ==================== HATIRLATMA KARTI & KENDİNİ TEST ET MODÜLÜ ==================== -->
@@ -7348,6 +7431,8 @@ ${kaynak}`;
   const el=id=>document.getElementById(id);
   function activate(key){items.forEach(b=>b.classList.toggle('active',b.dataset.nav===key));}
   function showHome(){
+    if(!el('askWorkspaceOverlay')?.classList.contains('hidden')) window.closeAskWorkspace?.();
+    el('askWorkspaceOverlay')?.classList.add('hidden');
     el('askWindowCard')?.classList.add('hidden');
     el('answerStatsPage')?.classList.add('hidden');
     el('askWindowCard')?.querySelector('.ask-entry-panel')?.classList.remove('hidden');
@@ -7370,6 +7455,8 @@ ${kaynak}`;
       activate(key); window.scrollTo({top:0,behavior:'smooth'}); return;
     }
     if(key==='upload'){
+      if(!el('askWorkspaceOverlay')?.classList.contains('hidden')) window.closeAskWorkspace?.();
+      el('askWorkspaceOverlay')?.classList.add('hidden');
       el('askWindowCard')?.classList.add('hidden');
       el('uploadQueueCard')?.classList.add('hidden');
       el('centerHomeStage')?.classList.add('hidden');
