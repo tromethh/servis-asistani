@@ -434,10 +434,10 @@ status('addStatus','');
 
 $('clearRecord').addEventListener('click',clearRecordForm);
 
-function openCropQueue(files){
+function openCropQueue(files,mode='record'){
 const list=[...files];
 state.crop.queue=[];
-state.crop.mode='record';
+state.crop.mode=mode;
 list.forEach(f=>{
 if(f.type.startsWith('image/'))state.crop.queue.push(f);
 else state.pendingFiles.push(f);
@@ -704,7 +704,17 @@ $('addReviewPhoto').addEventListener('click',()=>{
 if(reviewExtraBusy)return;
 reviewExtraStart=state.pendingFiles.length;
 state.crop.returnToReview=true;
-$('recordFiles').click();
+setUploadProgress(false);
+$('reviewFiles').value='';
+$('reviewFiles').click();
+});
+$('reviewFiles').addEventListener('change',()=>{
+const files=$('reviewFiles').files;
+if(files.length){
+setUploadProgress(false);
+openCropQueue(files,'review');
+}
+$('reviewFiles').value='';
 });
 
 async function analyzeAdditionalReviewFiles(){
