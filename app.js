@@ -437,7 +437,7 @@ $('clearRecord').addEventListener('click',clearRecordForm);
 function openCropQueue(files){
 const list=[...files];
 state.crop.queue=[];
-state.pendingFiles=[];
+state.crop.mode='record';
 list.forEach(f=>{
 if(f.type.startsWith('image/'))state.crop.queue.push(f);
 else state.pendingFiles.push(f);
@@ -559,13 +559,17 @@ async function finishCrop(full=false){
 const f=state.crop.queue[state.crop.index];
 try{
 const out=await cropToFile(f,full);
-state.pendingFiles.push(out);
-}catch(e){
-toast(e.message);
-return;
+if(state.crop.mode==='question'){
+ const optimized=await optimizedImageData(out);
+ state.photo={file:out,...optimized};
+ $('questionPhotoName').textContent=out.name;
+ if(state.crop.objectUrl)URL.revokeObjectURL(state.crop.objectUrl);
+ state.crop.objectUrl=null;$('cropOverlay').classList.add('hidden');$('questionPhoto').value='';$('questionCamera').value='';
+ return;
 }
-state.crop.index++;
-showCropCurrent();
+state.pendingFiles.push(out);renderFileChips();
+}catch(e){toast(e.message);return;}
+state.crop.index++;showCropCurrent();
 }
 
 $('cropApply').addEventListener('click',()=>finishCrop(false));
@@ -574,6 +578,8 @@ $('cropSkip').addEventListener('click',()=>{
 state.crop.index++;
 showCropCurrent();
 });
+
+function openQuestionCrop(file){state.crop.mode='question';state.crop.queue=[file];state.crop.index=0;showCropCurrent();}
 
 function renderFileChips(){
 const all=state.pendingFiles;
@@ -801,11 +807,7 @@ return el;
 $('questionCamera').addEventListener('change',()=>{if($('questionCamera').files.length){const dt=new DataTransfer();dt.items.add($('questionCamera').files[0]);$('questionPhoto').files=dt.files;$('questionPhoto').dispatchEvent(new Event('change'));$('questionCamera').value='';}});
 $('questionPhoto').addEventListener('change',async()=>{
 const f=$('questionPhoto').files[0];
-if(!f){
-state.photo=null;
-$('questionPhotoName').textContent='Görsel eklenmedi';
-return;
-}
+if(!f){state.photo=null;$('questionPhotoName').textContent='Görsel eklenmedi';return;}
 if(!f.type.startsWith('image/')){
 toast('Lütfen bir görsel seçin.');
 $('questionPhoto').value='';
@@ -816,9 +818,7 @@ toast('Görsel 12 MB sınırını aşıyor.');
 $('questionPhoto').value='';
 return;
 }
-const optimized=await optimizedImageData(f);
-state.photo={file:f,...optimized};
-$('questionPhotoName').textContent=f.name;
+openQuestionCrop(f);
 });
 
 $('clearPhoto').addEventListener('click',()=>{
