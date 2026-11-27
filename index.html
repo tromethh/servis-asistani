@@ -92,6 +92,85 @@ background:radial-gradient(ellipse at center,#142b3c 0%,#091522 58%,#050b13 100%
 @keyframes spinProgress{to{transform:rotate(360deg)}}.progress-track{height:5px;border-radius:8px;background:#26384b;overflow:hidden;margin:20px 0 13px}.progress-track i{display:block;width:8%;height:100%;background:linear-gradient(90deg,var(--cyan),var(--violet));transition:width .35s}.progress-steps{display:flex;justify-content:space-between;color:#72869c;font:8px 'DM Mono'}.progress-steps span.active{color:var(--cyan)}
 .feedback-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}.feedback-row button{border:1px solid #35506a;border-radius:9px;background:#102131;color:#cfe0f2;padding:8px 11px;font-size:10px}
 @media(max-width:900px){.upload-source-grid{gap:6px}.upload-source{min-height:96px;padding:9px 4px}.upload-source b{font-size:10px}.view#view-ask.active{height:calc(100dvh - 122px);min-height:0;display:flex;flex-direction:column;overflow:hidden}#view-ask .pagehead{flex:0 0 auto;margin-bottom:10px}#view-ask .pagehead h1{font-size:27px;margin:6px 0}#view-ask .pagehead .lead{font-size:10px;line-height:1.45;margin:0}#view-ask .chatlayout{height:auto;min-height:0;flex:1;overflow:hidden}#view-ask .chatmessages{min-height:0;overscroll-behavior:contain}#view-ask .chatcomposer{flex:0 0 auto;padding:9px;position:relative;padding-bottom:max(9px,env(safe-area-inset-bottom))}#view-ask .chatinput textarea{min-height:44px;max-height:88px;resize:none}body.keyboard-open .bottomnav{display:none}body.keyboard-open .main{padding-bottom:8px}body.keyboard-open .view#view-ask.active{height:calc(var(--visual-height,100dvh) - 12px)}body.keyboard-open #view-ask .pagehead{display:none}}
+
+/* Calm, premium processing screen — no spinning or dizzying motion */
+#uploadProgress{
+background:rgba(5,10,18,.94)!important;
+backdrop-filter:blur(12px)!important;
+animation:progressFadeIn .22s ease-out both!important;
+}
+#uploadProgress .progress-modal{
+position:relative;isolation:isolate;
+width:min(520px,calc(100% - 36px));height:auto;min-height:0;
+max-width:520px!important;max-height:calc(100dvh - 40px);
+padding:clamp(28px,5vw,48px)!important;
+border:1px solid rgba(115,160,190,.2)!important;
+border-radius:26px!important;
+background:linear-gradient(155deg,#142231 0%,#0c1623 58%,#0a121d 100%)!important;
+box-shadow:0 28px 90px rgba(0,0,0,.42),inset 0 1px rgba(255,255,255,.035);
+text-align:left;gap:0;
+}
+#uploadProgress .progress-orbit{
+width:54px;height:54px;flex:0 0 54px!important;
+margin:0 0 25px;border:1px solid rgba(0,229,255,.25);
+border-radius:17px;background:rgba(0,229,255,.07);
+animation:none!important;display:grid;place-items:center;
+}
+#uploadProgress .progress-orbit span{
+width:11px;height:11px;border-radius:50%;
+background:#67d8e7;box-shadow:0 0 18px rgba(103,216,231,.35);
+}
+#uploadProgress .modal-kicker{
+font-size:9px;letter-spacing:.2em;color:#77cbd7;margin-bottom:12px;
+}
+#uploadProgress h2{
+font-size:clamp(22px,3vw,29px);line-height:1.25;
+letter-spacing:-.04em;margin:0 0 10px;color:#f3f7ff;
+}
+#uploadProgress p{
+font-size:13px;line-height:1.75;color:#a7b7c8;margin:0;
+}
+#uploadProgress .progress-track{
+height:4px;margin:27px 0 17px;border-radius:20px;
+background:#26394a;overflow:hidden;
+}
+#uploadProgress .progress-track i{
+position:relative;border-radius:20px;
+background:linear-gradient(90deg,#56c9d8,#82b8e9);
+transition:width .55s cubic-bezier(.2,.7,.2,1);
+}
+#uploadProgress .progress-track i:after{
+content:"";position:absolute;inset:0;
+background:linear-gradient(90deg,transparent,rgba(255,255,255,.32),transparent);
+animation:progressSheen 2.8s ease-in-out infinite;
+}
+#uploadProgress .progress-steps{
+display:flex;gap:8px;justify-content:flex-start;flex-wrap:wrap;
+font:10px Manrope,system-ui,sans-serif;color:#73869a;
+}
+#uploadProgress .progress-steps span{
+padding:7px 10px;border:1px solid #26384a;border-radius:20px;
+background:rgba(255,255,255,.018);transition:background .25s,border-color .25s,color .25s;
+}
+#uploadProgress .progress-steps span.active{
+color:#b9edf1;border-color:rgba(86,201,216,.35);
+background:rgba(86,201,216,.09);
+}
+@keyframes progressFadeIn{from{opacity:0}to{opacity:1}}
+@keyframes progressSheen{0%,35%{transform:translateX(-110%)}75%,100%{transform:translateX(110%)}}
+@media(prefers-reduced-motion:reduce){
+#uploadProgress,#uploadProgress *{animation:none!important;transition:none!important}
+}
+@media(max-width:600px){
+#uploadProgress .progress-modal{
+width:calc(100% - 28px);padding:28px 23px!important;
+border-radius:22px!important;
+}
+#uploadProgress .progress-orbit{margin-bottom:21px}
+#uploadProgress .progress-steps{gap:6px}
+#uploadProgress .progress-steps span{font-size:9px;padding:7px 8px}
+}
+
 </style>
 </head>
 <body>
