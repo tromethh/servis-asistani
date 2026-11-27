@@ -653,7 +653,8 @@ extracted.push('BİRLİKTE ANALİZ EDİLEN FOTOĞRAFLAR: '+imageNames.join(', ')
 }
 }
 
-const finalContent=[content,...extracted].filter(Boolean).join('\n\n--- EKLİ KAYNAK ---\n\n');
+const normalizeExtractedText=value=>String(value||'').replace(/\\r\\n/g,'\n').replace(/\\n/g,'\n').replace(/\\r/g,'\n').trim();
+const finalContent=[content,...extracted].map(normalizeExtractedText).filter(Boolean).join('\n\n\n--- EKLİ KAYNAK ---\n\n\n');
 
 state.draft={
 title:title||aiTitle||files[0]?.name.replace(/\.[^.]+$/,'')||'Yeni teknik bilgi',
@@ -755,8 +756,9 @@ newContent=await callAI([...imageParts,{text:prompt}],'Sen mevcut teknik servis 
 newContent=extracted.join('\\n\\n');
 }
 if(!newContent.trim())throw new Error('Ek dosyalardan yeni bir içerik çıkarılamadı.');
-const separator='\n\n\n--- SONRADAN EKLENEN FOTOĞRAFLAR / DOSYALAR ---\n\n';
-$('reviewContent').value=currentContent.trimEnd()+separator+'Kaynak: '+extraFiles.map(f=>f.name).join(', ')+'\n\n\n'+newContent.trim();
+const normalizeAddedText=value=>String(value||'').replace(/\\r\\n/g,'\n').replace(/\\n/g,'\n').replace(/\\r/g,'\n').trim();
+const separator='\n\n\n--- SONRADAN EKLENEN FOTOĞRAFLAR / DOSYALAR ---\n\n\n';
+$('reviewContent').value=normalizeAddedText(currentContent)+'\n\n\n'+separator.trim()+'\n\n\nKaynak: '+extraFiles.map(f=>f.name).join(', ')+'\n\n\n'+normalizeAddedText(newContent);
 $('reviewMeta').textContent=(state.pendingFiles.length)+' dosya işlendi · Ek içerik eklendi · '+new Date().toLocaleString('tr-TR')+' · Kaydetmeden önce kontrol edin';
 toast('Yeni fotoğraflardaki bilgiler mevcut kaydın sonuna eklendi.');
 }catch(e){
