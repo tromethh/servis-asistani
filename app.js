@@ -444,6 +444,7 @@ else state.pendingFiles.push(f);
 });
 if(!state.crop.queue.length){
 renderFileChips();
+if(state.crop.returnToReview){state.crop.returnToReview=false;analyzeAdditionalReviewFiles();}
 return;
 }
 state.crop.index=0;
@@ -457,6 +458,7 @@ if(state.crop.objectUrl)URL.revokeObjectURL(state.crop.objectUrl);
 state.crop.objectUrl=null;
 $('cropOverlay').classList.add('hidden');
 renderFileChips();
+if(state.crop.returnToReview){state.crop.returnToReview=false;analyzeAdditionalReviewFiles();}
 return;
 }
 if(state.crop.objectUrl)URL.revokeObjectURL(state.crop.objectUrl);
@@ -693,6 +695,65 @@ $('reviewGroup').after(dl);
 }
 dl.innerHTML=items.map(x=>`<option value="${escapeHTML(x)}"></option>`).join('');
 });
+
+
+let reviewExtraStart=0;
+let reviewExtraBusy=false;
+
+$('addReviewPhoto').addEventListener('click',()=>{
+if(reviewExtraBusy)return;
+reviewExtraStart=state.pendingFiles.length;
+state.crop.returnToReview=true;
+$('recordFiles').click();
+});
+
+async function analyzeAdditionalReviewFiles(){
+if(reviewExtraBusy)return;
+const extraFiles=state.pendingFiles.slice(reviewExtraStart);
+if(!extraFiles.length)return;
+reviewExtraBusy=true;
+const btn=$('addReviewPhoto');
+btn.disabled=true;
+btn.textContent='Ek fotoğraflar analiz ediliyor…';
+setUploadProgress(true,'Ek fotoğraflar hazırlanıyor','Mevcut taslak korunacak; yeni bilgiler içeriğin sonuna eklenecek.',12,0);
+try{
+let imageParts=[],extracted=[],names=[];
+for(let i=0;i<extraFiles.length;i++){
+const f=extraFiles[i];
+if(f.size>18*1024*1024)throw new Error(f.name+' 18 MB sınırını aşıyor.');
+if(f.type==='application/pdf'||f.name.toLowerCase().endsWith('.pdf')){
+const t=await pdfText(f);
+extracted.push('DOSYA: '+f.name+'\\n'+(t||'PDF metni okunamadı.'));
+}else if(f.type.startsWith('image/')){
+imageParts.push(await imageForAI(f));
+names.push(f.name);
+}else{
+throw new Error(f.name+' desteklenmeyen dosya türünde.');
+}
+}
+const currentTitle=$('reviewTitle').value.trim();
+const currentContent=$('reviewContent').value.trim();
+let newContent='';
+if(imageParts.length){
+const prompt='Bu görseller, daha önce analiz edilmiş ve aşağıda verilen mevcut teknik kaydın DEVAMIDIR. Önceki metni yeniden yazma, özetleme veya tekrar etme. Yalnızca yeni fotoğraflarda bulunan ve mevcut kayda eklenmesi gereken bilgileri çıkar. Yeni görsellerdeki adımları, tabloları, soru-cevapları, hata kodlarını, model/parça numaralarını ve uyarıları incele. Bilgileri mevcut kaydın devamı olacak şekilde düzenle; tekrarları atla, çelişkileri açıkça belirt, kaynakta olmayan bilgi uydurma.\\nKayıt başlığı: '+currentTitle+'\\nMevcut kayıt (yalnızca bağlam için):\\n'+currentContent+'\\nYeni dosyalar: '+names.join(', ')+'\\nPDF metinleri: '+(extracted.join('\\n\\n')||'Yok')+'\\nYalnızca yeni eklenecek içeriği, düzenli başlıklarla düz metin olarak döndür.';
+newContent=await callAI([...imageParts,{text:prompt}],'Sen mevcut teknik servis kaydına ek kaynaklar işleyen asistansın. Önceki içeriği tekrar etme. Yalnızca yeni görsellerden çıkarılan ek bilgileri ver. Kaynakta olmayan bilgi uydurma.');
+}else{
+newContent=extracted.join('\\n\\n');
+}
+if(!newContent.trim())throw new Error('Ek dosyalardan yeni bir içerik çıkarılamadı.');
+const separator='\\n\\n--- SONRADAN EKLENEN FOTOĞRAFLAR / DOSYALAR ---\\n\\n';
+$('reviewContent').value=currentContent+separator+'Kaynak: '+extraFiles.map(f=>f.name).join(', ')+'\\n'+newContent.trim();
+$('reviewMeta').textContent=(state.pendingFiles.length)+' dosya işlendi · Ek içerik eklendi · '+new Date().toLocaleString('tr-TR')+' · Kaydetmeden önce kontrol edin';
+toast('Yeni fotoğraflardaki bilgiler mevcut kaydın sonuna eklendi.');
+}catch(e){
+toast('Ek fotoğraflar analiz edilemedi: '+e.message);
+}finally{
+setUploadProgress(false);
+reviewExtraBusy=false;
+btn.disabled=false;
+btn.textContent='＋ Bir Fotoğraf Daha Ekle';
+}
+}
 
 $('cancelReview').addEventListener('click',()=>$('reviewOverlay').classList.add('hidden'));
 
