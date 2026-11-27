@@ -326,7 +326,7 @@ return out.trim();
 }
 
 async function setUploadProgress(show,title='',message='',percent=8,step=0){const o=$('uploadProgress');if(!o)return;o.classList.toggle('hidden',!show);if(!show)return;$('uploadProgressTitle').textContent=title;$('uploadProgressText').textContent=message;$('uploadProgressBar').style.width=Math.max(5,Math.min(100,percent))+'%';document.querySelectorAll('#uploadProgressSteps span').forEach((x,i)=>x.classList.toggle('active',i<=step));}
-function callAI(parts,systemInstruction){
+async function callAI(parts,systemInstruction){
 const url=cfg.supabaseUrl.replace(/\/$/,'')+'/functions/v1/'+(cfg.aiFunction||'servis-ai-generate');
 const controller=new AbortController();
 const timer=setTimeout(()=>controller.abort(),65000);
