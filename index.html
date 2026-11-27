@@ -1130,7 +1130,7 @@
       <div class="header-left">
         <div class="app-brand premium-brand"><span class="brand-mark">S</span><span><strong>SERVİS</strong><small>KNOWLEDGE WORKSPACE</small></span></div>
         <span id="currentUserBadge" class="user-pill hidden">-</span>
-        <button id="recordsBtn" type="button" class="records-top-btn hidden">Bilgi Bankası</button>
+        <button id="recordsBtn" type="button" class="records-top-btn hidden">Bilgi Hazinesi</button>
       </div>
       <button id="notifToggleBtn" type="button" class="notif-btn ok hidden" aria-label="Bildirimler" title="Bildirimler"><span class="notif-bell" aria-hidden="true">🔔</span><span id="notifCountBadge" class="notif-count-badge">0</span></button>
     </div>
@@ -1220,6 +1220,14 @@
         <button id="sonBilgiDetayKapatBtn" type="button" class="secondary" style="padding:6px 12px; font-size:0.82rem;">Kapat</button>
       </div>
       <div id="sonBilgiDetayIcerik"></div>
+    </div>
+  </div>
+
+  <div id="recentQuestionDetailBackdrop" class="recent-question-detail-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="recentQuestionDetailTitle">
+    <div class="recent-question-detail-card">
+      <div class="recent-question-detail-head"><div><span class="eyebrow">ÖNCEKİ YANIT</span><h2 id="recentQuestionDetailTitle">Soru detayı</h2></div><button type="button" id="recentQuestionDetailClose" class="secondary">Kapat</button></div>
+      <div class="recent-question-meta" id="recentQuestionDetailMeta"></div>
+      <div class="recent-question-answer" id="recentQuestionDetailAnswer"></div>
     </div>
   </div>
 
@@ -1511,6 +1519,10 @@
           <button type="button" class="home-shift-link" data-nav="shift">Vardiya alanını aç <span>→</span></button>
         </section>
       </div>
+      <section id="homeRecentQuestionsCard" class="home-recent-questions">
+        <div class="home-panel-heading"><div><span class="eyebrow">SOHBET GEÇMİŞİ</span><h3>Son Sorulan Sorular</h3></div><span class="recent-count" id="homeRecentQuestionsCount">0</span></div>
+        <div id="homeRecentQuestionsList" class="home-recent-questions-list"><p class="recent-empty">Henüz kayıtlı bir soru yok.</p></div>
+      </section>
       <div id="homeClock" class="home-clock-anchor" aria-hidden="true"></div>
     </div>
 
@@ -1617,7 +1629,7 @@
 
     <nav id="appBottomNav" class="app-bottom-nav" aria-label="Ana menü">
       <button type="button" class="nav-item nav-item-small active" data-nav="home" aria-label="Ana Sayfa"><span class="nav-icon">⌂</span><span>Ana Sayfa</span></button>
-      <button type="button" class="nav-item nav-item-main nav-item-upload" data-nav="upload" aria-label="Bilgi Yükle"><span class="nav-icon">＋</span><span>Bilgi Yükle</span></button>
+      <button type="button" class="nav-item nav-item-main nav-item-upload" data-nav="upload" aria-label="Bilgi Yükle"><span class="nav-icon">＋</span><span>Bilgi Ekle</span></button>
       <button type="button" class="nav-item nav-item-main" data-nav="ask" aria-label="Soru Sor"><span class="nav-icon">⌕</span><span>Soru Sor</span></button>
       <button type="button" class="nav-item nav-item-small" data-nav="shift" aria-label="Vardiya"><span class="nav-icon">◷</span><span>Vardiya</span></button>
     </nav>
@@ -3373,6 +3385,7 @@ KESİN KURALLAR:
       saveLocalState(state);
       try { await sbUpsertRecords([rec]); }
       catch (err) { console.warn("Soru-cevap geçmişi buluta kaydedilemedi:", err); }
+      window.renderRecentQuestionsHome?.();
     }
 
     document.getElementById("toggleFavoritesBtn")?.addEventListener("click",async()=>{
@@ -5234,13 +5247,18 @@ KESİN KURALLAR:
 
       function bugununKayitlariniGetir() {
         if (typeof state === "undefined" || !state || !Array.isArray(state.records)) return [];
-        const bugun = bugunTarihAnahtari(new Date().toISOString());
+        const bugun = bugunTarihAnahtari(new Date());
 
         return state.records
           .map(normalizeRecord)
           .filter(r => {
             if (!r || !r.id) return false;
             if (SISTEM_KAYIT_KATEGORILERI.has(r.category)) return false;
+            if (["SoruCevapGecmisi", "Favori", "BilgiEksikligiBildirimi"].includes(r.category)) return false;
+            const kategori = aiNormalizeText(r.category || "");
+            const makaleMi = (typeof isMakaleCategory === "function" && isMakaleCategory(r.category)) || kategori === "makale" || kategori.startsWith("makale ");
+            const surecMi = kategori.includes("surec");
+            if (!makaleMi && !surecMi) return false;
             return bugunTarihAnahtari(r.uploadedAt || r.updatedAt) === bugun;
           })
           .sort((a, b) => {
@@ -5301,21 +5319,12 @@ KESİN KURALLAR:
 
         listeEl.innerHTML = kayitlar.map(r => {
           const saatStr = formatDateTr(r.uploadedAt || r.updatedAt);
-          const isOpen = window.todayExpandedRecordIds?.has(r.id) || false;
           return `
             <div class="record-item today-record-expand" style="margin-bottom:8px;padding:10px;">
-              <button type="button" class="today-record-title" onclick="toggleTodayRecord('${escapeHtml(r.id)}')" style="display:flex;width:100%;justify-content:space-between;align-items:center;gap:10px;background:transparent;border:0;box-shadow:none;padding:0;text-align:left;">
-                <span style="font-weight:800;color:#fff;font-size:.9rem;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(r.title || "Başlıksız Kayıt")}</span>
-                <span class="badge">${isOpen ? "Gizle" : "Detay"}</span>
+              <button type="button" class="today-record-title" onclick="openTodayKnowledgeDetail('${escapeHtml(r.id)}')" style="display:flex;width:100%;justify-content:space-between;align-items:center;gap:10px;background:transparent;border:0;box-shadow:none;padding:0;text-align:left;">
+                <span style="font-weight:800;color:#fff;font-size:.92rem;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(r.title || "Başlıksız Kayıt")}</span>
+                <span class="badge">Aç <span aria-hidden="true">↗</span></span>
               </button>
-              ${isOpen ? `<div class="today-record-content" style="margin-top:10px;">
-                <div class="today-record-meta">${escapeHtml(r.category || "Genel")} · ${escapeHtml(r.group || "Geneli")} · ${escapeHtml(saatStr)} · ${escapeHtml(r.uploadedBy || "Bilinmiyor")}</div>
-                <pre style="white-space:pre-wrap;font-family:inherit;margin:8px 0;color:var(--text);">${escapeHtml(r.content || "İçerik bulunmuyor.")}</pre>
-                <div class="actions" style="margin-top:10px;">
-                  <button type="button" class="cyan-outline" onclick="editTodayRecord('${escapeHtml(r.id)}')">Düzenle</button>
-                  <button type="button" class="danger" onclick="deleteTodayRecord('${escapeHtml(r.id)}')">Sil</button>
-                </div>
-              </div>` : ""}
             </div>`;
         }).join("") + `
           <div style="margin-top:14px;padding-top:8px;border-top:1px solid var(--border);text-align:right;">
@@ -7919,3 +7928,64 @@ ${kaynak}`;
   @media(max-width:600px){.ask-clarify-backdrop{padding:12px}.ask-clarify-card{padding:18px!important;border-radius:20px!important;max-height:84dvh}.ask-clarify-question{font-size:1.02rem}.ask-clarify-choice{min-height:62px!important;font-size:.88rem!important}}
 
 </style>
+
+
+<style id="v31-neon-mobile-polish">
+:root{--bg:#070910!important;--panel:#101522!important;--panel-2:#171e30!important;--surface:#101522!important;--line:rgba(0,229,255,.22)!important;--border:rgba(0,229,255,.22)!important;--text:#f7f9ff!important;--muted:#b8c2d6!important;--neon-cyan:#00e5ff!important;--neon-purple:#a855f7!important;--neon-purple-bright:#c084fc!important;--neon-magenta:#ff3fc8!important;--ok:#48f0bd!important;--danger:#ff5478!important;--dyson-ink:#070910!important;--dyson-panel:#101522!important;--dyson-panel-2:#171e30!important;--dyson-line:rgba(0,229,255,.20)!important;--dyson-text:#f7f9ff!important;--dyson-muted:#b8c2d6!important;--dyson-blue:#00d9ff!important;--dyson-violet:#9d5cff!important;--dyson-pink:#ff3fc8!important}
+html,body{background:#070910!important;color:#f7f9ff!important}body{background:radial-gradient(ellipse at 12% 0%,rgba(0,229,255,.10),transparent 35%),radial-gradient(ellipse at 95% 20%,rgba(168,85,247,.10),transparent 32%),#070910!important;font-size:15px!important}p,small,.status-msg,.home-greeting>p,.work-card-copy small,.home-time-message span{color:#b8c2d6!important}h1,h2,h3,h4,strong,label{color:#f7f9ff}
+#globalClockBar{background:rgba(5,8,15,.98)!important;border-bottom:1px solid rgba(0,229,255,.32)!important;box-shadow:0 4px 22px rgba(0,0,0,.38)!important}#globalClockTime{color:#fff!important;text-shadow:0 0 18px rgba(0,229,255,.55)!important}#globalClockDate{color:#b8c2d6!important}.global-clock-brand{color:#00e5ff!important}
+button,input,textarea,select{font:inherit}button{color:#f7f9ff}input,textarea,select{background:#0d1422!important;color:#f7f9ff!important;border:1px solid rgba(0,229,255,.25)!important}input::placeholder,textarea::placeholder{color:#8795ad!important;opacity:1!important}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid #00e5ff!important;outline-offset:2px!important}
+.premium-home{width:100%!important;max-width:760px!important;margin:0 auto!important}.home-command-top{display:block!important}.home-focus-card{display:none!important}.home-greeting{padding:12px 2px 10px!important}.home-greeting h1{color:#fff!important}.home-greeting h1 span{color:#00e5ff!important;text-shadow:0 0 20px rgba(0,229,255,.18)}.home-work-grid,.home-lower-grid{grid-template-columns:1fr!important}.home-work-card,.home-quick-panel,.home-shift-panel,.home-recent-questions{background:linear-gradient(145deg,#111a2b,#0c1220)!important;border:1px solid rgba(0,229,255,.19)!important;box-shadow:0 8px 28px rgba(0,0,0,.22),inset 0 1px rgba(255,255,255,.025)!important}.home-work-card{min-height:88px!important}.home-work-card:active,.home-shortcuts button:active{transform:scale(.985)}.work-ask .work-card-icon{background:rgba(0,229,255,.14)!important;color:#00e5ff!important}.work-upload .work-card-icon{background:rgba(255,63,200,.13)!important;color:#ff6bd5!important}.home-section-heading h2,.home-panel-heading h3{color:#f7f9ff!important}.home-shortcuts button{background:#141d2e!important;border:1px solid rgba(0,229,255,.17)!important;color:#f7f9ff!important}.home-time-label,.eyebrow{color:#00e5ff!important}.home-time-line strong{color:#fff!important}
+.home-recent-questions{margin-top:12px;padding:15px;border-radius:16px}.home-panel-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}.home-panel-heading h3{margin:4px 0 0;font-size:1rem}.recent-count{display:grid;place-items:center;min-width:30px;height:30px;padding:0 8px;border-radius:999px;background:rgba(0,229,255,.12);border:1px solid rgba(0,229,255,.3);color:#00e5ff;font-weight:800}.home-recent-questions-list{display:grid;gap:7px;margin-top:12px}.recent-question-row{display:flex;align-items:center;gap:10px;width:100%;min-height:52px;padding:10px 11px;text-align:left;border-radius:12px;background:#0b1220!important;border:1px solid rgba(255,255,255,.07)!important;color:#f7f9ff!important;box-shadow:none!important}.recent-question-row .recent-q-copy{min-width:0;flex:1}.recent-question-row strong{display:block;font-size:.84rem;line-height:1.35;white-space:normal;overflow-wrap:anywhere}.recent-question-row small{display:block;color:#98a8bf!important;font-size:.68rem;margin-top:4px}.recent-question-row .recent-q-arrow{color:#00e5ff;font-size:1.2rem}.recent-empty{margin:0;padding:12px 2px;color:#9eabc0!important;font-size:.82rem}
+.recent-question-detail-backdrop{position:fixed;inset:0;z-index:1400;display:flex;align-items:flex-end;justify-content:center;padding:12px;background:rgba(0,0,0,.76);backdrop-filter:blur(12px)}.recent-question-detail-backdrop.hidden{display:none!important}.recent-question-detail-card{width:min(100%,720px);max-height:88dvh;overflow:auto;padding:20px;border-radius:22px 22px 16px 16px;background:#0d1422;border:1px solid rgba(0,229,255,.32);box-shadow:0 25px 90px rgba(0,0,0,.7)}.recent-question-detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.recent-question-detail-head h2{margin:5px 0 0;font-size:1.1rem;line-height:1.35}.recent-question-meta{margin:12px 0;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.09);color:#9eabc0;font-size:.75rem}.recent-question-answer{white-space:pre-wrap;overflow-wrap:anywhere;color:#edf4ff;font-size:.91rem;line-height:1.65}
+#bugunEklenenlerKutusu{background:linear-gradient(145deg,#111a2b,#0c1220)!important;border:1px solid rgba(0,229,255,.24)!important;box-shadow:none!important}#bugunEklenenlerToggleBtn{min-height:42px}#bugunEklenenlerToggleBtn span:first-child{color:#00e5ff!important}#bugunEklenenlerListe .record-item{background:#0b1220!important;border:1px solid rgba(255,255,255,.08)!important;border-radius:12px!important}#bugunEklenenlerListe .today-record-title{min-height:42px!important}#bugunEklenenlerListe .today-record-title span:first-child{white-space:normal!important;line-height:1.35!important}#sonBilgiDetayCard{background:#0a0f19!important;color:#f7f9ff!important}#sonBilgiDetayCard pre{color:#eaf2ff!important}
+/* Knowledge library is browse/search only. Upload and category creation live in the dedicated Add Information flow. */#extCategoryActionsBox .actions,#extToggleSubCatBtn,#extSubCatBox,#extMakaleCatListView>strong,#extMakaleCatListView>.ext-inline-row{display:none!important}#recordsModal .modal-card{background:#0d1422!important;border:1px solid rgba(0,229,255,.24)!important;color:#f7f9ff!important}#recordsModalTitle{color:#00e5ff!important}#recordsModal .cat-choice-btn{background:#121d30!important;color:#f7f9ff!important;border-color:rgba(0,229,255,.22)!important}#recordsModal .record-item{background:#101a2b!important;border:1px solid rgba(0,229,255,.13)!important;color:#f7f9ff!important}#recordsModal .ext-panel-box{background:#0c1422!important;border-color:rgba(0,229,255,.18)!important}
+.app-bottom-nav{background:rgba(7,10,18,.97)!important;border:1px solid rgba(0,229,255,.22)!important;box-shadow:0 8px 35px rgba(0,0,0,.55),0 0 18px rgba(0,229,255,.06)!important}.app-bottom-nav .nav-item{color:#aab6c9!important}.app-bottom-nav .nav-item.active{color:#fff!important}.app-bottom-nav .nav-item.active .nav-icon{background:rgba(0,229,255,.17)!important;color:#00e5ff!important;outline:1px solid rgba(0,229,255,.42)!important}.app-bottom-nav .nav-item-main .nav-icon{background:linear-gradient(145deg,#00dfff,#6558ff)!important;color:#fff!important}
+.ask-workspace-overlay{background:#070a12!important}.ask-workspace-shell{background:#0b111d!important;border-color:rgba(0,229,255,.10)!important}.ask-workspace-topbar{background:#0d1422!important;border-bottom-color:rgba(0,229,255,.20)!important}.ask-workspace-mark{background:linear-gradient(145deg,#00dfff,#8c4dff)!important;color:#fff!important}.ask-workspace-title small{color:#aab6c9!important}.ask-workspace-close{background:#172238!important;border-color:rgba(0,229,255,.22)!important;color:#fff!important}.ask-workspace-thread{background:#080d17!important}.ask-entry-panel{background:transparent!important}#askWindowCard{background:#0d1422!important;border-top-color:rgba(0,229,255,.24)!important}.ask-composer{background:#111d30!important;border-color:rgba(0,229,255,.38)!important}.ask-send-btn{background:linear-gradient(145deg,#00dfff,#7557ff)!important;color:#fff!important}.ask-clarify-inline,.ask-clarify-card{background:#101a2b!important;border-color:rgba(0,229,255,.42)!important}.ask-clarify-choice{background:#17243a!important;border-color:rgba(0,229,255,.22)!important;color:#f7f9ff!important}.ask-clarify-choice:hover{border-color:#00e5ff!important;background:#1b2a43!important}.ask-clarify-kicker{color:#00e5ff!important}.ask-clarify-question{color:#fff!important}.ask-clarify-hint{color:#b8c2d6!important}.status-msg{color:#b8c2d6!important}
+@media(max-width:760px){#appMain{padding:12px 12px calc(105px + env(safe-area-inset-bottom))!important}.home-command-top{margin-bottom:12px!important}.home-greeting{padding:8px 1px!important}.home-greeting h1{font-size:1.85rem!important;line-height:1.12!important}.home-greeting>p{font-size:.82rem!important}.home-command{border:1px solid rgba(0,229,255,.28)!important;background:#0e1727!important}.home-command input{color:#fff!important}.home-command button{background:linear-gradient(120deg,#00cfea,#6655ed)!important;color:#fff!important}.home-work-grid{gap:8px!important}.home-work-card{min-height:78px!important;padding:12px!important}.home-lower-grid{margin-top:9px!important}.home-quick-panel,.home-shift-panel{padding:12px!important}.home-recent-questions{padding:13px!important}.home-recent-questions-list{gap:6px}.recent-question-detail-backdrop{padding:0;align-items:flex-end}.recent-question-detail-card{width:100%;max-height:88dvh;border-radius:22px 22px 0 0;padding:18px 16px calc(20px + env(safe-area-inset-bottom))}.recent-question-detail-head h2{font-size:1rem}#bugunEklenenlerListe{max-height:260px!important}}
+@media(min-width:761px){.home-command-top{display:block!important}.home-focus-card{display:none!important}.home-recent-questions{max-width:100%}}
+</style>
+<script id="v31-question-history-and-knowledge-separation">
+(function(){
+  const $=id=>document.getElementById(id);
+  function readQuestionRows(){
+    const rows=(typeof state!=='undefined'&&Array.isArray(state?.records)?state.records:[]).filter(r=>r?.category==='SoruCevapGecmisi');
+    return rows.map(r=>{try{const qa=JSON.parse(r.content||'{}');return qa.answer?{record:r,qa}:null}catch{return null}}).filter(Boolean)
+      .sort((a,b)=>new Date(b.qa.askedAt||b.record.uploadedAt||0)-new Date(a.qa.askedAt||a.record.uploadedAt||0));
+  }
+  window.renderRecentQuestionsHome=function(){
+    const list=$('homeRecentQuestionsList'),count=$('homeRecentQuestionsCount');if(!list||!count)return;
+    const rows=readQuestionRows().slice(0,7);count.textContent=String(readQuestionRows().length);
+    if(!rows.length){list.innerHTML='<p class="recent-empty">Henüz kayıtlı bir soru yok. Asistana soru sordukça burada görünecek.</p>';return;}
+    list.innerHTML=rows.map(({record,qa})=>{
+      const date=new Date(qa.askedAt||record.uploadedAt||Date.now());
+      const when=Number.isNaN(date.getTime())?'':date.toLocaleString('tr-TR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+      const title=qa.question||record.title||'Görsel soru';
+      return `<button type="button" class="recent-question-row" data-recent-question-id="${escapeHtml(record.id)}"><span class="recent-q-copy"><strong>${escapeHtml(title)}</strong><small>${escapeHtml(when)} · Son yanıtı görüntüle</small></span><span class="recent-q-arrow" aria-hidden="true">›</span></button>`;
+    }).join('');
+  };
+  function openQuestion(id){
+    const item=readQuestionRows().find(x=>String(x.record.id)===String(id));if(!item)return;
+    $('recentQuestionDetailTitle').textContent=item.qa.question||item.record.title||'Soru detayı';
+    const d=new Date(item.qa.askedAt||item.record.uploadedAt||Date.now());
+    $('recentQuestionDetailMeta').textContent=`${Number.isNaN(d.getTime())?'':d.toLocaleString('tr-TR')} · ${item.qa.askedBy||item.record.uploadedBy||'Kullanıcı'}`;
+    $('recentQuestionDetailAnswer').textContent=item.qa.answer||'Bu soru için kayıtlı bir yanıt bulunamadı.';
+    $('recentQuestionDetailBackdrop').classList.remove('hidden');
+  }
+  document.addEventListener('click',e=>{
+    const btn=e.target.closest('[data-recent-question-id]');if(btn){openQuestion(btn.dataset.recentQuestionId);return;}
+  });
+  $('recentQuestionDetailClose')?.addEventListener('click',()=>$('recentQuestionDetailBackdrop')?.classList.add('hidden'));
+  $('recentQuestionDetailBackdrop')?.addEventListener('click',e=>{if(e.target===$('recentQuestionDetailBackdrop'))$('recentQuestionDetailBackdrop').classList.add('hidden')});
+  window.openTodayKnowledgeDetail=function(id){
+    const rec=(state?.records||[]).map(normalizeRecord).find(r=>String(r.id)===String(id));if(!rec)return;
+    $('sonBilgiDetayIcerik').innerHTML=`<div class="recent-question-meta">${escapeHtml(rec.category||'Bilgi')} · ${escapeHtml(rec.group||'Genel')} · ${escapeHtml(formatDateTr(rec.uploadedAt||rec.updatedAt))}</div><h2 style="font-size:1.15rem;line-height:1.35;margin:10px 0 14px;color:#fff">${escapeHtml(rec.title||'Başlıksız kayıt')}</h2><div style="white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.65;color:#edf4ff">${escapeHtml(rec.content||'İçerik bulunmuyor.')}</div><div class="actions" style="margin-top:18px"><button type="button" class="cyan-outline" onclick="editTodayRecord('${escapeHtml(rec.id)}')">Düzenle</button><button type="button" class="danger" onclick="deleteTodayRecord('${escapeHtml(rec.id)}')">Sil</button></div>`;
+    $('sonBilgiDetayBackdrop')?.classList.remove('hidden');
+  };
+  $('sonBilgiDetayKapatBtn')?.addEventListener('click',()=>$('sonBilgiDetayBackdrop')?.classList.add('hidden'));
+  $('sonBilgiDetayBackdrop')?.addEventListener('click',e=>{if(e.target===$('sonBilgiDetayBackdrop'))$('sonBilgiDetayBackdrop').classList.add('hidden')});
+  // Initial cloud sync may finish after this script; refresh lightly without touching chat state.
+  window.renderRecentQuestionsHome();
+  setInterval(()=>window.renderRecentQuestionsHome(),8000);
+})();
+</script>
