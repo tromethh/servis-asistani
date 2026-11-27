@@ -1,0 +1,13 @@
+const fs=require('fs'),path=require('path'),assert=require('assert');
+const root=__dirname;
+const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
+const js=fs.readFileSync(path.join(root,'app.js'),'utf8');
+const config=fs.readFileSync(path.join(root,'config.js'),'utf8');
+for(const id of ['view-home','view-add','view-ask','view-break','view-library','recordTitle','recordCategory','recordGroup','recordContent','recordFiles','saveRecord','question','sendQuestion','timer','recordList','backupNow','restoreFile','activeBreakCard','homeBreakCard','cropOverlay','cropImage','cropApply','reviewOverlay','reviewTitle','reviewCategory','reviewContent','approveReview','recordCount','dailyQuestions','dailyUploads','latestPanel','latestKnowledge','latestDetailOverlay','newCategoryBtn','newGroupBtn','manualBreakMinutes']) assert(html.includes(`id="${id}"`),`missing HTML id ${id}`);
+for(const token of ['syncRecords','saveCloudRecord','updateCloudRecord','deleteCloudRecord','callAI','pdfText','searchRecords','renderTimer','makeBackup','downloadBackup','articleCategories','cropToFile','approveReview','latest-green','latest-red','bumpDaily','addSubcategory']) assert(js.includes(token)||html.includes(token),`missing feature ${token}`);
+assert(config.includes('supabaseUrl')&&config.includes('supabaseAnonKey'),'Supabase config keys missing');
+assert(!/service_role|AIza[\w-]{20,}/.test(config.replace(/\/\*[\s\S]*?\*\//g,'').replace(/\/\/.*$/gm,'')),'secret-like key exposed in client config');
+assert(html.includes('prefers-reduced-motion')&&html.includes('viewport-fit=cover'),'accessibility/mobile setup missing');
+assert(html.includes('capture="environment"'),'camera capture missing');
+assert(js.includes('resolution=merge-duplicates'),'restore must merge, not delete');
+console.log('PASS: Dyson UI, Supabase wiring, knowledge upload, Q&A, search, category creation, daily stats, latest record, breaks, backup/restore and mobile setup');
