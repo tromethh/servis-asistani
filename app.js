@@ -626,7 +626,7 @@ $('recordFileList').innerHTML=all.map((f,i)=>`<span class="filechip"><b>${i+1}.<
 
 $('recordFiles').addEventListener('change',()=>{const files=$('recordFiles').files;if(files.length)openCropQueue(files);$('recordFiles').value='';});
 $('recordCamera').addEventListener('change',()=>{const files=$('recordCamera').files;if(files.length)openCropQueue(files);$('recordCamera').value='';});
-$('takeRecordPhoto').addEventListener('click',()=>$('recordCamera').click());$('chooseRecordPhoto').addEventListener('click',()=>$('recordFiles').click());$('addMoreRecordFiles').addEventListener('click',()=>$('recordFiles').click());$('writeRecordText').addEventListener('click',()=>$('recordContent').focus());
+$('takeRecordPhoto').addEventListener('click',()=>$('recordCamera').click());$('chooseRecordPhoto').addEventListener('click',()=>$('recordFiles').click());$('addMoreRecordFiles').addEventListener('click',()=>$('recordFiles').click());$('writeRecordText').addEventListener('click',()=>{const ws=$('view-add').querySelector('.workspace');ws.classList.add('text-entry-open');$('recordContent').focus({preventScroll:true});});
 
 $('saveRecord').addEventListener('click',async()=>{
 const title=$('recordTitle').value.trim();
