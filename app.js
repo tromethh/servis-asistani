@@ -911,6 +911,17 @@ btn.disabled=false;
 }
 });
 
+function scrollChatToBottom(behavior='smooth'){
+const box=$('messages');
+if(!box)return;
+requestAnimationFrame(()=>{
+box.scrollTop=box.scrollHeight;
+const last=box.lastElementChild;
+if(last)last.scrollIntoView({behavior,block:'end'});
+requestAnimationFrame(()=>{box.scrollTop=box.scrollHeight;});
+});
+}
+
 function addBubble(role,text,photoData=null){
 const el=document.createElement('div');
 el.className='bubble '+(role==='user'?'user':'assistant');
@@ -927,7 +938,7 @@ el.append(img);
 }
 
 $('messages').append(el);
-$('messages').scrollTop=$('messages').scrollHeight;
+scrollChatToBottom('auto');
 return el;
 }
 
@@ -1058,6 +1069,7 @@ saveJSON('nova_chat',history.slice(-30));
 loading.lastChild.textContent='Yanıt oluşturulamadı: '+e.message+'\n\nBağlantı ve sunucu ayarları kontrol edilmeli. Kayıtlı eşleşen bilgi sayısı: '+searchRecords(q).length+'.';
 }finally{
 send.disabled=false;
+scrollChatToBottom('smooth');
 }
 }
 
