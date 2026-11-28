@@ -1141,11 +1141,14 @@ toast('Mola tamamlandı olarak işaretlendi.');
 
 document.querySelectorAll('[data-min]').forEach(b=>b.addEventListener('click',()=>{
 if(state.timer.endAt)return;
-document.querySelectorAll('[data-min]').forEach(x=>x.classList.remove('selected'));
-b.classList.add('selected');
-state.timer.duration=Number(b.dataset.min)*60;
+const n=Number(b.dataset.min);
+state.timer.duration=n*60;
+$('minuteWheelValue').textContent=n+' DAKİKA';
+const wheelEl=$('minuteWheel');if(wheelEl)wheelEl.scrollTo({top:(n-1)*42,behavior:'smooth'});
+document.querySelectorAll('[data-min]').forEach(x=>x.classList.toggle('selected',x===b));
+saveJSON('nova_manual_break_minute',n);
 renderTimer();
-$('timerStatus').textContent='Hazır olduğunda başlat.';
+$('timerStatus').textContent=n+' dakikalık mola hazır.';
 }));
 
 $('startTimer').addEventListener('click',async()=>{
@@ -1197,6 +1200,7 @@ const n=Math.max(1,Math.min(240,Math.round(wheel.scrollTop/rowHeight)+1));
 list.querySelectorAll('.minute-wheel-option.selected').forEach(x=>x.classList.remove('selected'));
 const active=list.querySelector('[data-wheel-minute="'+n+'"]');if(active)active.classList.add('selected');
 if(n!==Math.round(state.timer.duration/60)){setManualBreakMinutes(n);saveJSON('nova_manual_break_minute',n);}
+document.querySelectorAll('[data-min]').forEach(x=>x.classList.toggle('selected',Number(x.dataset.min)===n));
 });
 },{passive:true});
 list.addEventListener('click',e=>{const b=e.target.closest('[data-wheel-minute]');if(!b)return;wheel.scrollTo({top:(Number(b.dataset.wheelMinute)-1)*rowHeight,behavior:'smooth'});});
