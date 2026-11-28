@@ -1074,3 +1074,29 @@ outline:1px solid #36ed9d66!important;box-shadow:0 0 0 1px #36ed9d40,0 0 18px #3
 }
 
 </style>
+
+<style>
+/* Lock the page itself while the question screen is open; only the chat history may scroll. */
+@media(max-width:760px){
+ html:has(#view-ask.active),
+ body:has(#view-ask.active){
+  height:100%!important;
+  overflow:hidden!important;
+  overscroll-behavior:none!important;
+ }
+ body:has(#view-ask.active) .app,
+ body:has(#view-ask.active) .main{
+  height:100dvh!important;
+  max-height:100dvh!important;
+  overflow:hidden!important;
+  overscroll-behavior:none!important;
+ }
+ #view-ask.active{
+  overflow:hidden!important;
+  overscroll-behavior:none!important;
+  touch-action:pan-y!important;
+ }
+ #view-ask .chatlayout{min-height:0!important;overflow:hidden!important}
+ #view-ask .chatmessages{overflow-y:auto!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch}
+}
+</style>
