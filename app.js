@@ -226,7 +226,7 @@ const current=state.records.find(x=>x.id===latest.id);
 if(!current)return;
 $('latestDetailTitle').textContent=current.title;
 $('latestDetailMeta').textContent=`${current.category} · ${current.group} · ${new Date(current.updated_at).toLocaleString('tr-TR')}`;
-$('latestDetailContent').textContent=current.content;
+$('latestDetailContent').innerHTML=renderRecordBody(current.content);
 $('latestDetailOverlay').classList.remove('hidden');
 });
 }else{
@@ -239,7 +239,13 @@ renderDailyStats();
 
 function libIcon(name){const n=String(name||'').toLocaleLowerCase('tr-TR');if(/parça|kod|part|sku/.test(n))return '🔩';if(/makale|teknik açıklama|doküman/.test(n))return '📘';if(/arıza|hata|error|sorun/.test(n))return '🛠️';if(/bakım|temizlik/.test(n))return '🧽';if(/kurulum|montaj/.test(n))return '⚙️';if(/garanti|süreç|prosedür/.test(n))return '📋';if(/sorulan sorular|soru-cevap/.test(n))return '💬';return '📁';}
 function libColor(name){const n=String(name||'').toLocaleLowerCase('tr-TR');if(/parça|kod|part|sku/.test(n))return '#a879ff';if(/makale|teknik açıklama|doküman/.test(n))return '#ff526f';if(/arıza|hata|error/.test(n))return '#ff9a55';if(/bakım|temizlik/.test(n))return '#55e6c1';if(/kurulum|montaj/.test(n))return '#55c8ff';return '#8d9fff';}
-function recordCard(r){return `<article class="record"><div><h3>${escapeHTML(r.title)}</h3><p>${escapeHTML(r.content.slice(0,280))}${r.content.length>280?'…':''}</p><small>${escapeHTML(r.category)} · ${escapeHTML(r.group)} · ${new Date(r.updated_at).toLocaleString('tr-TR')}</small></div><div class="record-actions"><button class="tinybtn" data-edit="${escapeHTML(r.id)}">Düzenle</button><button class="tinybtn" data-delete="${escapeHTML(r.id)}">Sil</button></div></article>`;}
+function renderRecordBody(content){
+const raw=String(content||'');
+const match=raw.match(/^\\s*SORU:\\s*([\\s\\S]*?)\\n+YANIT:\\s*([\\s\\S]*)$/i);
+if(!match)return '<p>'+escapeHTML(raw.slice(0,280))+(raw.length>280?'…':'')+'</p>';
+return '<div class="record-qa"><div class="record-qa-block question"><span class="record-qa-label">SORU</span>'+escapeHTML(match[1].trim())+'</div><div class="record-qa-block answer"><span class="record-qa-label">YANIT</span>'+escapeHTML(match[2].trim())+'</div></div>';
+}
+function recordCard(r){return `<article class="record"><div><h3>${escapeHTML(r.title)}</h3>${renderRecordBody(r.content)}<small>${escapeHTML(r.category)} · ${escapeHTML(r.group)} · ${new Date(r.updated_at).toLocaleString('tr-TR')}</small></div><div class="record-actions"><button class="tinybtn" data-edit="${escapeHTML(r.id)}">Düzenle</button><button class="tinybtn" data-delete="${escapeHTML(r.id)}">Sil</button></div></article>`;}
 function toggleLibraryFavorite(key){const s=new Set(state.favorites||[]);if(s.has(key))s.delete(key);else s.add(key);state.favorites=[...s];saveJSON('nova_library_favorites',state.favorites);renderLibrary();}
 function renderLibrary(){
 const q=$('librarySearch').value.trim().toLocaleLowerCase('tr-TR'),all=state.records,root=!state.libraryPath.length,cat=state.libraryPath[0]||'',group=state.libraryPath[1]||'';
@@ -415,6 +421,15 @@ $('newCategoryBtn').addEventListener('click',addCategory);
 $('newGroupBtn').addEventListener('click',addSubcategory);
 $('recordCategory').addEventListener('change',()=>refreshGroupSuggestions($('recordCategory').value));
 $('closeLatestDetail').addEventListener('click',()=>$('latestDetailOverlay').classList.add('hidden'));
+$('closeRelatedRecord').addEventListener('click',()=>$('relatedRecordOverlay').classList.add('hidden'));
+document.addEventListener('click',e=>{
+const b=e.target.closest('[data-related-record]');if(!b)return;
+const r=state.records.find(x=>x.id===b.dataset.relatedRecord);if(!r)return;
+$('relatedRecordTitle').textContent=r.title;
+$('relatedRecordMeta').textContent=r.category+' · '+r.group+' · '+new Date(r.updated_at).toLocaleString('tr-TR');
+$('relatedRecordContent').innerHTML=renderRecordBody(r.content);
+$('relatedRecordOverlay').classList.remove('hidden');
+});
 $('latestDetailOverlay').addEventListener('click',e=>{
 if(e.target===$('latestDetailOverlay'))$('latestDetailOverlay').classList.add('hidden');
 });
@@ -979,7 +994,36 @@ loading.lastChild.textContent='Yapay zekâ yanıtı hazırlanıyor…';
 
 const answer=await callAI(parts,aiRules);
 loading.lastChild.textContent=answer;
-const feedback=document.createElement('div');feedback.className='feedback-row';feedback.innerHTML='<span class="hint">Bu yanıt işine yaradı mı?</span><button type="button" data-feedback="yes">✓ İşime yaradı</button><button type="button" data-feedback="no">✕ Yaramadı</button>';loading.append(feedback);feedback.addEventListener('click',async ev=>{const b=ev.target.closest('[data-feedback]');if(!b||feedback.dataset.done)return;feedback.dataset.done='1';feedback.querySelectorAll('button').forEach(x=>x.disabled=true);if(b.dataset.feedback==='yes'){try{const rec={id:'nova_q_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),category:'Sorulan Sorular',group:'Soru-Cevap',title:(q||'Fotoğraf üzerinden sorulan soru').slice(0,180),content:'SORU:\\n'+(q||'Ekli görsel üzerinden teknik inceleme')+'\\n\\nYANIT:\\n'+answer,updated_at:new Date().toISOString()};await saveCloudRecord(rec);state.records.unshift(rec);persistRecords();renderHome();renderLibrary();b.textContent='✓ Kaydedildi';toast('İşe yarayan yanıt Sorulan Sorular kategorisine kaydedildi.');}catch(err){feedback.dataset.done='';feedback.querySelectorAll('button').forEach(x=>x.disabled=false);toast('Yanıt kaydedilemedi: '+err.message);return;}}else{b.textContent='Geri bildirimin alındı';toast('Yanıt kaydedilmedi.');}});
+const feedback=document.createElement('div');feedback.className='feedback-row';feedback.innerHTML='<span class="hint">Bu yanıt işine yaradı mı?</span><button type="button" data-feedback="yes">✓ İşime yaradı</button><button type="button" data-feedback="no">✕ Yaramadı</button>';
+let feedbackChoice=null,feedbackRecordId=null,feedbackBusy=false;
+feedback.addEventListener('click',async ev=>{
+const b=ev.target.closest('[data-feedback]');if(!b||feedbackBusy)return;
+const choice=b.dataset.feedback;
+feedbackBusy=true;
+try{
+if(feedbackChoice===choice){
+if(feedbackRecordId){await deleteCloudRecord(feedbackRecordId);state.records=state.records.filter(r=>r.id!==feedbackRecordId);persistRecords();renderHome();renderLibrary();feedbackRecordId=null;}
+feedbackChoice=null;
+feedback.querySelectorAll('button').forEach(x=>x.classList.remove('selected'));
+toast('Geri bildirimin geri alındı.');
+}else{
+if(feedbackRecordId){await deleteCloudRecord(feedbackRecordId);state.records=state.records.filter(r=>r.id!==feedbackRecordId);persistRecords();feedbackRecordId=null;}
+feedbackChoice=choice;
+if(choice==='yes'){
+const rec={id:'nova_q_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),category:'Sorulan Sorular',group:'Soru-Cevap',title:(q||'Fotoğraf üzerinden sorulan soru').slice(0,180),content:'SORU:\\n'+(q||'Ekli görsel üzerinden teknik inceleme')+'\\n\\nYANIT:\\n'+answer,updated_at:new Date().toISOString()};
+await saveCloudRecord(rec);feedbackRecordId=rec.id;state.records.unshift(rec);persistRecords();renderHome();renderLibrary();toast('Yanıt Sorulan Sorular kategorisine eklendi.');
+}else{toast('Yanıt yararlı olarak kaydedilmedi.');}
+feedback.querySelectorAll('button').forEach(x=>x.classList.toggle('selected',x===b));
+}
+}catch(err){toast('Geri bildirim güncellenemedi: '+err.message);}
+finally{feedbackBusy=false;}
+});
+loading.append(feedback);
+// Show the matched source as a clear, tappable action below the answer.
+const related=matches.find(r=>answer.toLocaleLowerCase('tr-TR').includes(r.title.toLocaleLowerCase('tr-TR'))) || (matches.length===1?matches[0]:null);
+if(related){
+const relatedBtn=document.createElement('button');relatedBtn.type='button';relatedBtn.className='related-record-link';relatedBtn.textContent='İlgili kaydı görüntüle · '+related.title;relatedBtn.dataset.relatedRecord=related.id;loading.append(relatedBtn);
+}
 state.chat.push({q,answer,at:new Date().toISOString()});
 
 const history=loadJSON('nova_chat',[]);
@@ -1003,6 +1047,7 @@ sendQuestion();
 });
 
 $('newChat').addEventListener('click',()=>{
+if(!confirm('Yeni sohbet başlatılsın mı? Mevcut sohbet ekranı temizlenecek.'))return;
 $('messages').innerHTML='';
 state.chat=[];
 addBubble('assistant','Yeni sohbet başladı. Sorunuzu yazabilir veya fotoğraf ekleyebilirsiniz.');
@@ -1039,9 +1084,10 @@ const active=!!t.endAt;
 $('startTimer').textContent=active?'Molayı bitir':'Molayı başlat';
 $('timerStatus').textContent=!active?'Hazır olduğunda başlat.':over?'Mola süresi doldu. Sayaç ek süreyi gösteriyor.':'Mola devam ediyor. Biraz dinlen.';
 
-$('activeBreakCard').classList.toggle('hidden',!active);
+$('activeBreakCard').classList.remove('hidden');
 $('homeBreakCard').classList.toggle('hidden',!active);
 
+if(!active){$('breakStateLabel').textContent='MOLA BAŞLAT';$('breakRemaining').textContent='◷';}
 if(active){
 const label=over?'SÜRE AŞIMI':'MOLA DEVAM EDİYOR';
 $('breakStateLabel').textContent=label;
