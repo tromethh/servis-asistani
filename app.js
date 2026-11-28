@@ -1107,7 +1107,11 @@ if(feedbackRecordId){await deleteCloudRecord(feedbackRecordId);state.records=sta
 feedbackChoice=choice;
 if(choice==='yes'){
 const rec={id:'nova_q_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),category:'Sorulan Sorular',group:'Soru-Cevap',title:(q||'Fotoğraf üzerinden sorulan soru').slice(0,180),content:'SORU:\\n'+(q||'Ekli görsel üzerinden teknik inceleme')+'\\n\\nYANIT:\\n'+answer,updated_at:new Date().toISOString()};
-await saveCloudRecord(rec);feedbackRecordId=rec.id;state.records.unshift(rec);persistRecords();renderHome();renderLibrary();toast('Yanıt Sorulan Sorular kategorisine eklendi.');
+await saveCloudRecord(rec);feedbackRecordId=rec.id;
+ // Supabase'ten tekrar okuyarak yeni soru-cevap kaydının ana ekrana da yansımasını doğrula.
+ const synced=await syncRecords();
+ if(!synced){state.records=[normalize(rec),...state.records.filter(r=>r.id!==rec.id)];persistRecords();renderHome();renderLibrary();}
+ toast('Yanıt Sorulan Sorular kategorisine ve Son Eklenen Bilgi bölümüne eklendi.');
 }else{toast('Yanıt yararlı olarak kaydedilmedi.');}
 feedback.querySelectorAll('button').forEach(x=>x.classList.toggle('selected',x===b));
 }
@@ -1135,7 +1139,7 @@ scrollChatToBottom('smooth');
 }
 
 $('sendQuestion').addEventListener('click',sendQuestion);
-if(window.visualViewport){const adjust=()=>{const open=window.visualViewport.height<window.innerHeight-140;document.body.classList.toggle('keyboard-open',open&&$('view-ask').classList.contains('active'));document.documentElement.style.setProperty('--visual-height',window.visualViewport.height+'px');};window.visualViewport.addEventListener('resize',adjust);window.visualViewport.addEventListener('scroll',adjust);$('question').addEventListener('focus',()=>setTimeout(adjust,80));$('question').addEventListener('blur',()=>setTimeout(()=>document.body.classList.remove('keyboard-open'),120));}
+if(window.visualViewport){const adjust=()=>{const vv=window.visualViewport;const open=vv.height<window.innerHeight-140;document.body.classList.toggle('keyboard-open',open&&$('view-ask').classList.contains('active'));document.documentElement.style.setProperty('--visual-height',vv.height+'px');document.documentElement.style.setProperty('--keyboard-bottom',Math.max(0,window.innerHeight-vv.height-vv.offsetTop)+'px');};window.visualViewport.addEventListener('resize',adjust);window.visualViewport.addEventListener('scroll',adjust);$('question').addEventListener('focus',()=>setTimeout(adjust,80));$('question').addEventListener('blur',()=>setTimeout(()=>{document.body.classList.remove('keyboard-open');document.documentElement.style.setProperty('--keyboard-bottom','0px');},120));}
 $('question').addEventListener('keydown',e=>{
 if(e.key==='Enter'&&!e.shiftKey){
 e.preventDefault();
