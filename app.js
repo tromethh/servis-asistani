@@ -29,6 +29,7 @@ const state = {
 records: [],
 trash: [],
 libraryTrashOpen: false,
+libraryRecentOpen: false,
 chat: [],
 photo: null,
 pendingFiles: [],
@@ -319,6 +320,7 @@ const path=state.libraryPath,root=!path.length,cat=path[0]||'',group=path[1]||''
 $('libraryBack').hidden=root&&!q&&!state.libraryTrashOpen;
 $('libraryBack').textContent='← Geri';
 if(state.libraryTrashOpen){renderTrashView();return;}
+if(state.libraryRecentOpen){renderRecentView();return;}
 $('libraryCrumb').textContent=path.length?['Bilgi Hazinesi',...path.slice(0,2)].join(' / '):'Bilgi Hazinesi · Kategoriler';
 if(q){
  const rows=all.filter(r=>(r.title+' '+r.category+' '+r.group+' '+r.content).toLocaleLowerCase('tr-TR').includes(q));
@@ -328,7 +330,7 @@ if(q){
 if(root){
  const cats=[...new Set([...Object.keys(state.categoryTree||{}),...all.map(r=>r.category).filter(Boolean)])].filter(c=>c!=='AktifMola');
  const items=cats.map(name=>({name,count:all.filter(r=>r.category===name).length,key:'cat:'+name})).sort((a,b)=>Number(state.favorites.includes(b.key))-Number(state.favorites.includes(a.key))||a.name.localeCompare(b.name,'tr'));
- $('recordList').innerHTML=(items.length?items.map(x=>`<div class="library-category ${state.favorites.includes(x.key)?'is-favorite':''}" style="--fav:${libColor(x.name)}"><button class="lib-heart ${state.favorites.includes(x.key)?'active':''}" data-lib-fav="${escapeHTML(x.key)}">${state.favorites.includes(x.key)?'♥':'♡'}</button><button class="library-category" data-lib-cat="${escapeHTML(x.name)}"><span class="lib-ico">${libIcon(x.name)}</span><span class="lib-main"><b>${escapeHTML(x.name)}</b><small>${x.count} kayıt · Alt kategorileri aç</small></span><span>›</span></button></div>`).join(''):'<div class="empty">Henüz kategori yok.</div>')+`<button class="trash-entry" type="button" data-trash-open><span>🗑️</span><span><b>Son Silinenler</b><small>${state.trash.length} kayıt · 7 gün içinde geri yükleyebilirsin</small></span><strong>›</strong></button>`;
+ $('recordList').innerHTML=(items.length?items.map(x=>`<div class="library-category ${state.favorites.includes(x.key)?'is-favorite':''}" style="--fav:${libColor(x.name)}"><button class="lib-heart ${state.favorites.includes(x.key)?'active':''}" data-lib-fav="${escapeHTML(x.key)}">${state.favorites.includes(x.key)?'♥':'♡'}</button><button class="library-category" data-lib-cat="${escapeHTML(x.name)}"><span class="lib-ico">${libIcon(x.name)}</span><span class="lib-main"><b>${escapeHTML(x.name)}</b><small>${x.count} kayıt · Alt kategorileri aç</small></span><span>›</span></button></div>`).join(''):'<div class="empty">Henüz kategori yok.</div>')+`<button class="trash-entry" type="button" data-recent-open><span>🕘</span><span><b>Son Yüklenenler</b><small>En son eklenen 20 bilgi</small></span><strong>›</strong></button><button class="trash-entry" type="button" data-trash-open><span>🗑️</span><span><b>Son Silinenler</b><small>${state.trash.length} kayıt · 7 gün içinde geri yükleyebilirsin</small></span><strong>›</strong></button>`;
  return;
 }
 if(path.length===1){
@@ -351,6 +353,11 @@ $('libraryCrumb').textContent=['Bilgi Hazinesi',cat,group,current.title].join(' 
 $('libraryBack').hidden=true;
 $('recordList').innerHTML=`<article class="library-record-detail"><h2>${escapeHTML(current.title)}</h2><div class="detail-meta">${escapeHTML(current.category)} · ${escapeHTML(current.group)} · ${new Date(current.updated_at).toLocaleString('tr-TR')}</div><div class="detail-content">${renderRecordBody(current.content,true)}</div><div class="detail-footer"><button type="button" class="library-detail-back" data-lib-detail-back>← Geri</button><button type="button" class="btn danger" data-lib-delete-record="${escapeHTML(current.id)}">Sil</button></div></article>`;
 }
+function renderRecentView(){
+$('libraryCrumb').textContent='Bilgi Hazinesi / Son Yüklenenler';
+const rows=[...state.records].filter(r=>r&&r.id).sort((a,b)=>new Date(b.updated_at||0)-new Date(a.updated_at||0)).slice(0,20);
+$('recordList').innerHTML=rows.length?rows.map(recordCard).join(''):'<div class="empty">Henüz yüklenmiş bilgi yok.</div>';
+}
 function renderTrashView(){
 $('libraryCrumb').textContent='Bilgi Hazinesi / Son Silinenler';
 const rows=[...state.trash].sort((a,b)=>new Date(b.deleted_at)-new Date(a.deleted_at));
@@ -359,9 +366,10 @@ const cards=rows.map(r=>{const remaining=Math.max(0,7*24*60*60*1000-(Date.now()-
 $('recordList').innerHTML=controls+(cards||'<div class="empty">Çöp kutusu boş.</div>')+`<div class="trash-refresh-wrap"><button class="btn secondary" type="button" data-trash-refresh>⟳ Yenile</button></div>`;
 }
 $('recordList').addEventListener('click',async e=>{
-const restore=e.target.closest('[data-trash-restore]'),restoreAll=e.target.closest('[data-trash-restore-all]'),empty=e.target.closest('[data-trash-empty]'),delTrash=e.target.closest('[data-trash-delete]'),openTrash=e.target.closest('[data-trash-open]'),refreshTrash=e.target.closest('[data-trash-refresh]');
+const openRecent=e.target.closest('[data-recent-open]'),restore=e.target.closest('[data-trash-restore]'),restoreAll=e.target.closest('[data-trash-restore-all]'),empty=e.target.closest('[data-trash-empty]'),delTrash=e.target.closest('[data-trash-delete]'),openTrash=e.target.closest('[data-trash-open]'),refreshTrash=e.target.closest('[data-trash-refresh]');
 if(refreshTrash){const button=refreshTrash;button.disabled=true;button.textContent='Yenileniyor…';try{if('caches'in window){const keys=await caches.keys();await Promise.all(keys.map(key=>caches.delete(key)));}if('serviceWorker'in navigator){const regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.map(reg=>reg.unregister()));}const url=new URL(window.location.href);url.searchParams.set('_fresh',String(Date.now()));window.location.replace(url.toString());}catch(err){button.disabled=false;button.textContent='⟳ Yenile';toast('Yenileme başlatılamadı: '+err.message);}return;}
-if(openTrash){state.libraryTrashOpen=true;$('librarySearch').value='';renderLibrary();return;}
+if(openRecent){state.libraryRecentOpen=true;state.libraryTrashOpen=false;$('librarySearch').value='';renderLibrary();return;}
+if(openTrash){state.libraryTrashOpen=true;state.libraryRecentOpen=false;$('librarySearch').value='';renderLibrary();return;}
 if(restore){const r=state.trash.find(x=>x.id===restore.dataset.trashRestore);if(!r)return;try{await restoreCloudRecord(r.id);state.trash=state.trash.filter(x=>x.id!==r.id);r.deleted_at=null;state.records.unshift(r);persistRecords();saveJSON('nova_trash_cache',state.trash);renderHome();renderLibrary();toast('Bilgi eski kategorisine geri yüklendi.');}catch(err){toast(err.message);}return;}
 if(restoreAll){if(!state.trash.length)return;try{for(const r of [...state.trash])await restoreCloudRecord(r.id);state.records.unshift(...state.trash.map(r=>({...r,deleted_at:null})));state.trash=[];persistRecords();saveJSON('nova_trash_cache',[]);renderHome();renderLibrary();toast('Tüm bilgiler geri yüklendi.');}catch(err){toast(err.message);}return;}
 if(delTrash){const r=state.trash.find(x=>x.id===delTrash.dataset.trashDelete);if(!r||!confirm('Bu bilgi kalıcı olarak silinsin mi?'))return;try{await purgeCloudRecord(r.id);state.trash=state.trash.filter(x=>x.id!==r.id);saveJSON('nova_trash_cache',state.trash);renderLibrary();toast('Bilgi kalıcı olarak silindi.');}catch(err){toast(err.message);}return;}
@@ -392,7 +400,7 @@ if(fav){e.preventDefault();e.stopPropagation();toggleLibraryFavorite(fav.dataset
 if(c){state.libraryPath=[c.dataset.libCat];renderLibrary();return;}
 if(g){state.libraryPath=[state.libraryPath[0],g.dataset.libGroup];renderLibrary();}
 });
-$('libraryBack').addEventListener('click',()=>{if(state.libraryTrashOpen){state.libraryTrashOpen=false;state.libraryPath=[];}else state.libraryPath.pop();renderLibrary();});
+$('libraryBack').addEventListener('click',()=>{if(state.libraryTrashOpen||state.libraryRecentOpen){state.libraryTrashOpen=false;state.libraryRecentOpen=false;state.libraryPath=[];}else state.libraryPath.pop();renderLibrary();});
 
 $('librarySearch').addEventListener('input',renderLibrary);
 $('refreshLibrary').addEventListener('click',async()=>{
