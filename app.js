@@ -276,6 +276,8 @@ panel.classList.remove('latest-green','latest-red');
 if(latest.length){
 const newestStamp=new Date(latest[0].updated_at),age=Date.now()-newestStamp.getTime();
 panel.classList.add(age<3600000?'latest-green':'latest-red');
+const headerDate=newestStamp.toLocaleString('tr-TR',{day:'2-digit',month:'2-digit',year:'numeric'});
+panel.querySelector('.panelhead h3').textContent='Son Eklenen Bilgi — '+headerDate;
 $('latestState').textContent='SON KAYIT';
 if(age<3600000)latestPulseTimeout=setTimeout(renderHome,3600000-age+250);
 target.innerHTML=latest.map((r,i)=>{
@@ -283,6 +285,7 @@ const stamp=new Date(r.updated_at);
 return `<div class="latest-entry"><button class="latest-title" type="button" data-latest-detail="${escapeHTML(r.id)}"><span class="latest-index">${String(i+1).padStart(2,'0')}</span><span class="latest-name">${escapeHTML(r.title)}</span></button><time class="latest-time">${stamp.toLocaleString('tr-TR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</time></div>`;
 }).join('');
 }else{
+panel.querySelector('.panelhead h3').textContent='Son Eklenen Bilgi';
 $('latestState').textContent='BEKLİYOR';
 target.textContent='Henüz bilgi eklenmedi.';
 }
