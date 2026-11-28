@@ -476,3 +476,76 @@ outline:1px solid #36ed9d66!important;box-shadow:0 0 0 1px #36ed9d40,0 0 18px #3
  #view-ask .pagehead .lead{display:none}
 }
 </style>
+<style>
+/* Focused layout refinement */
+.topbar{position:relative;background:transparent!important;box-shadow:none!important;min-height:54px}
+.topbar:before{content:"DYSON  /  TEKNİK BİLGİ MERKEZİ";position:absolute;left:0;top:50%;transform:translateY(-50%);font:700 10px "DM Mono";letter-spacing:.12em;color:#8ca5b9}
+.break-pill#activeBreakCard{position:fixed!important;top:10px!important;right:76px!important;z-index:80!important;box-shadow:0 0 18px #00e5ff22!important}
+#view-home .latest-panel{max-width:760px;width:100%;margin-left:auto;margin-right:auto}
+#view-home .hero .lead{font-size:clamp(13px,1.15vw,15px);line-height:1.65;max-width:560px}
+#view-home .command-icon{align-self:center;display:grid;place-items:center;line-height:1;margin:0;transform:none!important}
+#view-home .command-top{align-items:center!important}
+#view-add .workspace{padding:14px 18px;max-width:900px}
+#view-add .fields{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 12px}
+#view-add .field{margin-bottom:5px;gap:5px}
+#view-add .field.full{grid-column:1/-1}
+#view-add #recordContent{display:none;min-height:74px;height:74px;padding:9px 11px}
+#view-add .workspace.text-entry-open #recordContent{display:block}
+#view-add .upload-source-grid{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+#view-add .upload-source{min-height:70px;padding:7px}
+#view-add .upload-source>span{font-size:17px}
+#view-add .upload-source b{font-size:10px}
+#view-add .upload-source small{font-size:8px}
+#view-add .filelist{grid-column:1/-1}
+#view-add #addMoreRecordFiles{display:none!important}
+#view-add .field-note{display:none}
+#view-add .field input,#view-add .field select{padding:9px 10px;min-height:37px}
+#view-add .category-add{font-size:8px;padding:4px 7px;margin-top:0}
+#view-add .btnrow{margin-top:8px}
+#view-add .statusline{margin-top:5px}
+#view-add .pagehead{margin-bottom:10px}
+#view-ask.active{padding-bottom:0}
+#view-ask .chatlayout{margin-bottom:0}
+#view-library #recordList:has(> .library-category){grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+#view-library #recordList>.library-category{min-width:0;position:relative;padding:7px;border-radius:13px}
+#view-library #recordList>.library-category>.lib-heart{position:absolute;top:2px;right:2px;z-index:2;font-size:14px;padding:3px}
+#view-library #recordList>.library-category>.library-category{width:100%;min-height:104px;padding:10px 7px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:6px;border:0;background:transparent}
+#view-library #recordList>.library-category>.library-category>span:last-child{display:none}
+#view-library #recordList>.library-category .lib-ico{width:32px;height:32px;font-size:17px}
+#view-library #recordList>.library-category .lib-main{flex:none;width:100%}
+#view-library #recordList>.library-category .lib-main b{font-size:10px;line-height:1.25;overflow-wrap:anywhere}
+#view-library #recordList>.library-category .lib-main small{font-size:8px;line-height:1.3}
+.minute-wheel{scroll-padding-block:0}
+.minute-wheel-list{padding:31px 0!important}
+.minute-wheel-focus{top:31px!important;height:42px!important}
+.minute-wheel-unit{top:44px!important}
+@media(max-width:900px){
+ .topbar{min-height:44px;margin-bottom:7px}
+ .topbar:before{font-size:8px;letter-spacing:.08em}
+ .break-pill#activeBreakCard{top:7px!important;right:62px!important;min-height:34px;padding:5px 8px!important}
+ #view-home .latest-panel{max-width:100%}
+ #view-home .hero .lead{font-size:13px;line-height:1.5}
+ #view-home .command-icon{align-self:center!important;margin:0!important}
+ #view-add .pagehead h1{font-size:25px}
+ #view-add .pagehead .lead{font-size:10px;line-height:1.35}
+ #view-add .workspace{padding:10px}
+ #view-add .fields{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 9px}
+ #view-add .upload-source-grid{grid-column:1/-1}
+ #view-add .field.full{grid-column:1/-1}
+ #view-add .field input,#view-add .field select{font-size:11px;padding:8px;min-height:34px}
+ #view-add .upload-source{min-height:65px}
+ #view-add .btnrow{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+ #view-add .btnrow .btn{padding:10px 6px;font-size:10px}
+ #view-ask.active{height:calc(100dvh - 104px - env(safe-area-inset-bottom));padding-bottom:0}
+ #view-ask .chatlayout{height:auto;min-height:0;flex:1;margin-bottom:0}
+ #view-ask .chatcomposer{padding-bottom:max(8px,env(safe-area-inset-bottom))}
+ #view-library #recordList:has(> .library-category){grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+ #view-library #recordList>.library-category{padding:5px;min-height:100px}
+ #view-library #recordList>.library-category>.library-category{min-height:90px}
+}
+@media(max-width:380px){
+ #view-library #recordList:has(> .library-category){gap:5px}
+ #view-library #recordList>.library-category>.library-category{padding:7px 4px}
+ #view-library #recordList>.library-category .lib-main b{font-size:9px}
+}
+</style>
