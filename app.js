@@ -317,7 +317,7 @@ function toggleLibraryFavorite(key){const s=new Set(state.favorites||[]);if(s.ha
 function renderLibrary(){
 const q=$('librarySearch').value.trim().toLocaleLowerCase('tr-TR'),all=state.records;
 const path=state.libraryPath,root=!path.length,cat=path[0]||'',group=path[1]||'',recordId=path[2]||'';
-$('libraryBack').hidden=root&&!q&&!state.libraryTrashOpen;
+$('libraryBack').hidden=root&&!q&&!state.libraryTrashOpen&&!state.libraryRecentOpen;
 $('libraryBack').textContent='← Geri';
 if(state.libraryTrashOpen){renderTrashView();return;}
 if(state.libraryRecentOpen){renderRecentView();return;}
