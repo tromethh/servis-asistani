@@ -32,6 +32,8 @@ libraryTrashOpen: false,
 chat: [],
 photo: null,
 pendingFiles: [],
+batchMode:false,
+batchDrafts:[],
 draft: null,
 categoryTree: loadJSON('nova_article_categories', LEGACY_CATEGORY_TREE),
 timer: { duration: 600, endAt: null, startedAt: null, interval: null, notified: false },
@@ -588,6 +590,7 @@ if(e.target===$('latestDetailOverlay'))$('latestDetailOverlay').classList.add('h
 refreshCategoryOptions();
 
 function clearRecordForm(){
+state.batchMode=false;state.batchDrafts=[];
 $('recordTitle').value='';
 $('recordCategory').value='Genel';
 $('recordGroup').value='';
@@ -739,7 +742,7 @@ if(state.crop.mode==='question'){
  state.crop.objectUrl=null;$('cropOverlay').classList.add('hidden');$('questionPhoto').value='';$('questionCamera').value='';
  return;
 }
-state.pendingFiles.push(out);renderFileChips();
+state.pendingFiles.push(out);renderFileChips();if(state.batchMode)updateBatchControls();
 }catch(e){toast(e.message);return;}
 state.crop.index++;showCropCurrent();
 }
@@ -758,6 +761,116 @@ const all=state.pendingFiles;
 $('recordFileList').innerHTML=all.map((f,i)=>`<span class="filechip"><b>${i+1}.</b> ${escapeHTML(f.name)}</span>`).join('');
 }
 
+
+const batchModeButton=$('toggleBatchMode');
+const batchAnalyzeButton=$('analyzeBatchFiles');
+function updateBatchControls(){
+ if(!batchAnalyzeButton)return;
+ batchAnalyzeButton.hidden=!(state.batchMode&&state.pendingFiles.length);
+ batchModeButton.textContent=state.batchMode?'Tekli bilgi eklemeye dön':'＋ Birden Fazla Bilgi Ekle';
+}
+batchModeButton.addEventListener('click',()=>{
+ state.batchMode=!state.batchMode;
+ if(!state.batchMode){state.pendingFiles=[];renderFileChips();status('addStatus','');}
+ updateBatchControls();
+ toast(state.batchMode?'Toplu bilgi ekleme açık. Fotoğrafları seçip her birini kırpın.':'Tekli bilgi ekleme açık.');
+});
+batchAnalyzeButton.addEventListener('click',analyzeBatchFiles);
+function ensureBatchReview(){
+ let overlay=$('batchReviewOverlay');
+ if(overlay)return overlay;
+ overlay=document.createElement('div');
+ overlay.id='batchReviewOverlay';
+ overlay.className='overlay hidden';
+ overlay.innerHTML='<div class="modal batch-review-modal"><div class="modal-kicker">TOPLU BİLGİ EKLEME</div><h2>Hazırlanan bilgileri kontrol et</h2><p>Her fotoğraf ayrı bir bilgi olarak hazırlandı. Kaydetmek istemediklerinin seçimini kaldırabilir, her kaydı ayrı ayrı düzenleyebilirsin.</p><div id="batchReviewList"></div><div class="btnrow"><button class="btn" id="saveBatchRecords" type="button">Seçilenleri Bilgi Bankasına Kaydet</button><button class="btn secondary" id="cancelBatchReview" type="button">Vazgeç</button></div><p class="statusline" id="batchReviewStatus"></p></div>';
+ document.body.appendChild(overlay);
+ const style=document.createElement('style');
+ style.textContent='#batchReviewOverlay{z-index:130!important;overflow:auto!important;align-items:flex-start!important;padding:16px!important}#batchReviewOverlay .batch-review-modal{width:min(900px,100%);max-height:none;margin:auto;padding:20px!important}#batchReviewList{display:grid;gap:13px;margin-top:16px}.batch-draft-card{border:1px solid #30475d;border-radius:14px;padding:13px;background:#0b1521}.batch-draft-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:10px;color:#9bdde8;font-size:11px;font-weight:800}.batch-draft-card label{display:grid;gap:5px;margin:8px 0;color:#9aacc1;font-size:9px;letter-spacing:.08em}.batch-draft-card input,.batch-draft-card textarea{width:100%;padding:9px;border:1px solid #30465c;border-radius:9px;background:#09111b;color:#f2f7ff;font:12px Manrope,system-ui}.batch-draft-card textarea{min-height:130px;resize:vertical;line-height:1.55}.batch-draft-card .batch-include{display:flex;align-items:center;gap:7px;color:#a8f0c8}.batch-draft-card .batch-include input{width:auto}.batch-review-modal>.btnrow{position:sticky;bottom:0;padding:10px 0;background:#101a28}';
+ document.head.appendChild(style);
+ overlay.addEventListener('input',e=>{
+  const el=e.target.closest('[data-batch-field]');
+  if(el){const d=state.batchDrafts[Number(el.dataset.index)];if(d)d[el.dataset.batchField]=el.value;}
+ });
+ overlay.addEventListener('change',e=>{
+  const el=e.target.closest('[data-batch-include]');
+  if(el){const d=state.batchDrafts[Number(el.dataset.index)];if(d)d.include=el.checked;}
+ });
+ $('cancelBatchReview').addEventListener('click',()=>overlay.classList.add('hidden'));
+ $('saveBatchRecords').addEventListener('click',saveBatchRecords);
+ return overlay;
+}
+function renderBatchReview(){
+ const overlay=ensureBatchReview(),list=$('batchReviewList');
+ list.innerHTML=state.batchDrafts.map((d,i)=>'<article class="batch-draft-card"><div class="batch-draft-head"><span>FOTOĞRAF '+(i+1)+' · '+escapeHTML(d.fileName)+'</span><label class="batch-include"><input type="checkbox" data-batch-include="'+i+'" '+(d.include?'checked':'')+'> Kaydet</label></div><label>BAŞLIK<input data-batch-field="title" data-index="'+i+'" value="'+escapeHTML(d.title)+'"></label><label>KATEGORİ<input data-batch-field="category" data-index="'+i+'" value="'+escapeHTML(d.category)+'"></label><label>ALT KATEGORİ<input data-batch-field="group" data-index="'+i+'" value="'+escapeHTML(d.group)+'"></label><label>İÇERİK<textarea data-batch-field="content" data-index="'+i+'">'+escapeHTML(d.content)+'</textarea></label></article>').join('');
+ overlay.classList.remove('hidden');
+}
+async function analyzeBatchFiles(){
+ if(!state.batchMode||!state.pendingFiles.length)return;
+ const files=[...state.pendingFiles],btn=batchAnalyzeButton;
+ btn.disabled=true;
+ state.batchDrafts=[];
+ try{
+  for(let i=0;i<files.length;i++){
+   const f=files[i];
+   setUploadProgress(true,'Fotoğraf '+(i+1)+' / '+files.length+' analiz ediliyor',f.name+' bağımsız olarak hazırlanıyor.',Math.round(8+(i/files.length)*82),1);
+   if(f.size>18*1024*1024)throw new Error(f.name+' 18 MB sınırını aşıyor.');
+   let raw='';
+   if(f.type==='application/pdf'||f.name.toLowerCase().endsWith('.pdf')){
+    const txt=await pdfText(f);
+    const prompt='Bu PDF dosyasını tek başına teknik bilgi kaydına dönüştür. Metni düzenle, önemli adımları ve uyarıları koru. Kaynakta olmayan bilgi ekleme. Yalnızca şu JSON yapısını döndür: {"title":"...","category":"Genel","group":"Geneli","content":"..."}\nDosya: '+f.name+'\n'+txt;
+    raw=await callAI([{text:prompt}],'Teknik servis dokümanlarını yapılandırılmış kayda dönüştür. Geçerli JSON döndür.');
+   }else if(f.type.startsWith('image/')){
+    const part=await imageForAI(f);
+    const prompt='Bu TEK fotoğrafı bağımsız olarak incele ve ayrı bir teknik bilgi kaydı oluştur. Başka fotoğraflarla birleştirme. Görseldeki metinleri, tabloları, hata kodlarını, model/parça numaralarını ve adımları mümkün olduğunca eksiksiz çıkar. Okunamayan yerleri belirt, bilgi uydurma. Yalnızca şu JSON yapısını döndür: {"title":"kısa ve açıklayıcı başlık","category":"uygun kategori","group":"uygun alt kategori veya Geneli","content":"düzenli ve eksiksiz teknik bilgi"}.';
+    raw=await callAI([part,{text:prompt}],'Sen teknik servis fotoğraflarını tek tek analiz eden asistansın. Her görsel için yalnızca o görselin bilgisini çıkar. Geçerli JSON döndür.');
+   }else throw new Error(f.name+' desteklenmeyen dosya türünde.');
+   const parsed=parseJSON(raw)||{};
+   state.batchDrafts.push({
+    fileName:f.name,
+    title:String(parsed.title||f.name.replace(/\.[^.]+$/,'')),
+    category:String(parsed.category||'Genel'),
+    group:String(parsed.group||'Geneli'),
+    content:String(parsed.content||raw),
+    include:true
+   });
+  }
+  setUploadProgress(false);
+  renderBatchReview();
+  toast(files.length+' ayrı bilgi taslağı hazırlandı. Her birini kontrol edebilirsin.');
+ }catch(e){
+  setUploadProgress(false);
+  toast('Toplu analiz durdu: '+e.message+' Hazırlanan '+state.batchDrafts.length+' taslağı kaydedebilirsin.');
+  if(state.batchDrafts.length)renderBatchReview();
+ }finally{btn.disabled=false;updateBatchControls();}
+}
+async function saveBatchRecords(){
+ const selected=state.batchDrafts.filter(d=>d.include);
+ if(!selected.length){toast('Kaydetmek için en az bir bilgi seç.');return;}
+ const btn=$('saveBatchRecords');btn.disabled=true;
+ let saved=0;
+ try{
+  for(const d of selected){
+   if(!d.title.trim()||!d.content.trim())throw new Error(d.fileName+' için başlık ve içerik boş bırakılamaz.');
+   const rec={id:'nova_'+Date.now()+'_'+Math.random().toString(36).slice(2,9),category:d.category.trim()||'Genel',group:d.group.trim()||'Geneli',title:d.title.trim(),content:d.content.trim(),updated_at:new Date().toISOString()};
+   await saveCloudRecord(rec);
+   state.records.unshift(normalize(rec));saved++;
+  }
+  persistRecords();
+  for(let i=0;i<saved;i++)bumpDaily('uploads');
+  renderHome();renderLibrary();
+  $('batchReviewOverlay').classList.add('hidden');
+  clearRecordForm();
+  state.batchMode=false;state.batchDrafts=[];
+  updateBatchControls();
+  toast(saved+' ayrı bilgi ortak bilgi bankasına kaydedildi.');
+  go('home');
+ }catch(e){
+  persistRecords();renderHome();renderLibrary();
+  $('batchReviewStatus').textContent=saved+' bilgi kaydedildi. Kalanlar kaydedilemedi: '+e.message;
+  toast(saved+' bilgi kaydedildi; işlem şu noktada durdu: '+e.message);
+ }finally{btn.disabled=false;}
+}
+
 $('recordFiles').addEventListener('change',()=>{const files=$('recordFiles').files;if(files.length)openCropQueue(files);$('recordFiles').value='';});
 $('recordCamera').addEventListener('change',()=>{const files=$('recordCamera').files;if(files.length)openCropQueue(files);$('recordCamera').value='';});
 $('takeRecordPhoto').addEventListener('click',()=>$('recordCamera').click());$('chooseRecordPhoto').addEventListener('click',()=>$('recordFiles').click());$('addMoreRecordFiles').addEventListener('click',()=>$('recordFiles').click());$('writeRecordText').addEventListener('click',()=>{const ws=$('view-add').querySelector('.workspace');ws.classList.add('text-entry-open');$('recordContent').focus({preventScroll:true});});
@@ -770,6 +883,7 @@ const group=$('recordGroup').value.trim()||'Geneli';
 const content=$('recordContent').value.trim();
 const files=state.pendingFiles;
 
+if(state.batchMode){toast('Toplu ekleme için “Fotoğrafları ayrı ayrı analiz et” düğmesini kullan.');return;}
 if(!title&&!content&&!files.length){
 status('addStatus','Başlık, açıklama veya dosya eklemelisiniz.','error');
 return;
