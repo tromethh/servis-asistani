@@ -820,3 +820,28 @@ outline:1px solid #36ed9d66!important;box-shadow:0 0 0 1px #36ed9d40,0 0 18px #3
   }
 }
 </style>
+
+<style>
+/* Mobil dokunmatik cihazlarda Bilgi Yukle kartinin takili hover/animasyonunu kapat */
+@media(max-width:760px) and (hover:none){
+  #view-home .primary-commands .command,
+  #view-home .primary-commands .command:hover,
+  #view-home .primary-commands .command:active{
+    animation:none!important;
+    transform:none!important;
+    filter:none!important;
+    box-shadow:none!important;
+    transition:none!important;
+  }
+  #view-home .primary-commands .command:before{display:none!important}
+  #view-home .primary-commands .command-icon{animation:none!important;transform:none!important}
+}
+/* Ana sayfadaki Son Eklenen Bilgi panelini daha ince yap */
+@media(max-width:760px){
+  #view-home .latest-panel{padding:8px 11px!important;margin-top:7px!important}
+  #view-home .latest-panel .panelhead{margin-bottom:2px!important}
+  #view-home .latest-panel .panelhead h3{font-size:11px!important}
+  #view-home .latest-entry{padding:4px 1px!important;gap:4px!important}
+  #view-home .latest-title{font-size:11px!important;line-height:1.3!important}
+}
+</style>
