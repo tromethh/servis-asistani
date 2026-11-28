@@ -1,5 +1,5 @@
 
-const CACHE = 'dyson-servis-v6';
+const CACHE = 'dyson-servis-v7';
 
 const CORE = [
   './',
