@@ -1211,7 +1211,40 @@ scrollChatToBottom('smooth');
 }
 
 $('sendQuestion').addEventListener('click',sendQuestion);
-if(window.visualViewport){const adjust=()=>{const vv=window.visualViewport;const open=vv.height<window.innerHeight-140;document.body.classList.toggle('keyboard-open',open&&$('view-ask').classList.contains('active'));document.documentElement.style.setProperty('--visual-height',vv.height+'px');document.documentElement.style.setProperty('--keyboard-bottom',Math.max(0,window.innerHeight-vv.height-vv.offsetTop)+'px');};window.visualViewport.addEventListener('resize',adjust);window.visualViewport.addEventListener('scroll',adjust);$('question').addEventListener('focus',()=>setTimeout(adjust,80));$('question').addEventListener('blur',()=>setTimeout(()=>{document.body.classList.remove('keyboard-open');document.documentElement.style.setProperty('--keyboard-bottom','0px');},120));}
+if(window.visualViewport){
+ const vv=window.visualViewport,root=document.documentElement,question=$('question');
+ let keyboardAdjustTimer=null;
+ const resetKeyboardLayout=()=>{
+  document.body.classList.remove('keyboard-open');
+  root.style.setProperty('--keyboard-bottom','0px');
+  root.style.setProperty('--visual-height','100dvh');
+ };
+ const adjust=()=>{
+  const focused=document.activeElement===question&&$('view-ask').classList.contains('active');
+  const open=focused&&vv.height<window.innerHeight-140;
+  if(!open){resetKeyboardLayout();return;}
+  document.body.classList.add('keyboard-open');
+  root.style.setProperty('--visual-height',vv.height+'px');
+  root.style.setProperty('--keyboard-bottom',Math.max(0,window.innerHeight-vv.height-vv.offsetTop)+'px');
+ };
+ const scheduleAdjust=()=>{
+  clearTimeout(keyboardAdjustTimer);
+  keyboardAdjustTimer=setTimeout(()=>requestAnimationFrame(adjust),100);
+ };
+ vv.addEventListener('resize',scheduleAdjust);
+ vv.addEventListener('scroll',scheduleAdjust);
+ question.addEventListener('focus',()=>{
+  resetKeyboardLayout();
+  scheduleAdjust();
+  setTimeout(adjust,260);
+ });
+ question.addEventListener('blur',()=>{
+  clearTimeout(keyboardAdjustTimer);
+  resetKeyboardLayout();
+  setTimeout(resetKeyboardLayout,180);
+ });
+ window.addEventListener('orientationchange',()=>setTimeout(adjust,350));
+}
 $('question').addEventListener('keydown',e=>{
 if(e.key==='Enter'&&!e.shiftKey){
 e.preventDefault();
