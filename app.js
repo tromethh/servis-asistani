@@ -189,7 +189,16 @@ $('connectionText').textContent=msg;
 }
 
 async function saveCloudRecord(record){
-const payload=normalize(record);
+// Yalnızca records tablosunun temel kolonlarını gönder.
+// deleted_at bazı kurulumlarda henüz eklenmemiş olabileceği için null alanını ekleme.
+const payload={
+id:String(record.id),
+category:String(record.category||'Genel'),
+group:String(record.group||'Geneli'),
+title:String(record.title||''),
+content:String(record.content||''),
+updated_at:record.updated_at||new Date().toISOString()
+};
 await sbRequest('/rest/v1/records?on_conflict=id',{
 method:'POST',
 headers:{'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=minimal'},
@@ -873,7 +882,10 @@ $('cancelReview').addEventListener('click',()=>$('reviewOverlay').classList.add(
 
 $('approveReview').addEventListener('click',async()=>{
 const btn=$('approveReview');
+if(btn.disabled)return;
 btn.disabled=true;
+const originalText=btn.textContent;
+btn.textContent='Kaydediliyor…';
 
 try{
 const rec={
@@ -887,8 +899,9 @@ updated_at:new Date().toISOString()
 
 if(!rec.title||!rec.content)throw new Error('Başlık ve içerik boş bırakılamaz.');
 
+setUploadProgress(true,'Bilgi bankasına kaydediliyor','Hazırlanan bilgi ortak Supabase bilgi bankasına ekleniyor.',92,3);
 await saveCloudRecord(rec);
-state.records.unshift(rec);
+state.records.unshift(normalize(rec));
 persistRecords();
 bumpDaily('uploads');
 renderHome();
@@ -901,7 +914,9 @@ go('home');
 }catch(e){
 toast('Kayıt yapılamadı: '+e.message);
 }finally{
+setUploadProgress(false);
 btn.disabled=false;
+btn.textContent=originalText;
 }
 });
 
