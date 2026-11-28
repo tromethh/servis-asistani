@@ -4,10 +4,6 @@
 const $ = id => document.getElementById(id);
 const cfg = window.NOVA_CONFIG || {};
 const APP_BRAND = 'Dyson-Servis';
-const welcomeWasNeeded=document.documentElement.classList.contains('welcome-needed');
-window.addEventListener('pagehide',()=>{try{localStorage.setItem('nova_last_exit',String(Date.now()));}catch{}});
-if(welcomeWasNeeded){setTimeout(()=>{document.documentElement.classList.remove('welcome-needed');const screen=$('welcomeScreen');if(screen)screen.style.display='none';},3000);}
-
 
 function todayKey(){return new Date().toLocaleDateString('sv-SE');}
 function dailyStats(){const key=todayKey(),saved=loadJSON('nova_daily_stats',{});return saved.date===key?saved:{date:key,questions:0,uploads:0};}
@@ -151,7 +147,7 @@ refreshCategoryOptions();
 setConnection(true,'Ortak bilgi bankası bağlı');
 renderHome();
 renderLibrary();
-$('syncLabel').textContent='ÇEVRİM İÇİ';
+$('syncLabel').textContent='ÇEVRİMİÇİ';
 $('syncHint').textContent='Supabase ile senkronize · '+new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});
 $('chatStatus').textContent='Ortak bilgi bankası bağlı · '+state.records.length+' kayıt';
 return true;
@@ -222,13 +218,13 @@ const rows=[...state.records].sort((a,b)=>new Date(b.updated_at)-new Date(a.upda
 animateRecordCount(rows.length);
 const countLike=(needle)=>rows.filter(r=>(r.category+' '+r.group+' '+r.title).toLocaleLowerCase('tr-TR').includes(needle)).length;
 $('recordBreakdown').textContent=`Makale: ${countLike('makale')} · Süreç: ${countLike('süreç')} · Parça kodu: ${countLike('parça')}`;
-const latest=rows.slice(0,3),panel=$('latestPanel'),target=$('latestKnowledge');
+const latest=rows.slice(0,1),panel=$('latestPanel'),target=$('latestKnowledge');
 if(latestPulseTimeout)clearTimeout(latestPulseTimeout);
 panel.classList.remove('latest-green','latest-red');
 if(latest.length){
 const newestStamp=new Date(latest[0].updated_at),age=Date.now()-newestStamp.getTime();
 panel.classList.add(age<3600000?'latest-green':'latest-red');
-$('latestState').textContent='SON 3 KAYIT';
+$('latestState').textContent='SON KAYIT';
 if(age<3600000)latestPulseTimeout=setTimeout(renderHome,3600000-age+250);
 target.innerHTML=latest.map((r,i)=>{
 const stamp=new Date(r.updated_at);
