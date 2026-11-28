@@ -309,13 +309,42 @@ return '<div class="record-qa"><div class="record-qa-block question"><span class
 function recordCard(r){return `<article class="record"><div><h3>${escapeHTML(r.title)}</h3>${renderRecordBody(r.content)}<small>${escapeHTML(r.category)} · ${escapeHTML(r.group)} · ${new Date(r.updated_at).toLocaleString('tr-TR')}</small></div><div class="record-actions"><button class="tinybtn" data-edit="${escapeHTML(r.id)}">Düzenle</button><button class="tinybtn" data-delete="${escapeHTML(r.id)}">Sil</button></div></article>`;}
 function toggleLibraryFavorite(key){const s=new Set(state.favorites||[]);if(s.has(key))s.delete(key);else s.add(key);state.favorites=[...s];saveJSON('nova_library_favorites',state.favorites);renderLibrary();}
 function renderLibrary(){
-const q=$('librarySearch').value.trim().toLocaleLowerCase('tr-TR'),all=state.records,root=!state.libraryPath.length,cat=state.libraryPath[0]||'',group=state.libraryPath[1]||'';
+const q=$('librarySearch').value.trim().toLocaleLowerCase('tr-TR'),all=state.records;
+const path=state.libraryPath,root=!path.length,cat=path[0]||'',group=path[1]||'',recordId=path[2]||'';
 $('libraryBack').hidden=root&&!q&&!state.libraryTrashOpen;
-if(state.libraryTrashOpen){renderTrashView();return;}$('libraryCrumb').textContent=state.libraryPath.length?['Bilgi Hazinesi',...state.libraryPath].join(' / '):'Bilgi Hazinesi · Kategoriler';
-if(q){const rows=all.filter(r=>(r.title+' '+r.category+' '+r.group+' '+r.content).toLocaleLowerCase('tr-TR').includes(q));$('recordList').innerHTML=rows.length?rows.map(recordCard).join(''):'<div class="empty">Aramanızla eşleşen kayıt bulunamadı.</div>';return;}
-if(root){const cats=[...new Set([...Object.keys(state.categoryTree||{}),...all.map(r=>r.category).filter(Boolean)])].filter(c=>c!=='AktifMola');const items=cats.map(name=>({name,count:all.filter(r=>r.category===name).length,key:'cat:'+name})).sort((a,b)=>Number(state.favorites.includes(b.key))-Number(state.favorites.includes(a.key))||a.name.localeCompare(b.name,'tr'));$('recordList').innerHTML=(items.length?items.map(x=>`<div class="library-category ${state.favorites.includes(x.key)?'is-favorite':''}" style="--fav:${libColor(x.name)}"><button class="lib-heart ${state.favorites.includes(x.key)?'active':''}" data-lib-fav="${escapeHTML(x.key)}">${state.favorites.includes(x.key)?'♥':'♡'}</button><button class="library-category" data-lib-cat="${escapeHTML(x.name)}"><span class="lib-ico">${libIcon(x.name)}</span><span class="lib-main"><b>${escapeHTML(x.name)}</b><small>${x.count} kayıt · Alt kategorileri aç</small></span><span>›</span></button></div>`).join(''):'<div class="empty">Henüz kategori yok.</div>')+`<button class="trash-entry" type="button" data-trash-open><span>🗑️</span><span><b>Son Silinenler</b><small>${state.trash.length} kayıt · 7 gün içinde geri yükleyebilirsin</small></span><strong>›</strong></button>`;return;}
-if(state.libraryPath.length===1){const groups=[...new Set([...((state.categoryTree||{})[cat]||[]),...all.filter(r=>r.category===cat).map(r=>r.group).filter(g=>g&&g!=='Geneli')])];const items=groups.map(name=>({name,count:all.filter(r=>r.category===cat&&r.group===name).length,key:'group:'+cat+'/'+name})).sort((a,b)=>Number(state.favorites.includes(b.key))-Number(state.favorites.includes(a.key))||a.name.localeCompare(b.name,'tr'));$('recordList').innerHTML=items.length?items.map(x=>`<div class="library-category ${state.favorites.includes(x.key)?'is-favorite':''}" style="--fav:${libColor(x.name)}"><button class="lib-heart ${state.favorites.includes(x.key)?'active':''}" data-lib-fav="${escapeHTML(x.key)}">${state.favorites.includes(x.key)?'♥':'♡'}</button><button class="library-category" data-lib-group="${escapeHTML(x.name)}"><span class="lib-ico">${libIcon(x.name)}</span><span class="lib-main"><b>${escapeHTML(x.name)}</b><small>${x.count} kayıt · İçerikleri aç</small></span><span>›</span></button></div>`).join(''):'<div class="empty">Bu kategoride henüz alt kategori yok.</div>';return;}
-const rows=all.filter(r=>r.category===cat&&r.group===group);$('recordList').innerHTML=rows.length?rows.map(recordCard).join(''):'<div class="empty">Bu alt kategoride henüz kayıt yok.</div>';
+$('libraryBack').textContent='← Geri';
+if(state.libraryTrashOpen){renderTrashView();return;}
+$('libraryCrumb').textContent=path.length?['Bilgi Hazinesi',...path.slice(0,2)].join(' / '):'Bilgi Hazinesi · Kategoriler';
+if(q){
+ const rows=all.filter(r=>(r.title+' '+r.category+' '+r.group+' '+r.content).toLocaleLowerCase('tr-TR').includes(q));
+ $('recordList').innerHTML=rows.length?rows.map(recordCard).join(''):'<div class="empty">Aramanızla eşleşen kayıt bulunamadı.</div>';
+ return;
+}
+if(root){
+ const cats=[...new Set([...Object.keys(state.categoryTree||{}),...all.map(r=>r.category).filter(Boolean)])].filter(c=>c!=='AktifMola');
+ const items=cats.map(name=>({name,count:all.filter(r=>r.category===name).length,key:'cat:'+name})).sort((a,b)=>Number(state.favorites.includes(b.key))-Number(state.favorites.includes(a.key))||a.name.localeCompare(b.name,'tr'));
+ $('recordList').innerHTML=(items.length?items.map(x=>`<div class="library-category ${state.favorites.includes(x.key)?'is-favorite':''}" style="--fav:${libColor(x.name)}"><button class="lib-heart ${state.favorites.includes(x.key)?'active':''}" data-lib-fav="${escapeHTML(x.key)}">${state.favorites.includes(x.key)?'♥':'♡'}</button><button class="library-category" data-lib-cat="${escapeHTML(x.name)}"><span class="lib-ico">${libIcon(x.name)}</span><span class="lib-main"><b>${escapeHTML(x.name)}</b><small>${x.count} kayıt · Alt kategorileri aç</small></span><span>›</span></button></div>`).join(''):'<div class="empty">Henüz kategori yok.</div>')+`<button class="trash-entry" type="button" data-trash-open><span>🗑️</span><span><b>Son Silinenler</b><small>${state.trash.length} kayıt · 7 gün içinde geri yükleyebilirsin</small></span><strong>›</strong></button>`;
+ return;
+}
+if(path.length===1){
+ const groups=[...new Set([...((state.categoryTree||{})[cat]||[]),...all.filter(r=>r.category===cat).map(r=>r.group).filter(g=>g&&g!=='Geneli')])];
+ const ungrouped=all.filter(r=>r.category===cat&&(!r.group||r.group==='Geneli'));
+ const groupItems=groups.map(name=>({name,count:all.filter(r=>r.category===cat&&r.group===name).length,key:'group:'+cat+'/'+name})).sort((a,b)=>Number(state.favorites.includes(b.key))-Number(state.favorites.includes(a.key))||a.name.localeCompare(b.name,'tr'));
+ let html=groupItems.map(x=>`<div class="library-category ${state.favorites.includes(x.key)?'is-favorite':''}" style="--fav:${libColor(x.name)}"><button class="lib-heart ${state.favorites.includes(x.key)?'active':''}" data-lib-fav="${escapeHTML(x.key)}">${state.favorites.includes(x.key)?'♥':'♡'}</button><button class="library-category" data-lib-group="${escapeHTML(x.name)}"><span class="lib-ico">${libIcon(x.name)}</span><span class="lib-main"><b>${escapeHTML(x.name)}</b><small>${x.count} kayıt · İçerikleri aç</small></span><span>›</span></button></div>`).join('');
+ if(ungrouped.length)html+=`<button class="library-category" data-lib-group="Geneli"><span class="lib-ico">📄</span><span class="lib-main"><b>Genel Bilgiler</b><small>${ungrouped.length} kayıt</small></span><span>›</span></button>`;
+ $('recordList').innerHTML=html||'<div class="empty">Bu kategoride henüz bilgi yok.</div>';
+ return;
+}
+if(path.length===2){
+ const rows=all.filter(r=>r.category===cat&&r.group===group);
+ $('recordList').innerHTML=rows.length?rows.map(r=>`<button type="button" class="library-record-title" data-lib-open-record="${escapeHTML(r.id)}"><span class="lib-ico">📄</span><span>${escapeHTML(r.title)}</span></button>`).join(''):'<div class="empty">Bu alt kategoride henüz kayıt yok.</div>';
+ return;
+}
+const current=all.find(r=>r.id===recordId&&r.category===cat&&r.group===group);
+if(!current){path.pop();renderLibrary();return;}
+$('libraryCrumb').textContent=['Bilgi Hazinesi',cat,group,current.title].join(' / ');
+$('libraryBack').hidden=true;
+$('recordList').innerHTML=`<article class="library-record-detail"><h2>${escapeHTML(current.title)}</h2><div class="detail-meta">${escapeHTML(current.category)} · ${escapeHTML(current.group)} · ${new Date(current.updated_at).toLocaleString('tr-TR')}</div><div class="detail-content">${renderRecordBody(current.content,true)}</div><div class="detail-footer"><button type="button" class="library-detail-back" data-lib-detail-back>← Geri</button><button type="button" class="btn danger" data-lib-delete-record="${escapeHTML(current.id)}">Sil</button></div></article>`;
 }
 function renderTrashView(){
 $('libraryCrumb').textContent='Bilgi Hazinesi / Son Silinenler';
@@ -332,6 +361,27 @@ if(restore){const r=state.trash.find(x=>x.id===restore.dataset.trashRestore);if(
 if(restoreAll){if(!state.trash.length)return;try{for(const r of [...state.trash])await restoreCloudRecord(r.id);state.records.unshift(...state.trash.map(r=>({...r,deleted_at:null})));state.trash=[];persistRecords();saveJSON('nova_trash_cache',[]);renderHome();renderLibrary();toast('Tüm bilgiler geri yüklendi.');}catch(err){toast(err.message);}return;}
 if(delTrash){const r=state.trash.find(x=>x.id===delTrash.dataset.trashDelete);if(!r||!confirm('Bu bilgi kalıcı olarak silinsin mi?'))return;try{await purgeCloudRecord(r.id);state.trash=state.trash.filter(x=>x.id!==r.id);saveJSON('nova_trash_cache',state.trash);renderLibrary();toast('Bilgi kalıcı olarak silindi.');}catch(err){toast(err.message);}return;}
 if(empty){if(!state.trash.length)return;if(!confirm('Çöp kutusundaki tüm bilgiler kalıcı olarak silinsin mi? Bu işlem geri alınamaz.'))return;try{for(const r of [...state.trash])await purgeCloudRecord(r.id);state.trash=[];saveJSON('nova_trash_cache',[]);renderLibrary();toast('Çöp kutusu boşaltıldı.');}catch(err){toast(err.message);}return;}
+const detailBack=e.target.closest('[data-lib-detail-back]');
+if(detailBack){state.libraryPath.pop();renderLibrary();return;}
+const openRecord=e.target.closest('[data-lib-open-record]');
+if(openRecord){state.libraryPath.push(openRecord.dataset.libOpenRecord);renderLibrary();return;}
+const deleteRecord=e.target.closest('[data-lib-delete-record]');
+if(deleteRecord){
+ const r=state.records.find(x=>x.id===deleteRecord.dataset.libDeleteRecord);
+ if(!r||!confirm('“'+r.title+'” bilgisini silmek istediğine emin misin? Bu bilgi Son Silinenler bölümüne taşınacak.'))return;
+ const btn=deleteRecord;btn.disabled=true;
+ try{
+  await moveCloudRecordToTrash(r.id);
+  r.deleted_at=new Date().toISOString();
+  state.records=state.records.filter(x=>x.id!==r.id);
+  state.trash.unshift(r);
+  persistRecords();saveJSON('nova_trash_cache',state.trash);
+  state.libraryPath=state.libraryPath.slice(0,2);
+  renderHome();renderLibrary();
+  toast('Bilgi Son Silinenler kutusuna taşındı.');
+ }catch(err){btn.disabled=false;toast('Bilgi silinemedi: '+err.message);}
+ return;
+}
 const fav=e.target.closest('[data-lib-fav]'),c=e.target.closest('[data-lib-cat]'),g=e.target.closest('[data-lib-group]');
 if(fav){e.preventDefault();e.stopPropagation();toggleLibraryFavorite(fav.dataset.libFav);return;}
 if(c){state.libraryPath=[c.dataset.libCat];renderLibrary();return;}
@@ -507,10 +557,17 @@ $('closeLatestDetail').addEventListener('click',()=>$('latestDetailOverlay').cla
 $('latestKnowledge').addEventListener('click',e=>{
 const b=e.target.closest('[data-latest-detail]');if(!b)return;
 const current=state.records.find(x=>x.id===b.dataset.latestDetail);if(!current)return;
-$('latestDetailTitle').textContent=current.title;
-$('latestDetailMeta').textContent=`${current.category} · ${current.group} · ${new Date(current.updated_at).toLocaleString('tr-TR')}`;
-$('latestDetailContent').innerHTML=renderRecordBody(current.content,true);
-$('latestDetailOverlay').classList.remove('hidden');
+const existing=$('latestPanel').querySelector('.latest-inline-detail');
+if(existing&&existing.dataset.recordId===current.id){existing.remove();b.setAttribute('aria-expanded','false');return;}
+if(existing)existing.remove();
+const detail=document.createElement('div');
+detail.className='latest-inline-detail';detail.dataset.recordId=current.id;
+detail.innerHTML='<h4></h4><small></small><div></div>';
+detail.querySelector('h4').textContent=current.title;
+detail.querySelector('small').textContent=current.category+' · '+current.group+' · '+new Date(current.updated_at).toLocaleString('tr-TR');
+detail.querySelector('div').innerHTML=renderRecordBody(current.content,true);
+$('latestKnowledge').after(detail);
+b.setAttribute('aria-expanded','true');
 });
 $('closeRelatedRecord').addEventListener('click',()=>$('relatedRecordOverlay').classList.add('hidden'));
 document.addEventListener('click',e=>{
