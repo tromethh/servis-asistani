@@ -936,11 +936,6 @@ return;
 openQuestionCrop(f);
 });
 
-$('clearPhoto').addEventListener('click',()=>{
-state.photo=null;
-$('questionPhoto').value='';
-$('questionPhotoName').textContent='Görsel eklenmedi';
-});
 
 function searchRecords(question){
 const terms=question.toLocaleLowerCase('tr-TR').replace(/[.,!?;:()[\]{}]/g,' ').split(/\s+/).filter(x=>x.length>2);
