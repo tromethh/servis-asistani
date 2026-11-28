@@ -1030,4 +1030,47 @@ outline:1px solid #36ed9d66!important;box-shadow:0 0 0 1px #36ed9d40,0 0 18px #3
 #uploadProgress .progress-track{width:min(560px,88vw)!important}
 #uploadProgress .progress-steps{justify-content:center!important}
 
+
+/* Son eklenen bilgi kartını daha ince tut */
+#latestPanel{padding-top:12px!important;padding-bottom:12px!important}
+#latestPanel .panelhead{margin-bottom:8px!important}
+#latestPanel #latestKnowledge{margin:0!important}
+#latestPanel .latest-entry{padding:5px 0!important;min-height:30px!important}
+#latestPanel .latest-title{padding:2px 0!important;min-height:28px!important}
+#latestPanel .latest-time{line-height:1.2!important}
+/* Son eklenen kayıt, ana sayfada kartın altına doğru açılır */
+#latestPanel .latest-inline-detail{
+ margin-top:12px;padding:14px 2px 2px;border-top:1px solid #2a4052;
+ color:#dce8f5;font-size:12px;line-height:1.75;
+ animation:latestExpand .22s ease-out both;overflow-wrap:anywhere;
+}
+#latestPanel .latest-inline-detail h4{font-size:13px;margin:0 0 5px;color:#f3f7ff}
+#latestPanel .latest-inline-detail small{display:block;color:#8196ad;font-size:9px;margin-bottom:10px}
+#latestPanel .latest-inline-detail p{margin:0;white-space:pre-wrap}
+@keyframes latestExpand{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}
+/* Bilgi Hazinesi: kayıt listesinde yalnızca başlık satırları */
+.library-record-title{
+ width:100%;display:flex;align-items:center;gap:12px;padding:15px 14px;
+ border:1px solid #2a3c50;border-radius:13px;background:#101a28;color:#eef5ff;
+ text-align:left;font-weight:700;font-size:12px;
+}
+.library-record-title:after{content:'›';margin-left:auto;color:var(--cyan);font-size:20px}
+.library-record-title:hover{border-color:#4b7189;background:#132235}
+.library-record-title .lib-ico{font-size:16px}
+.library-record-detail{padding:18px;border:1px solid #2a3c50;border-radius:16px;background:linear-gradient(145deg,#111d2c,#0b1420)}
+.library-record-detail h2{font-size:19px;line-height:1.35;margin:0 0 7px}
+.library-record-detail .detail-meta{color:#8296ac;font-size:10px;margin-bottom:16px}
+.library-record-detail .detail-content{font-size:12px;line-height:1.8;color:#dce8f5;overflow-wrap:anywhere}
+.library-record-detail .detail-content p{white-space:pre-wrap}
+.library-record-detail .detail-footer{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:22px}
+.library-record-detail .detail-footer .btn{min-width:104px}
+.library-detail-back{border:1px solid #354b60;background:#172536;color:#dce8f5;border-radius:11px;padding:11px 16px;font-weight:700;font-size:11px}
+@media(max-width:760px){
+ #latestPanel{padding-top:10px!important;padding-bottom:10px!important}
+ #latestPanel .latest-entry{padding:3px 0!important}
+ .library-record-title{padding:14px 12px}
+ .library-record-detail{padding:15px}
+ .library-record-detail .detail-footer{padding-bottom:3px}
+}
+
 </style>
