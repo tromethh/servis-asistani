@@ -244,21 +244,20 @@ renderDailyStats();
 function libIcon(name){const n=String(name||'').toLocaleLowerCase('tr-TR');if(/parça|kod|part|sku/.test(n))return '🔩';if(/makale|teknik açıklama|doküman/.test(n))return '📘';if(/arıza|hata|error|sorun/.test(n))return '🛠️';if(/bakım|temizlik/.test(n))return '🧽';if(/kurulum|montaj/.test(n))return '⚙️';if(/garanti|süreç|prosedür/.test(n))return '📋';if(/sorulan sorular|soru-cevap/.test(n))return '💬';return '📁';}
 function libColor(name){const n=String(name||'').toLocaleLowerCase('tr-TR');if(/parça|kod|part|sku/.test(n))return '#a879ff';if(/makale|teknik açıklama|doküman/.test(n))return '#ff526f';if(/arıza|hata|error/.test(n))return '#ff9a55';if(/bakım|temizlik/.test(n))return '#55e6c1';if(/kurulum|montaj/.test(n))return '#55c8ff';return '#8d9fff';}
 function renderRecordBody(content,full=false){
-const raw=String(content||'').replace(/\\r\\n/g,'\n').replace(/\\n/g,'\n').replace(/\\r/g,'\n').trim();
-let question='',answer='';
-try{
-const parsed=JSON.parse(raw);
+const source=String(content||'').trim();
+let question='',answer='',parsed=null;
+try{parsed=JSON.parse(source);}catch{}
 if(parsed&&typeof parsed==='object'&&parsed.question!==undefined&&parsed.answer!==undefined){
 question=String(parsed.question);answer=String(parsed.answer);
-}
-}catch{}
-if(!question&&!answer){
+}else{
+const raw=source.replace(/\\r\\n/g,'\n').replace(/\\n/g,'\n').replace(/\\r/g,'\n');
 const match=raw.match(/^\s*SORU:\s*([\s\S]*?)\n+YANIT:\s*([\s\S]*)$/i);
 if(match){question=match[1].trim();answer=match[2].trim();}
+else return '<p>'+escapeHTML(full?raw:raw.slice(0,280))+(!full&&raw.length>280?'…':'')+'</p>';
 }
-if(question||answer)return '<div class="record-qa"><div class="record-qa-block question"><span class="record-qa-label">SORU</span>'+escapeHTML(question)+'</div><div class="record-qa-block answer"><span class="record-qa-label">YANIT</span>'+escapeHTML(answer)+'</div></div>';
-return '<p>'+escapeHTML(full?raw:raw.slice(0,280))+(!full&&raw.length>280?'…':'')+'</p>';
+return '<div class="record-qa"><div class="record-qa-block question"><span class="record-qa-label">SORU</span>'+escapeHTML(question)+'</div><div class="record-qa-block answer"><span class="record-qa-label">YANIT</span>'+escapeHTML(answer)+'</div></div>';
 }
+
 function recordCard(r){return `<article class="record"><div><h3>${escapeHTML(r.title)}</h3>${renderRecordBody(r.content)}<small>${escapeHTML(r.category)} · ${escapeHTML(r.group)} · ${new Date(r.updated_at).toLocaleString('tr-TR')}</small></div><div class="record-actions"><button class="tinybtn" data-edit="${escapeHTML(r.id)}">Düzenle</button><button class="tinybtn" data-delete="${escapeHTML(r.id)}">Sil</button></div></article>`;}
 function toggleLibraryFavorite(key){const s=new Set(state.favorites||[]);if(s.has(key))s.delete(key);else s.add(key);state.favorites=[...s];saveJSON('nova_library_favorites',state.favorites);renderLibrary();}
 function renderLibrary(){
