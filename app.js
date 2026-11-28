@@ -240,10 +240,20 @@ renderDailyStats();
 function libIcon(name){const n=String(name||'').toLocaleLowerCase('tr-TR');if(/parça|kod|part|sku/.test(n))return '🔩';if(/makale|teknik açıklama|doküman/.test(n))return '📘';if(/arıza|hata|error|sorun/.test(n))return '🛠️';if(/bakım|temizlik/.test(n))return '🧽';if(/kurulum|montaj/.test(n))return '⚙️';if(/garanti|süreç|prosedür/.test(n))return '📋';if(/sorulan sorular|soru-cevap/.test(n))return '💬';return '📁';}
 function libColor(name){const n=String(name||'').toLocaleLowerCase('tr-TR');if(/parça|kod|part|sku/.test(n))return '#a879ff';if(/makale|teknik açıklama|doküman/.test(n))return '#ff526f';if(/arıza|hata|error/.test(n))return '#ff9a55';if(/bakım|temizlik/.test(n))return '#55e6c1';if(/kurulum|montaj/.test(n))return '#55c8ff';return '#8d9fff';}
 function renderRecordBody(content){
-const raw=String(content||'');
-const match=raw.match(/^\\s*SORU:\\s*([\\s\\S]*?)\\n+YANIT:\\s*([\\s\\S]*)$/i);
-if(!match)return '<p>'+escapeHTML(raw.slice(0,280))+(raw.length>280?'…':'')+'</p>';
-return '<div class="record-qa"><div class="record-qa-block question"><span class="record-qa-label">SORU</span>'+escapeHTML(match[1].trim())+'</div><div class="record-qa-block answer"><span class="record-qa-label">YANIT</span>'+escapeHTML(match[2].trim())+'</div></div>';
+const raw=String(content||'').trim();
+let question='',answer='';
+try{
+const parsed=JSON.parse(raw);
+if(parsed&&typeof parsed==='object'&&parsed.question!==undefined&&parsed.answer!==undefined){
+question=String(parsed.question);answer=String(parsed.answer);
+}
+}catch{}
+if(!question&&!answer){
+const match=raw.match(/^\s*SORU:\s*([\s\S]*?)\n+YANIT:\s*([\s\S]*)$/i);
+if(match){question=match[1].trim();answer=match[2].trim();}
+}
+if(question||answer)return '<div class="record-qa"><div class="record-qa-block question"><span class="record-qa-label">SORU</span>'+escapeHTML(question)+'</div><div class="record-qa-block answer"><span class="record-qa-label">YANIT</span>'+escapeHTML(answer)+'</div></div>';
+return '<p>'+escapeHTML(raw.slice(0,280))+(raw.length>280?'…':'')+'</p>';
 }
 function recordCard(r){return `<article class="record"><div><h3>${escapeHTML(r.title)}</h3>${renderRecordBody(r.content)}<small>${escapeHTML(r.category)} · ${escapeHTML(r.group)} · ${new Date(r.updated_at).toLocaleString('tr-TR')}</small></div><div class="record-actions"><button class="tinybtn" data-edit="${escapeHTML(r.id)}">Düzenle</button><button class="tinybtn" data-delete="${escapeHTML(r.id)}">Sil</button></div></article>`;}
 function toggleLibraryFavorite(key){const s=new Set(state.favorites||[]);if(s.has(key))s.delete(key);else s.add(key);state.favorites=[...s];saveJSON('nova_library_favorites',state.favorites);renderLibrary();}
@@ -1020,7 +1030,7 @@ finally{feedbackBusy=false;}
 });
 loading.append(feedback);
 // Show the matched source as a clear, tappable action below the answer.
-const related=matches.find(r=>answer.toLocaleLowerCase('tr-TR').includes(r.title.toLocaleLowerCase('tr-TR'))) || (matches.length===1?matches[0]:null);
+const related=matches[0]||null;
 if(related){
 const relatedBtn=document.createElement('button');relatedBtn.type='button';relatedBtn.className='related-record-link';relatedBtn.textContent='İlgili kaydı görüntüle · '+related.title;relatedBtn.dataset.relatedRecord=related.id;loading.append(relatedBtn);
 }
