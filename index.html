@@ -408,8 +408,13 @@ outline:1px solid #36ed9d66!important;box-shadow:0 0 0 1px #36ed9d40,0 0 18px #3
    background:#0b131e!important;border-top:1px solid #253548!important;
  }
  body.keyboard-open #view-ask .chatlayout{
-   padding-bottom:112px!important;box-sizing:border-box!important;
+   padding-bottom:0!important;box-sizing:border-box!important;
  }
+ body.keyboard-open #view-ask .chatmessages{
+   padding-bottom:132px!important;
+   scroll-padding-bottom:132px!important;
+ }
+ body.keyboard-open #view-ask .chatcomposer{margin:0!important}
  body.keyboard-open .view#view-ask.active{
    height:calc(var(--visual-height,100dvh) - 8px)!important;
    max-height:calc(var(--visual-height,100dvh) - 8px)!important;
