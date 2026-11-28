@@ -271,23 +271,123 @@ border-radius:22px!important;
 .librarytools #backupNow,.librarytools #restoreTrigger{flex:1}
 }
 
+
+/* Final balanced layout and interactions */
+.topbar{position:sticky;top:0;z-index:12;padding:8px 0;margin:0 0 18px;background:linear-gradient(180deg,rgba(8,11,18,.97),rgba(8,11,18,.78));backdrop-filter:blur(14px)}
+#activeBreakCard{min-width:132px;justify-content:center}
+#view-home .hero h1{font-size:clamp(31px,4vw,48px)}
+#view-home .hero .lead{font-size:13px;line-height:1.55}
+#view-home .primary-commands .command{min-height:164px;padding:18px}
+#view-home .primary-commands .command h2{font-size:19px;margin:16px 0 6px}
+#view-home .primary-commands .command p{font-size:11px;line-height:1.55}
+#view-home .primary-commands .command-icon{width:42px;height:42px;font-size:21px}
+#view-home .command-num{font-size:8px}
+#view-home .metric-panel{padding:15px;min-height:120px}
+#view-home .panelhead h3{font-size:13px}
+#view-home .panelhead small{font-size:9px}
+#view-home .metric strong{font-size:34px}
+#view-home .metric small,#view-home .metric-detail{font-size:10px}
+#view-home .daily-grid strong{font-size:25px}
+#view-home .daily-grid small{font-size:9px}
+#view-home .latest-panel{padding:15px 17px}
+#view-home .latest-panel .panelhead{margin-bottom:9px}
+#view-home .latest-entry{padding:9px 2px;gap:10px;border-top:1px solid #25384b}
+#view-home .latest-entry:first-child{border-top:0}
+#view-home .latest-title{display:flex;align-items:center;gap:10px;min-width:0;font-size:13px;flex:1}
+#view-home .latest-index{flex:0 0 25px;height:25px;border-radius:8px;display:grid;place-items:center;background:#122c3d;color:#7be8f4;font:10px 'DM Mono'}
+#view-home .latest-name{overflow-wrap:anywhere}
+#view-home .latest-time{font-size:9px}
+#view-home .record-qa{gap:12px}
+#view-home .record-qa-block{padding:14px 15px;font-size:12px;line-height:1.75}
+#view-home .record-qa-block.question{border:1px solid #19d9f3;background:linear-gradient(130deg,#0d293a,#102234);box-shadow:0 0 0 1px #19d9f355,0 0 18px #00dfff24}
+#view-home .record-qa-block.answer{border:1px solid #36ed9d;background:linear-gradient(130deg,#0d3028,#10251f);outline:1px solid #36ed9d66;box-shadow:0 0 0 1px #36ed9d40,0 0 18px #36ed9d20}
+#view-home .record-qa-label{font-size:10px}
+.library-sync-status{max-width:940px;margin:0 0 12px;padding:9px 12px;border:1px solid #284255;border-radius:10px;background:#0d1b29;color:#8fa9c1;font-size:10px}
+#view-home #syncHint{display:none!important}
+#view-home .command-icon{animation:sharedIconPulse 3s ease-in-out infinite;transform-origin:center}
+#view-home .primary-commands .command:nth-child(2) .command-icon{animation-delay:0s}
+@keyframes sharedIconPulse{0%,72%,100%{transform:translateY(0) scale(1)}78%{transform:translateY(-5px) scale(1.09)}84%{transform:translateY(0) scale(1)}90%{transform:translateY(-2px) scale(1.04)}}
+.manual-wheel-wrap{margin:22px auto 10px;max-width:250px}
+.manual-wheel-heading{font:9px 'DM Mono';letter-spacing:.13em;color:#829ab1;margin-bottom:10px}
+.minute-wheel-shell{height:168px;position:relative;overflow:hidden;border:1px solid #2d4a60;border-radius:18px;background:linear-gradient(180deg,#0b1420,#142638 50%,#0b1420)}
+.minute-wheel{height:168px;overflow-y:auto;overscroll-behavior:contain;scroll-snap-type:y mandatory;scrollbar-width:none;position:relative;z-index:2}
+.minute-wheel::-webkit-scrollbar{display:none}
+.minute-wheel-list{padding:63px 0}
+.minute-wheel-option{display:block;width:100%;height:42px;border:0;background:transparent;color:#647e96;font:500 19px 'DM Mono';scroll-snap-align:center}
+.minute-wheel-option.selected{color:#e7fbff;font-size:25px;font-weight:800;text-shadow:0 0 18px #00e5ff55}
+.minute-wheel-focus{position:absolute;z-index:1;top:63px;left:8px;right:8px;height:42px;border-top:1px solid #00dffb88;border-bottom:1px solid #00dffb88;border-radius:8px;background:#00dfff0c;pointer-events:none}
+.minute-wheel-unit{position:absolute;z-index:3;right:18px;top:76px;color:#7dcbd5;font:8px 'DM Mono';pointer-events:none}
+.minute-wheel-value{color:#9debf1;font:10px 'DM Mono';margin-top:9px}
+.break-close-wrap{display:flex;justify-content:center;margin:18px 0 30px}
+.break-close-wrap .tinybtn{min-width:100px;opacity:.85}
+.welcome-screen{display:none;position:fixed;inset:0;z-index:2147483647;place-items:center;padding:24px;background:radial-gradient(ellipse at 50% 20%,#163448,#080d17 68%);color:#f4f9ff}
+html.welcome-needed .welcome-screen{display:grid}
+html.welcome-needed .app,html.welcome-needed .bottomnav{visibility:hidden}
+.welcome-card{width:min(420px,100%);text-align:center;padding:36px 28px;border:1px solid #31536a;border-radius:26px;background:linear-gradient(145deg,#142536,#0b1522);box-shadow:0 25px 80px #0008}
+.welcome-mark{width:58px;height:58px;margin:0 auto 20px;display:grid;place-items:center;border-radius:18px;background:linear-gradient(140deg,#00e5ff,#548cff);color:#06121c;font-size:26px;font-weight:900;box-shadow:0 0 28px #00e5ff30}
+.welcome-kicker{font:9px 'DM Mono';letter-spacing:.16em;color:#80dce8}
+.welcome-card h2{font-size:22px;margin:13px 0 7px}
+.welcome-card p{font-size:12px;color:#9eb0c3;margin:0}
+.welcome-line{height:3px;margin:24px auto 0;max-width:220px;background:#263b4e;border-radius:10px;overflow:hidden}
+.welcome-line i{display:block;height:100%;width:0;background:linear-gradient(90deg,#00e5ff,#8bbcff);animation:welcomeLoad 3s linear forwards}
+@keyframes welcomeLoad{to{width:100%}}
+@media(max-width:900px){
+.main{padding:12px 14px calc(82px + env(safe-area-inset-bottom))}
+.topbar{margin-bottom:12px}
+#view-home .hero h1{font-size:clamp(29px,7vw,36px);line-height:1.06}
+#view-home .hero .lead{font-size:12px;line-height:1.45;max-width:420px}
+#view-home .primary-commands{margin:12px 0;gap:10px}
+#view-home .primary-commands .command{min-height:145px;padding:14px}
+#view-home .primary-commands .command h2{font-size:17px;margin:13px 0 5px}
+#view-home .primary-commands .command p{font-size:10.5px;line-height:1.5}
+#view-home .primary-commands .command-icon{width:39px;height:39px;font-size:20px}
+#view-home .command-num{font-size:7px}
+#view-home .home-metrics{gap:9px;margin:10px 0}
+#view-home .metric-panel{padding:12px;min-height:116px}
+#view-home .panelhead h3{font-size:12px}
+#view-home .panelhead small{font-size:8px}
+#view-home .metric strong{font-size:31px}
+#view-home .metric small,#view-home .metric-detail{font-size:9px}
+#view-home .daily-grid{gap:6px}
+#view-home .daily-grid strong{font-size:23px}
+#view-home .daily-grid small{font-size:9px}
+#view-home .latest-panel{padding:12px 14px;margin-top:10px}
+#view-home .latest-title{font-size:12px}
+#view-home .latest-time{font-size:8px}
+#view-home .latest-entry{padding:8px 1px}
+#view-home .record-qa-block{font-size:11px;padding:12px}
+#view-home .record-qa-label{font-size:9px}
+}
+@media(max-width:520px){
+#view-home .primary-commands .command{min-height:138px;padding:12px}
+#view-home .primary-commands .command h2{font-size:16px}
+#view-home .primary-commands .command p{font-size:10px}
+#view-home .metric-panel{padding:10px}
+#view-home .metric strong{font-size:29px}
+#view-home .latest-entry{align-items:flex-start}
+#view-home .latest-time{white-space:nowrap}
+}
+@media(prefers-reduced-motion:reduce){#view-home .command-icon{animation:none!important}.welcome-line i{animation:none;width:100%}}
+
 </style>
-</head>
-<body>
+<script>
+try{const last=Number(localStorage.getItem('nova_last_exit')||0);if(last&&Date.now()-last>300000)document.documentElement.classList.add('welcome-needed');}catch{}
+</script></head>
+<body><div class="welcome-screen" id="welcomeScreen"><div class="welcome-card"><div class="welcome-mark">D</div><div class="welcome-kicker">DYSON · TEKNİK BİLGİ MERKEZİ</div><h2>Bilgi merkeziniz hazırlanıyor</h2><p>Kayıtlar ve çalışma alanı yükleniyor…</p><div class="welcome-line"><i></i></div></div></div>
 <div class="app">
 <aside><div class="brand"><div class="brandmark">D</div><div><strong>DYSON</strong><small>TEKNİK BİLGİ MERKEZİ</small></div></div><div class="navlabel">ÇALIŞMA ALANI</div><nav class="nav"><button class="active" data-view="home"><span class="ico">⌂</span>Ana Sayfa</button><button data-view="add"><span class="ico">＋</span>Bilgi Ekle</button><button data-view="ask"><span class="ico">⌕</span>Soru Sor</button><button data-view="break"><span class="ico">◷</span>Mola Başlat</button><button data-view="library"><span class="ico">▤</span>Bilgi Hazinesi</button></nav><div class="sidefoot"><div class="connection"><i class="dot" id="connectionDot"></i><span id="connectionText">Bağlantı kontrol ediliyor</span></div><p>2–3 kişilik şirket içi kullanım için tasarlandı. Bilgiler ortak bilgi merkezinde tutulur.</p></div></aside>
 <main class="main"><header class="topbar"><div class="topright"><button class="break-pill" id="activeBreakCard" type="button"><span class="break-pulse"></span><span><b id="breakStateLabel">MOLA BAŞLAT</b><strong id="breakRemaining">◷</strong></span></button><span id="clock">--:--</span><div class="avatar">D</div></div></header>
 <section class="view active" id="view-home"><div class="hero"><div><div class="eyebrow">DYSON · TEKNİK BİLGİ MERKEZİ</div><h1>Teknik bilgi.<br><span>Kesintisiz çözüm.</span></h1><p class="lead">Bilgiyi tek noktada topla, sahadaki problemi kayıtlı çözümlerle karşılaştır ve molanı tek dokunuşla başlat.</p></div><div class="datebox"><strong id="today">27 KASIM 2026</strong>KİŞİSEL ÇALIŞMA ALANI</div></div>
 <button class="home-break-card hidden" id="homeBreakCard" type="button"><span class="break-pulse"></span><span><b id="homeBreakState">MOLA DEVAM EDİYOR</b><strong id="homeBreakRemaining">10:00</strong><small>Molayı görüntüle ↗</small></span></button>
-<div class="commands primary-commands"><button class="command" data-go="add"><div class="command-top"><div class="command-icon">＋</div><span class="command-num">01 / BİLGİ EKLE</span></div><h2>Bilgi Yükle</h2><p>Fotoğraf çek, teknik bilgiyi düzenleyip bilgi hazinesine aktar.</p></button><button class="command" data-go="ask"><div class="command-top"><div class="command-icon">⌕</div><span class="command-num">02 / SORU SOR</span></div><h2>Soru Sor</h2><p>Problemini yaz veya fotoğrafını çek. Kayıtlı bilgilerle karşılaştırarak yanıt al.</p><span class="arrow">↗</span></button></div>
-<div class="home-metrics"><div class="panel metric-panel"><div class="panelhead"><h3>Bilgi Hazinesi</h3><small>TOPLAM BİLGİ</small></div><div class="metric"><div><strong id="recordCount">0</strong><br><small>Toplam kayıt</small></div><span class="eyebrow" id="syncLabel">BAĞLANIYOR</span></div><p class="metric-detail" id="recordBreakdown">Makale: 0 · Süreç: 0 · Parça kodu: 0</p><p class="hint" id="syncHint">Supabase bağlantısı kontrol ediliyor.</p></div>
+<div class="commands primary-commands"><button class="command" data-go="add"><div class="command-top"><div class="command-icon">＋</div><span class="command-num">01 / BİLGİ EKLE</span></div><h2>Bilgi Yükle</h2><p>Fotoğraf çek, teknik bilgiyi düzenleyip bilgi hazinesine aktar.</p></button><button class="command" data-go="ask"><div class="command-top"><div class="command-icon">⌕</div><span class="command-num">02 / SORU SOR</span></div><h2>Soru Sor</h2><p>Problemini yaz veya fotoğrafını çek. Kayıtlı bilgilerle karşılaştırarak yanıt al.</p></button></div>
+<div class="home-metrics"><div class="panel metric-panel"><div class="panelhead"><h3>Bilgi Hazinesi</h3><small>TOPLAM BİLGİ</small></div><div class="metric"><div><strong id="recordCount">0</strong><br><small>Toplam kayıt</small></div><span class="eyebrow" id="syncLabel">BAĞLANIYOR</span></div><p class="metric-detail" id="recordBreakdown">Makale: 0 · Süreç: 0 · Parça kodu: 0</p></div>
 <div class="panel metric-panel"><div class="panelhead"><h3>Bugünkü Etkinlik</h3><small id="dailyDateLabel">BUGÜN</small></div><div class="daily-grid"><div><strong id="dailyQuestions">0</strong><small>Bugün sorulan</small></div><div><strong id="dailyUploads">0</strong><small>Bugün eklenen</small></div></div><p class="metric-detail">Toplam sorulan soru: <b id="totalQuestionCount">0</b></p></div></div>
 <div class="panel latest-panel" id="latestPanel"><div class="panelhead"><h3>Son Eklenen Bilgi</h3><small id="latestState">GÜNCEL DURUM</small></div><div id="latestKnowledge" class="latest-empty">Henüz bilgi eklenmedi.</div></div>
 </section>
 <section class="view" id="view-add"><div class="pagehead"><div class="eyebrow">01 / BİLGİ EKLE</div><h1>Bilgi <span>ekle.</span></h1><p class="lead">Teknik notu yaz veya kaynak dosyanı ekle. Görsel ve PDF içeriği yapay zekâ tarafından okunup düzenlenerek kaydedilir.</p></div><div class="workspace"><div class="fields"><div class="field full"><label for="recordContent">Teknik açıklama / çözüm adımları</label><textarea id="recordContent" placeholder="Sorunu, kontrol adımlarını, çözümü ve önemli uyarıları yaz..."></textarea></div><div class="upload-source-grid"><button class="upload-source" type="button" id="takeRecordPhoto"><span>📷</span><b>Fotoğraf Çek</b><small>Kamerayı aç</small></button><button class="upload-source" type="button" id="chooseRecordPhoto"><span>🖼️</span><b>Fotoğraf Yükle</b><small>Galeriden / dosyalardan</small></button><button class="upload-source" type="button" id="writeRecordText"><span>✎</span><b>Metin Yaz</b><small>Açıklama alanına geç</small></button></div><input id="recordFiles" type="file" accept="image/*,.pdf" multiple hidden><input id="recordCamera" type="file" accept="image/*" capture="environment" multiple hidden><div class="filelist" id="recordFileList"></div><button class="tinybtn add-more-files" id="addMoreRecordFiles" type="button">＋ Bir Fotoğraf Daha Ekle</button><div class="field"><label for="recordTitle">Bilgi başlığı</label><input id="recordTitle" placeholder="Örn. FS-240 hata kodu çözümü" maxlength="180"></div><div class="field"><label for="recordCategory">Kategori</label><select id="recordCategory"><option>Genel</option><option>Arıza</option><option>Kurulum</option><option>Bakım</option><option>Parça Kodları</option><option>Süreçler</option><option>Temizlik</option><option>Kişisel Bakım</option></select><button class="tinybtn category-add" type="button" id="newCategoryBtn">＋ Yeni kategori</button></div><div class="field"><label for="recordGroup">Alt kategori / grup</label><input id="recordGroup" list="groupSuggestions" placeholder="Örn. Garanti Süreci / RTB Formatı"><datalist id="groupSuggestions"></datalist><button class="tinybtn category-add" type="button" id="newGroupBtn">＋ Alt kategori ekle</button><small class="field-note">Birden fazla seviye için alt kategorileri “Ana / Alt / Alt başlık” biçiminde yazabilirsin.</small></div></div><div class="btnrow"><button class="btn" id="saveRecord">Analiz et ve incelemeye geç ↗</button><button class="btn secondary" id="clearRecord">Temizle</button></div><div class="statusline" id="addStatus" aria-live="polite"></div></div></section>
 <section class="view" id="view-ask"><div class="pagehead"><div class="eyebrow">02 / TEKNİK SORU</div><h1>Birlikte <span>çözelim.</span></h1><p class="lead">Müşteri problemini anlat, hata kodunu yaz veya fotoğraf ekle. Yanıtlar bilgi bankasındaki kayıtlarla karşılaştırılır.</p></div><div class="chatlayout"><div class="chathead"><div><strong>Dyson Teknik Asistanı</strong><small id="chatStatus">Bilgi hazinesi hazırlanıyor</small></div><button class="tinybtn" id="newChat">Yeni sohbet</button></div><div class="chatmessages" id="messages"><div class="bubble assistant"><span class="who">DYSON ASİSTANI</span>Merhaba. Teknik sorunu yazabilir veya cihazın fotoğrafını ekleyebilirsin. Önce kayıtlı çözümleri tarayacağım; yeterli bilgi yoksa bunu açıkça belirteceğim.</div></div><div class="chatcomposer"><div class="chatinput"><textarea id="question" rows="1" placeholder="Teknik problemini buraya yaz..."></textarea><button class="btn" id="sendQuestion">Gönder ↗</button></div><div class="chattools"><div class="left"><label class="tinybtn" for="questionPhoto">🖼️ Galeriden seç</label><input id="questionPhoto" type="file" accept="image/*" hidden><label class="tinybtn" for="questionCamera">📷 Fotoğraf çek</label><input id="questionCamera" type="file" accept="image/*" capture="environment" hidden><button class="tinybtn" id="clearPhoto">Fotoğrafı kaldır</button></div><span class="hint" id="questionPhotoName">Görsel eklenmedi</span></div></div></div></section>
-<section class="view" id="view-break"><div class="pagehead"><div class="eyebrow">03 / MOLA</div><h1>Kısa bir <span>mola.</span></h1><p class="lead">Ekrandan uzaklaş. Süreni seç, molanı başlat; süre dolduğunda bildirim al.</p></div><div class="timerpanel"><div class="eyebrow">MOLA SAYACI</div><div class="ring" id="timerRing"><div class="timer" id="timer">10:00</div></div><div class="presets"><button data-min="10" class="selected">10 DAKİKA</button><button data-min="50">50 DAKİKA</button><label class="manual-break">Elle gir <input id="manualBreakMinutes" type="number" min="1" max="240" value="25" aria-label="Mola süresi dakika"></label></div><div class="btnrow" style="justify-content:center"><button class="btn" id="startTimer">Molayı başlat</button><button class="btn secondary" id="resetTimer">Sıfırla</button></div><p class="statusline" id="timerStatus" aria-live="polite">Hazır olduğunda başlat.</p></div></section>
-<section class="view" id="view-library"><div class="pagehead"><div class="eyebrow">BİLGİ HAZİNESİ</div><h1>Bilgi <span>hazinesi.</span></h1><p class="lead">Şirketin ortak teknik kayıtlarını ara, incele ve gerektiğinde düzenle.</p></div><div class="librarytools"><button class="btn secondary" id="backupNow" type="button">Tam yedek al ↓</button><button class="btn secondary" id="restoreTrigger" type="button">Yedekten yükle ↑</button><input id="librarySearch" placeholder="Kategori, alt kategori, parça kodu veya içerikte ara..."><button class="btn secondary" id="libraryBack" type="button" hidden>← Geri</button><button class="btn secondary" id="refreshLibrary">Yenile ↻</button><button class="btn" data-go="add">＋ Yeni bilgi</button></div><div class="library-crumb" id="libraryCrumb">Tüm kategoriler</div><div class="recordlist" id="recordList"><div class="empty">Kategoriler yükleniyor…</div></div></section>
+<section class="view" id="view-break"><div class="pagehead"><div class="eyebrow">03 / MOLA</div><h1>Kısa bir <span>mola.</span></h1><p class="lead">Süreni seç, molanı başlat. Süre dolduğunda bildirim al.</p></div><div class="timerpanel"><div class="eyebrow">MOLA SAYACI</div><div class="ring" id="timerRing"><div class="timer" id="timer">10:00</div></div><div class="presets"><button data-min="10" class="selected">10 DAKİKA</button><button data-min="50">50 DAKİKA</button></div><div class="manual-wheel-wrap"><div class="manual-wheel-heading">VEYA DAKİKAYI ÇARKTAN SEÇ</div><div class="minute-wheel-shell"><div class="minute-wheel" id="minuteWheel" aria-label="Dakika seçici" tabindex="0"><div class="minute-wheel-list" id="minuteWheelList"></div></div><div class="minute-wheel-focus"></div><div class="minute-wheel-unit">DAKİKA</div></div><div class="minute-wheel-value" id="minuteWheelValue">25 DAKİKA</div></div><div class="btnrow" style="justify-content:center"><button class="btn" id="startTimer">Molayı başlat</button><button class="btn secondary" id="resetTimer">Sıfırla</button></div><p class="statusline" id="timerStatus" aria-live="polite">Hazır olduğunda başlat.</p></div><div class="break-close-wrap"><button class="tinybtn" id="closeBreakView" type="button">Kapat</button></div></section>
+<section class="view" id="view-library"><div class="pagehead"><div class="eyebrow">BİLGİ HAZİNESİ</div><h1>Bilgi <span>hazinesi.</span></h1><p class="lead">Şirketin ortak teknik kayıtlarını ara, incele ve gerektiğinde düzenle.</p></div><div class="librarytools"><button class="btn secondary" id="backupNow" type="button">Tam yedek al ↓</button><button class="btn secondary" id="restoreTrigger" type="button">Yedekten yükle ↑</button><input id="librarySearch" placeholder="Kategori, alt kategori, parça kodu veya içerikte ara..."><button class="btn secondary" id="libraryBack" type="button" hidden>← Geri</button><button class="btn secondary" id="refreshLibrary">Yenile ↻</button><button class="btn" data-go="add">＋ Yeni bilgi</button></div><p class="library-sync-status" id="syncHint">Supabase bağlantısı kontrol ediliyor.</p><div class="library-crumb" id="libraryCrumb">Tüm kategoriler</div><div class="recordlist" id="recordList"><div class="empty">Kategoriler yükleniyor…</div></div></section>
 </main></div>
 <nav class="bottomnav" aria-label="Ana menü"><button class="active" data-view="home"><span>⌂</span>Ana Sayfa</button><button data-view="add"><span>＋</span>Bilgi Ekle</button><button data-view="ask"><span>⌕</span>Soru Sor</button><button data-view="break"><span>◷</span>Mola</button><button data-view="library"><span>▤</span>Bilgi Hazinesi</button></nav>
 <div class="overlay hidden" id="latestDetailOverlay"><div class="modal latest-detail-modal"><div class="modal-kicker">SON EKLENEN BİLGİ</div><h2 id="latestDetailTitle"></h2><p id="latestDetailMeta"></p><div id="latestDetailContent" class="latest-detail-content"></div><div class="latest-detail-actions"><button class="btn danger" id="closeLatestDetail">Kaydı kapat</button></div></div></div><div class="overlay hidden" id="relatedRecordOverlay"><div class="modal related-record-modal"><div class="modal-kicker">İLGİLİ BİLGİ KAYDI</div><h2 id="relatedRecordTitle"></h2><p id="relatedRecordMeta"></p><div id="relatedRecordContent" class="latest-detail-content"></div><div class="related-record-footer"><button class="btn danger" id="closeRelatedRecord">Kaydı kapat</button></div></div></div><div class="toast" id="toast" role="status" aria-live="polite"></div><div class="overlay hidden" id="uploadProgress"><div class="modal progress-modal"><div class="progress-orbit"><span></span></div><div class="modal-kicker">DYSON-SERVİS · BİLGİ İŞLENİYOR</div><h2 id="uploadProgressTitle">Dosyalar hazırlanıyor</h2><p id="uploadProgressText">Görseller seçilen sırayla analiz ediliyor.</p><div class="progress-track"><i id="uploadProgressBar"></i></div><div class="progress-steps" id="uploadProgressSteps"><span class="active">Hazırlık</span><span>Analiz</span><span>İnceleme</span><span>Kayıt</span></div></div></div>
