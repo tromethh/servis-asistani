@@ -1001,4 +1001,33 @@ outline:1px solid #36ed9d66!important;box-shadow:0 0 0 1px #36ed9d40,0 0 18px #3
     padding:5px 3px!important;
   }
 }
+
+/* Fotoğraf analiz ekranı: tüm ekranı kapla, içerikleri tam merkezle */
+#uploadProgress{
+  position:fixed!important;inset:0!important;
+  width:100vw!important;height:100vh!important;height:100dvh!important;
+  padding:0!important;margin:0!important;
+  display:grid!important;place-items:center!important;
+  overflow:hidden!important;box-sizing:border-box!important;
+}
+#uploadProgress.hidden{display:none!important}
+#uploadProgress .progress-modal{
+  width:100%!important;height:100%!important;
+  min-width:0!important;min-height:0!important;
+  max-width:none!important;max-height:none!important;
+  margin:0!important;padding:24px!important;
+  border:0!important;border-radius:0!important;
+  box-shadow:none!important;
+  display:flex!important;flex-direction:column!important;
+  align-items:center!important;justify-content:center!important;
+  gap:0!important;text-align:center!important;
+  background:radial-gradient(ellipse at center,#142b3c 0%,#091522 58%,#050b13 100%)!important;
+}
+#uploadProgress .progress-modal>*{
+  width:min(560px,88vw)!important;max-width:88vw!important;
+  text-align:center!important;
+}
+#uploadProgress .progress-track{width:min(560px,88vw)!important}
+#uploadProgress .progress-steps{justify-content:center!important}
+
 </style>
