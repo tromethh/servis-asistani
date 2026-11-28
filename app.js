@@ -27,6 +27,8 @@ let latestPulseTimeout = null;
 
 const state = {
 records: [],
+trash: [],
+libraryTrashOpen: false,
 chat: [],
 photo: null,
 pendingFiles: [],
@@ -141,7 +143,8 @@ category:String(r.category||'Genel'),
 group:String(r.group||'Geneli'),
 title:String(r.title||'Başlıksız kayıt'),
 content:String(r.content||''),
-updated_at:r.updated_at||r.updatedAt||r.uploadedAt||new Date().toISOString()
+updated_at:r.updated_at||r.updatedAt||r.uploadedAt||new Date().toISOString(),
+deleted_at:r.deleted_at||null
 };
 }
 
@@ -150,8 +153,12 @@ function persistRecords(){saveJSON('nova_records_cache',state.records);}
 async function syncRecords(){
 try{
 const rows=await sbRequest('/rest/v1/records?select=*&order=updated_at.desc');
-state.records=Array.isArray(rows)?rows.map(normalize):[];
+const normalized=Array.isArray(rows)?rows.map(normalize):[];
+state.records=normalized.filter(r=>!r.deleted_at);
+state.trash=normalized.filter(r=>!!r.deleted_at);
 persistRecords();
+saveJSON('nova_trash_cache',state.trash);
+await purgeExpiredTrash(false);
 refreshCategoryOptions();
 setConnection(true,'Ortak bilgi bankası bağlı');
 renderHome();
@@ -162,7 +169,9 @@ $('chatStatus').textContent='Ortak bilgi bankası bağlı · '+state.records.len
 return true;
 }catch(e){
 const cached=loadJSON('nova_records_cache',[]);
+const cachedTrash=loadJSON('nova_trash_cache',[]);
 if(Array.isArray(cached))state.records=cached.map(normalize);
+if(Array.isArray(cachedTrash))state.trash=cachedTrash.map(normalize);
 refreshCategoryOptions();
 setConnection(false,'Bağlantı kurulamadı');
 $('syncLabel').textContent='ÇEVRİM DIŞI';
@@ -203,11 +212,36 @@ body:JSON.stringify(payload)
 });
 }
 
-async function deleteCloudRecord(id){
+async function moveCloudRecordToTrash(id){
+await sbRequest('/rest/v1/records?id=eq.'+encodeURIComponent(id),{
+method:'PATCH',
+headers:{'Content-Type':'application/json','Prefer':'return=minimal'},
+body:JSON.stringify({deleted_at:new Date().toISOString()})
+});
+}
+async function restoreCloudRecord(id){
+await sbRequest('/rest/v1/records?id=eq.'+encodeURIComponent(id),{
+method:'PATCH',
+headers:{'Content-Type':'application/json','Prefer':'return=minimal'},
+body:JSON.stringify({deleted_at:null})
+});
+}
+async function purgeCloudRecord(id){
 await sbRequest('/rest/v1/records?id=eq.'+encodeURIComponent(id),{
 method:'DELETE',
 headers:{'Prefer':'return=minimal'}
 });
+}
+async function purgeExpiredTrash(showToast=false){
+const cutoff=Date.now()-7*24*60*60*1000;
+const expired=(state.trash||[]).filter(r=>new Date(r.deleted_at).getTime()<=cutoff);
+for(const r of expired)await purgeCloudRecord(r.id);
+if(expired.length){
+const ids=new Set(expired.map(r=>r.id));
+state.trash=state.trash.filter(r=>!ids.has(r.id));
+saveJSON('nova_trash_cache',state.trash);
+if(showToast)toast(expired.length+' eski kayıt kalıcı olarak silindi.');
+}
 }
 
 function animateRecordCount(target){
@@ -267,14 +301,33 @@ function recordCard(r){return `<article class="record"><div><h3>${escapeHTML(r.t
 function toggleLibraryFavorite(key){const s=new Set(state.favorites||[]);if(s.has(key))s.delete(key);else s.add(key);state.favorites=[...s];saveJSON('nova_library_favorites',state.favorites);renderLibrary();}
 function renderLibrary(){
 const q=$('librarySearch').value.trim().toLocaleLowerCase('tr-TR'),all=state.records,root=!state.libraryPath.length,cat=state.libraryPath[0]||'',group=state.libraryPath[1]||'';
-$('libraryBack').hidden=root&&!q;$('libraryCrumb').textContent=state.libraryPath.length?['Bilgi Hazinesi',...state.libraryPath].join(' / '):'Bilgi Hazinesi · Kategoriler';
+$('libraryBack').hidden=root&&!q&&!state.libraryTrashOpen;
+if(state.libraryTrashOpen){renderTrashView();return;}$('libraryCrumb').textContent=state.libraryPath.length?['Bilgi Hazinesi',...state.libraryPath].join(' / '):'Bilgi Hazinesi · Kategoriler';
 if(q){const rows=all.filter(r=>(r.title+' '+r.category+' '+r.group+' '+r.content).toLocaleLowerCase('tr-TR').includes(q));$('recordList').innerHTML=rows.length?rows.map(recordCard).join(''):'<div class="empty">Aramanızla eşleşen kayıt bulunamadı.</div>';return;}
-if(root){const cats=[...new Set([...Object.keys(state.categoryTree||{}),...all.map(r=>r.category).filter(Boolean)])].filter(c=>c!=='AktifMola');const items=cats.map(name=>({name,count:all.filter(r=>r.category===name).length,key:'cat:'+name})).sort((a,b)=>Number(state.favorites.includes(b.key))-Number(state.favorites.includes(a.key))||a.name.localeCompare(b.name,'tr'));$('recordList').innerHTML=items.length?items.map(x=>`<div class="library-category ${state.favorites.includes(x.key)?'is-favorite':''}" style="--fav:${libColor(x.name)}"><button class="lib-heart ${state.favorites.includes(x.key)?'active':''}" data-lib-fav="${escapeHTML(x.key)}">${state.favorites.includes(x.key)?'♥':'♡'}</button><button class="library-category" data-lib-cat="${escapeHTML(x.name)}"><span class="lib-ico">${libIcon(x.name)}</span><span class="lib-main"><b>${escapeHTML(x.name)}</b><small>${x.count} kayıt · Alt kategorileri aç</small></span><span>›</span></button></div>`).join(''):'<div class="empty">Henüz kategori yok.</div>';return;}
+if(root){const cats=[...new Set([...Object.keys(state.categoryTree||{}),...all.map(r=>r.category).filter(Boolean)])].filter(c=>c!=='AktifMola');const items=cats.map(name=>({name,count:all.filter(r=>r.category===name).length,key:'cat:'+name})).sort((a,b)=>Number(state.favorites.includes(b.key))-Number(state.favorites.includes(a.key))||a.name.localeCompare(b.name,'tr'));$('recordList').innerHTML=(items.length?items.map(x=>`<div class="library-category ${state.favorites.includes(x.key)?'is-favorite':''}" style="--fav:${libColor(x.name)}"><button class="lib-heart ${state.favorites.includes(x.key)?'active':''}" data-lib-fav="${escapeHTML(x.key)}">${state.favorites.includes(x.key)?'♥':'♡'}</button><button class="library-category" data-lib-cat="${escapeHTML(x.name)}"><span class="lib-ico">${libIcon(x.name)}</span><span class="lib-main"><b>${escapeHTML(x.name)}</b><small>${x.count} kayıt · Alt kategorileri aç</small></span><span>›</span></button></div>`).join(''):'<div class="empty">Henüz kategori yok.</div>')+`<button class="trash-entry" type="button" data-trash-open><span>🗑️</span><span><b>Son Silinenler</b><small>${state.trash.length} kayıt · 7 gün içinde geri yükleyebilirsin</small></span><strong>›</strong></button>`;return;}
 if(state.libraryPath.length===1){const groups=[...new Set([...((state.categoryTree||{})[cat]||[]),...all.filter(r=>r.category===cat).map(r=>r.group).filter(g=>g&&g!=='Geneli')])];const items=groups.map(name=>({name,count:all.filter(r=>r.category===cat&&r.group===name).length,key:'group:'+cat+'/'+name})).sort((a,b)=>Number(state.favorites.includes(b.key))-Number(state.favorites.includes(a.key))||a.name.localeCompare(b.name,'tr'));$('recordList').innerHTML=items.length?items.map(x=>`<div class="library-category ${state.favorites.includes(x.key)?'is-favorite':''}" style="--fav:${libColor(x.name)}"><button class="lib-heart ${state.favorites.includes(x.key)?'active':''}" data-lib-fav="${escapeHTML(x.key)}">${state.favorites.includes(x.key)?'♥':'♡'}</button><button class="library-category" data-lib-group="${escapeHTML(x.name)}"><span class="lib-ico">${libIcon(x.name)}</span><span class="lib-main"><b>${escapeHTML(x.name)}</b><small>${x.count} kayıt · İçerikleri aç</small></span><span>›</span></button></div>`).join(''):'<div class="empty">Bu kategoride henüz alt kategori yok.</div>';return;}
 const rows=all.filter(r=>r.category===cat&&r.group===group);$('recordList').innerHTML=rows.length?rows.map(recordCard).join(''):'<div class="empty">Bu alt kategoride henüz kayıt yok.</div>';
 }
-$('recordList').addEventListener('click',e=>{const fav=e.target.closest('[data-lib-fav]'),c=e.target.closest('[data-lib-cat]'),g=e.target.closest('[data-lib-group]');if(fav){e.preventDefault();e.stopPropagation();toggleLibraryFavorite(fav.dataset.libFav);return;}if(c){state.libraryPath=[c.dataset.libCat];renderLibrary();return;}if(g){state.libraryPath=[state.libraryPath[0],g.dataset.libGroup];renderLibrary();}});
-$('libraryBack').addEventListener('click',()=>{state.libraryPath.pop();renderLibrary();});
+function renderTrashView(){
+$('libraryCrumb').textContent='Bilgi Hazinesi / Son Silinenler';
+const rows=[...state.trash].sort((a,b)=>new Date(b.deleted_at)-new Date(a.deleted_at));
+const controls=`<div class="trash-toolbar"><button class="trash-restore-all" type="button" data-trash-restore-all>↶ Tümünü Geri Yükle</button><button class="trash-empty-all" type="button" data-trash-empty>Çöp Kutusunu Boşalt</button></div>`;
+const cards=rows.map(r=>{const remaining=Math.max(0,7*24*60*60*1000-(Date.now()-new Date(r.deleted_at).getTime()));const days=Math.ceil(remaining/(24*60*60*1000));return `<article class="record trash-record"><div><h3>${escapeHTML(r.title)}</h3>${renderRecordBody(r.content)}<small>${escapeHTML(r.category)} · ${escapeHTML(r.group)} · ${days} gün içinde otomatik silinir</small></div><div class="record-actions"><button class="trash-restore-one" type="button" data-trash-restore="${escapeHTML(r.id)}">Geri Yükle</button><button class="tinybtn" type="button" data-trash-delete="${escapeHTML(r.id)}">Kalıcı Sil</button></div></article>`;}).join('');
+$('recordList').innerHTML=controls+(cards||'<div class="empty">Çöp kutusu boş.</div>');
+}
+$('recordList').addEventListener('click',async e=>{
+const restore=e.target.closest('[data-trash-restore]'),restoreAll=e.target.closest('[data-trash-restore-all]'),empty=e.target.closest('[data-trash-empty]'),delTrash=e.target.closest('[data-trash-delete]'),openTrash=e.target.closest('[data-trash-open]');
+if(openTrash){state.libraryTrashOpen=true;$('librarySearch').value='';renderLibrary();return;}
+if(restore){const r=state.trash.find(x=>x.id===restore.dataset.trashRestore);if(!r)return;try{await restoreCloudRecord(r.id);state.trash=state.trash.filter(x=>x.id!==r.id);r.deleted_at=null;state.records.unshift(r);persistRecords();saveJSON('nova_trash_cache',state.trash);renderHome();renderLibrary();toast('Bilgi eski kategorisine geri yüklendi.');}catch(err){toast(err.message);}return;}
+if(restoreAll){if(!state.trash.length)return;try{for(const r of [...state.trash])await restoreCloudRecord(r.id);state.records.unshift(...state.trash.map(r=>({...r,deleted_at:null})));state.trash=[];persistRecords();saveJSON('nova_trash_cache',[]);renderHome();renderLibrary();toast('Tüm bilgiler geri yüklendi.');}catch(err){toast(err.message);}return;}
+if(delTrash){const r=state.trash.find(x=>x.id===delTrash.dataset.trashDelete);if(!r||!confirm('Bu bilgi kalıcı olarak silinsin mi?'))return;try{await purgeCloudRecord(r.id);state.trash=state.trash.filter(x=>x.id!==r.id);saveJSON('nova_trash_cache',state.trash);renderLibrary();toast('Bilgi kalıcı olarak silindi.');}catch(err){toast(err.message);}return;}
+if(empty){if(!state.trash.length)return;if(!confirm('Çöp kutusundaki tüm bilgiler kalıcı olarak silinsin mi? Bu işlem geri alınamaz.'))return;try{for(const r of [...state.trash])await purgeCloudRecord(r.id);state.trash=[];saveJSON('nova_trash_cache',[]);renderLibrary();toast('Çöp kutusu boşaltıldı.');}catch(err){toast(err.message);}return;}
+const fav=e.target.closest('[data-lib-fav]'),c=e.target.closest('[data-lib-cat]'),g=e.target.closest('[data-lib-group]');
+if(fav){e.preventDefault();e.stopPropagation();toggleLibraryFavorite(fav.dataset.libFav);return;}
+if(c){state.libraryPath=[c.dataset.libCat];renderLibrary();return;}
+if(g){state.libraryPath=[state.libraryPath[0],g.dataset.libGroup];renderLibrary();}
+});
+$('libraryBack').addEventListener('click',()=>{if(state.libraryTrashOpen){state.libraryTrashOpen=false;state.libraryPath=[];}else state.libraryPath.pop();renderLibrary();});
 
 $('librarySearch').addEventListener('input',renderLibrary);
 $('refreshLibrary').addEventListener('click',async()=>{
@@ -871,12 +924,15 @@ if(del){
 const r=state.records.find(x=>x.id===del.dataset.delete);
 if(!r||!confirm(`“${r.title}” kaydı silinsin mi?`))return;
 
-deleteCloudRecord(r.id).then(()=>{
+moveCloudRecordToTrash(r.id).then(()=>{
+r.deleted_at=new Date().toISOString();
 state.records=state.records.filter(x=>x.id!==r.id);
+state.trash.unshift(r);
 persistRecords();
+saveJSON('nova_trash_cache',state.trash);
 renderHome();
 renderLibrary();
-toast('Kayıt silindi.');
+toast('Bilgi Son Silinenler kutusuna taşındı.');
 }).catch(err=>toast(err.message));
 }
 });
