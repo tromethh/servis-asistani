@@ -907,3 +907,93 @@ outline:1px solid #36ed9d66!important;box-shadow:0 0 0 1px #36ed9d40,0 0 18px #3
   #view-home .latest-title{font-size:11px!important;line-height:1.3!important}
 }
 </style>
+
+
+<style>
+/* Bilgi Ekle: analiz inceleme ekranini mobilde erisilebilir yap */
+#reviewOverlay{
+  z-index:120!important;
+  align-items:flex-start!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain;
+  padding:calc(12px + env(safe-area-inset-top)) 12px calc(92px + env(safe-area-inset-bottom))!important;
+}
+#reviewOverlay .review-modal{
+  width:min(760px,100%)!important;
+  max-height:none!important;
+  margin:auto!important;
+  overflow:visible!important;
+}
+#reviewOverlay .review-modal .fields{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:10px!important;
+}
+#reviewOverlay #reviewContent{
+  display:block;
+  width:94%!important;
+  max-width:94%!important;
+  min-height:210px!important;
+  margin:0 auto!important;
+  resize:vertical;
+}
+@media(max-width:760px){
+  #reviewOverlay{
+    padding:calc(10px + env(safe-area-inset-top)) 10px calc(100px + env(safe-area-inset-bottom))!important;
+  }
+  #reviewOverlay .review-modal{
+    width:100%!important;
+    padding:16px 13px 22px!important;
+    border-radius:16px!important;
+  }
+  #reviewOverlay .review-modal .fields{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:7px!important;
+  }
+  #reviewOverlay .review-modal .field{min-width:0;margin-bottom:8px!important}
+  #reviewOverlay .review-modal .field input,
+  #reviewOverlay .review-modal .field select{min-width:0;width:100%;padding:9px 7px;font-size:11px}
+  #reviewOverlay #reviewContent{
+    width:94%!important;
+    max-width:94%!important;
+    min-height:190px!important;
+    padding:11px!important;
+    font-size:12px!important;
+  }
+  #reviewOverlay .review-modal .btnrow{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:8px!important;
+  }
+  #reviewOverlay .review-modal .btnrow .btn{width:100%;min-height:43px}
+  /* Bottom navigation must stay behind the review screen */
+  #reviewOverlay{isolation:isolate}
+  #reviewOverlay .review-modal{position:relative;z-index:1}
+  #view-add .workspace.details-open .fields{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:8px!important;
+  }
+  #view-add .workspace.details-open .fields>.field:has(#recordTitle){
+    grid-column:1/-1!important;
+  }
+  #view-add .workspace.details-open .fields>.field:has(#recordCategory),
+  #view-add .workspace.details-open .fields>.field:has(#recordGroup){
+    grid-column:auto!important;
+    min-width:0!important;
+  }
+  #view-add .workspace.details-open .fields>.field:has(#recordCategory) select,
+  #view-add .workspace.details-open .fields>.field:has(#recordGroup) select{
+    min-width:0!important;
+    width:100%!important;
+    font-size:10px!important;
+    padding:8px 5px!important;
+  }
+  #view-add .workspace.details-open .fields>.field:has(#recordCategory) .category-add,
+  #view-add .workspace.details-open .fields>.field:has(#recordGroup) .category-add{
+    width:100%;
+    min-width:0;
+    font-size:8px!important;
+    padding:5px 3px!important;
+  }
+}
+</style>
