@@ -77,7 +77,13 @@ if(view==='library'){state.libraryPath=[];renderLibrary();}
 if(view==='ask')$('question').focus({preventScroll:true});
 }
 
-document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.view)));
+document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{
+if(b.dataset.view==='home' && $('view-home')?.classList.contains('active')){
+window.location.reload();
+return;
+}
+go(b.dataset.view);
+}));
 document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.go)));
 
 function updateClock(){
