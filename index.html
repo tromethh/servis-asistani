@@ -369,6 +369,18 @@ html.welcome-needed .app,html.welcome-needed .bottomnav{visibility:hidden}
 }
 @media(prefers-reduced-motion:reduce){#view-home .command-icon{animation:none!important}.welcome-line i{animation:none;width:100%}}
 
+
+/* Neon Q&A styling also applies inside the latest-record detail popup */
+.latest-detail-modal .record-qa-block.question,.related-record-modal .record-qa-block.question{
+border:1px solid #19d9f3!important;background:linear-gradient(130deg,#0d293a,#102234)!important;
+box-shadow:0 0 0 1px #19d9f355,0 0 18px #00dfff24!important;
+}
+.latest-detail-modal .record-qa-block.answer,.related-record-modal .record-qa-block.answer{
+border:1px solid #36ed9d!important;background:linear-gradient(130deg,#0d3028,#10251f)!important;
+outline:1px solid #36ed9d66!important;box-shadow:0 0 0 1px #36ed9d40,0 0 18px #36ed9d20!important;
+}
+.latest-detail-modal .record-qa-label,.related-record-modal .record-qa-label{font-size:10px!important}
+
 </style>
 <script>
 try{const last=Number(localStorage.getItem('nova_last_exit')||0);if(last&&Date.now()-last>300000)document.documentElement.classList.add('welcome-needed');}catch{}
