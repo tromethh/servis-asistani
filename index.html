@@ -813,12 +813,12 @@ outline:1px solid #36ed9d66!important;box-shadow:0 0 0 1px #36ed9d40,0 0 18px #3
 </style>
 
 <style>
-/* Soru Sor ekraninda sohbet cercevesini mobilde daha kompakt tut */
+/* Soru Sor: sohbet alanini uzat ve fotograf seceneklerini belirginlestir */
 @media(max-width:760px){
   #view-ask.active{
-    height:calc(100dvh - 250px - env(safe-area-inset-bottom))!important;
-    min-height:300px!important;
-    max-height:calc(100dvh - 250px - env(safe-area-inset-bottom))!important;
+    height:calc(100dvh - 105px - env(safe-area-inset-bottom))!important;
+    min-height:390px!important;
+    max-height:calc(100dvh - 105px - env(safe-area-inset-bottom))!important;
   }
   #view-ask .chatlayout{
     flex:1 1 auto!important;
@@ -826,6 +826,34 @@ outline:1px solid #36ed9d66!important;box-shadow:0 0 0 1px #36ed9d40,0 0 18px #3
     height:auto!important;
     max-height:100%!important;
   }
+  #view-ask .chatcomposer .photo-tools{
+    flex-direction:row!important;
+    justify-content:center!important;
+    align-items:center!important;
+    flex-wrap:wrap!important;
+    gap:8px!important;
+    margin:0 0 9px!important;
+  }
+  #view-ask .chatcomposer .photo-tools .left{
+    display:flex!important;
+    justify-content:center!important;
+    gap:9px!important;
+  }
+  #view-ask .chatcomposer .photo-tools .tinybtn{
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    min-height:40px!important;
+    padding:9px 13px!important;
+    border:1px solid rgba(0,229,255,.65)!important;
+    border-radius:11px!important;
+    background:linear-gradient(135deg,#123345,#142536)!important;
+    color:#e8fbff!important;
+    font-size:11px!important;
+    font-weight:700!important;
+    box-shadow:0 0 13px rgba(0,229,255,.13)!important;
+  }
+  #view-ask .chatcomposer .photo-tools .hint{font-size:9px!important}
 }
 </style>
 
