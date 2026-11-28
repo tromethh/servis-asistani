@@ -4,6 +4,10 @@
 const $ = id => document.getElementById(id);
 const cfg = window.NOVA_CONFIG || {};
 const APP_BRAND = 'Dyson-Servis';
+const welcomeWasNeeded=document.documentElement.classList.contains('welcome-needed');
+window.addEventListener('pagehide',()=>{try{localStorage.setItem('nova_last_exit',String(Date.now()));}catch{}});
+if(welcomeWasNeeded){setTimeout(()=>{document.documentElement.classList.remove('welcome-needed');const screen=$('welcomeScreen');if(screen)screen.style.display='none';},3000);}
+
 
 function todayKey(){return new Date().toLocaleDateString('sv-SE');}
 function dailyStats(){const key=todayKey(),saved=loadJSON('nova_daily_stats',{});return saved.date===key?saved:{date:key,questions:0,uploads:0};}
@@ -201,46 +205,46 @@ headers:{'Prefer':'return=minimal'}
 });
 }
 
+function animateRecordCount(target){
+const el=$('recordCount');target=Number(target)||0;
+if(el.dataset.countAnimated==='1'){el.textContent=target;return;}
+el.dataset.countAnimated='1';
+const duration=900,start=performance.now();
+function frame(now){
+const p=Math.min(1,(now-start)/duration),ease=1-Math.pow(1-p,3);
+el.textContent=Math.round(target*ease).toLocaleString('tr-TR');
+if(p<1)requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+}
 function renderHome(){
 const rows=[...state.records].sort((a,b)=>new Date(b.updated_at)-new Date(a.updated_at));
-$('recordCount').textContent=rows.length;
-
+animateRecordCount(rows.length);
 const countLike=(needle)=>rows.filter(r=>(r.category+' '+r.group+' '+r.title).toLocaleLowerCase('tr-TR').includes(needle)).length;
 $('recordBreakdown').textContent=`Makale: ${countLike('makale')} · Süreç: ${countLike('süreç')} · Parça kodu: ${countLike('parça')}`;
-
-const latest=rows[0],panel=$('latestPanel'),target=$('latestKnowledge');
-
+const latest=rows.slice(0,3),panel=$('latestPanel'),target=$('latestKnowledge');
 if(latestPulseTimeout)clearTimeout(latestPulseTimeout);
 panel.classList.remove('latest-green','latest-red');
-
-if(latest){
-const stamp=new Date(latest.updated_at),age=Date.now()-stamp.getTime();
+if(latest.length){
+const newestStamp=new Date(latest[0].updated_at),age=Date.now()-newestStamp.getTime();
 panel.classList.add(age<3600000?'latest-green':'latest-red');
-$('latestState').textContent='';
+$('latestState').textContent='SON 3 KAYIT';
 if(age<3600000)latestPulseTimeout=setTimeout(renderHome,3600000-age+250);
-
-target.innerHTML=`<div class="latest-entry"><button class="latest-title" id="openLatestDetail" type="button">${escapeHTML(latest.title)}</button><time class="latest-time">${stamp.toLocaleString('tr-TR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}</time></div>`;
-
-$('openLatestDetail').addEventListener('click',()=>{
-const current=state.records.find(x=>x.id===latest.id);
-if(!current)return;
-$('latestDetailTitle').textContent=current.title;
-$('latestDetailMeta').textContent=`${current.category} · ${current.group} · ${new Date(current.updated_at).toLocaleString('tr-TR')}`;
-$('latestDetailContent').innerHTML=renderRecordBody(current.content,true);
-$('latestDetailOverlay').classList.remove('hidden');
-});
+target.innerHTML=latest.map((r,i)=>{
+const stamp=new Date(r.updated_at);
+return `<div class="latest-entry"><button class="latest-title" type="button" data-latest-detail="${escapeHTML(r.id)}"><span class="latest-index">${String(i+1).padStart(2,'0')}</span><span class="latest-name">${escapeHTML(r.title)}</span></button><time class="latest-time">${stamp.toLocaleString('tr-TR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</time></div>`;
+}).join('');
 }else{
 $('latestState').textContent='BEKLİYOR';
 target.textContent='Henüz bilgi eklenmedi.';
 }
-
 renderDailyStats();
 }
 
 function libIcon(name){const n=String(name||'').toLocaleLowerCase('tr-TR');if(/parça|kod|part|sku/.test(n))return '🔩';if(/makale|teknik açıklama|doküman/.test(n))return '📘';if(/arıza|hata|error|sorun/.test(n))return '🛠️';if(/bakım|temizlik/.test(n))return '🧽';if(/kurulum|montaj/.test(n))return '⚙️';if(/garanti|süreç|prosedür/.test(n))return '📋';if(/sorulan sorular|soru-cevap/.test(n))return '💬';return '📁';}
 function libColor(name){const n=String(name||'').toLocaleLowerCase('tr-TR');if(/parça|kod|part|sku/.test(n))return '#a879ff';if(/makale|teknik açıklama|doküman/.test(n))return '#ff526f';if(/arıza|hata|error/.test(n))return '#ff9a55';if(/bakım|temizlik/.test(n))return '#55e6c1';if(/kurulum|montaj/.test(n))return '#55c8ff';return '#8d9fff';}
 function renderRecordBody(content,full=false){
-const raw=String(content||'').trim();
+const raw=String(content||'').replace(/\\r\\n/g,'\n').replace(/\\n/g,'\n').replace(/\\r/g,'\n').trim();
 let question='',answer='';
 try{
 const parsed=JSON.parse(raw);
@@ -431,6 +435,14 @@ $('newCategoryBtn').addEventListener('click',addCategory);
 $('newGroupBtn').addEventListener('click',addSubcategory);
 $('recordCategory').addEventListener('change',()=>refreshGroupSuggestions($('recordCategory').value));
 $('closeLatestDetail').addEventListener('click',()=>$('latestDetailOverlay').classList.add('hidden'));
+$('latestKnowledge').addEventListener('click',e=>{
+const b=e.target.closest('[data-latest-detail]');if(!b)return;
+const current=state.records.find(x=>x.id===b.dataset.latestDetail);if(!current)return;
+$('latestDetailTitle').textContent=current.title;
+$('latestDetailMeta').textContent=`${current.category} · ${current.group} · ${new Date(current.updated_at).toLocaleString('tr-TR')}`;
+$('latestDetailContent').innerHTML=renderRecordBody(current.content,true);
+$('latestDetailOverlay').classList.remove('hidden');
+});
 $('closeRelatedRecord').addEventListener('click',()=>$('relatedRecordOverlay').classList.add('hidden'));
 document.addEventListener('click',e=>{
 const b=e.target.closest('[data-related-record]');if(!b)return;
@@ -1158,23 +1170,45 @@ persistBreak();
 
 persistBreak();
 renderTimer();
+go('home');
 });
 
-$('manualBreakMinutes').addEventListener('change',()=>{
+function setManualBreakMinutes(value){
 if(state.timer.endAt)return;
-const n=Math.max(1,Math.min(240,Number($('manualBreakMinutes').value)||1));
-$('manualBreakMinutes').value=n;
-document.querySelectorAll('[data-min]').forEach(x=>x.classList.remove('selected'));
+const n=Math.max(1,Math.min(240,Math.round(Number(value)||1)));
 state.timer.duration=n*60;
+document.querySelectorAll('[data-min]').forEach(x=>x.classList.remove('selected'));
+const label=$('minuteWheelValue');if(label)label.textContent=n+' DAKİKA';
 renderTimer();
 $('timerStatus').textContent=n+' dakikalık özel mola hazır.';
+}
+const wheel=$('minuteWheel');
+if(wheel){
+const list=$('minuteWheelList');
+list.innerHTML=Array.from({length:240},(_,i)=>'<button type="button" class="minute-wheel-option" data-wheel-minute="'+(i+1)+'">'+(i+1)+'</button>').join('');
+const rowHeight=42;
+const initial=Number(loadJSON('nova_manual_break_minute',25))||25;
+wheel.scrollTop=(initial-1)*rowHeight;
+setManualBreakMinutes(initial);
+let wheelFrame=0;
+wheel.addEventListener('scroll',()=>{
+if(wheelFrame)cancelAnimationFrame(wheelFrame);
+wheelFrame=requestAnimationFrame(()=>{
+const n=Math.max(1,Math.min(240,Math.round(wheel.scrollTop/rowHeight)+1));
+list.querySelectorAll('.minute-wheel-option.selected').forEach(x=>x.classList.remove('selected'));
+const active=list.querySelector('[data-wheel-minute="'+n+'"]');if(active)active.classList.add('selected');
+if(n!==Math.round(state.timer.duration/60)){setManualBreakMinutes(n);saveJSON('nova_manual_break_minute',n);}
 });
+},{passive:true});
+list.addEventListener('click',e=>{const b=e.target.closest('[data-wheel-minute]');if(!b)return;wheel.scrollTo({top:(Number(b.dataset.wheelMinute)-1)*rowHeight,behavior:'smooth'});});
+}
+$('closeBreakView').addEventListener('click',()=>go('home'));
 
 $('resetTimer').addEventListener('click',()=>{
 if(state.timer.endAt)stopBreak();
 state.timer.duration=600;
 document.querySelectorAll('[data-min]').forEach(x=>x.classList.toggle('selected',x.dataset.min==='10'));
-$('manualBreakMinutes').value=25;
+if(wheel)wheel.scrollTo({top:24*42,behavior:'smooth'});saveJSON('nova_manual_break_minute',25);
 renderTimer();
 $('timerStatus').textContent='Sayaç sıfırlandı.';
 });
