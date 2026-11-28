@@ -408,7 +408,7 @@ outline:1px solid #36ed9d66!important;box-shadow:0 0 0 1px #36ed9d40,0 0 18px #3
 <div class="overlay hidden" id="editOverlay"><div class="modal"><h2>Kaydı düzenle</h2><p>Değişiklikler ortak bilgi bankasına kaydedilir.</p><label class="field"><span>Başlık</span><input id="editTitle"></label><label class="field"><span>Kategori</span><input id="editCategory"></label><label class="field"><span>Alt kategori / grup</span><input id="editGroup"></label><label class="field"><span>İçerik</span><textarea id="editContent" style="width:100%;min-height:140px;padding:12px;border-radius:10px;background:#09121d;color:white;border:1px solid #35495f"></textarea></label><div class="btnrow"><button class="btn" id="saveEdit">Değişiklikleri kaydet</button><button class="btn secondary" id="cancelEdit">Vazgeç</button></div><div class="statusline" id="editStatus"></div></div></div>
 <script src="config.js?v=4"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" defer></script>
-<script src="app.js?v=7" defer></script>
+<script src="app.js?v=8" defer></script>
 </body>
 </html>
 <style>
@@ -777,5 +777,29 @@ outline:1px solid #36ed9d66!important;box-shadow:0 0 0 1px #36ed9d40,0 0 18px #3
  .bottomnav{transition:transform .18s ease,opacity .18s ease}
  #view-ask.active{scroll-margin-top:0}
  #view-ask .chatinput textarea{font-size:16px!important;line-height:1.4}
+}
+</style>
+<style>
+/* Son Silinenler */
+.trash-entry{grid-column:1/-1;width:100%;display:flex;align-items:center;gap:13px;text-align:left;padding:16px 18px;margin-top:18px;border:1px solid rgba(255,65,82,.72);border-radius:15px;background:linear-gradient(135deg,rgba(110,10,25,.34),rgba(45,8,17,.72));color:#ffd9de;box-shadow:0 0 16px rgba(255,45,65,.16),inset 0 0 18px rgba(255,45,65,.06);cursor:pointer}
+.trash-entry>span:first-child{font-size:25px}
+.trash-entry>span:nth-child(2){display:flex;flex:1;flex-direction:column;gap:4px}
+.trash-entry b{font-size:15px;color:#ff9aa6}
+.trash-entry small{font-size:11px;color:#dbaeb4}
+.trash-entry>strong{font-size:25px;color:#ff6678}
+.trash-toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 12px}
+.trash-toolbar button,.trash-restore-one{border-radius:11px;padding:11px 15px;font-weight:800;cursor:pointer}
+.trash-restore-all{border:1px solid rgba(255,193,66,.85);background:rgba(110,75,5,.35);color:#ffe39b;box-shadow:0 0 13px rgba(255,190,45,.32),inset 0 0 12px rgba(255,190,45,.09)}
+.trash-empty-all{border:1px solid rgba(255,65,82,.9);background:rgba(120,8,22,.35);color:#ff9aa6;box-shadow:0 0 13px rgba(255,45,65,.3),inset 0 0 12px rgba(255,45,65,.08)}
+.trash-record{border-color:rgba(255,75,90,.35)}
+.trash-restore-one{border:1px solid rgba(255,193,66,.65);background:rgba(110,75,5,.25);color:#ffe39b}
+@media(max-width:760px){
+ .trash-entry{padding:13px 12px;margin-top:14px}
+ .trash-entry b{font-size:12px}
+ .trash-entry small{font-size:9px}
+ .trash-toolbar{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+ .trash-toolbar button{min-width:0;padding:10px 7px;font-size:10px}
+ .trash-record .record-actions{gap:7px}
+ .trash-restore-one{font-size:10px;padding:8px 10px}
 }
 </style>
