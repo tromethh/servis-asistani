@@ -202,7 +202,7 @@ border-radius:22px!important;
 .librarytools{flex-wrap:wrap}
 .librarytools input{order:3;flex-basis:100%}
 .librarytools #backupNow,.librarytools #restoreTrigger{font-size:10px;padding:10px 12px}
-.latest-detail-modal,.related-record-modal{position:relative;padding-bottom:82px!important}
+.latest-detail-modal,.related-record-modal{position:relative;width:min(100%,760px);max-height:85vh;overflow:auto;padding-bottom:82px!important}
 .latest-detail-content{max-height:62vh}
 .latest-detail-actions,.related-record-footer{position:sticky;bottom:-1px;display:flex;justify-content:center;padding:14px 0 0;background:linear-gradient(180deg,transparent,#101a28 22%)}
 .latest-detail-actions .btn,.related-record-footer .btn{width:min(100%,360px);background:#a92d43!important;border:1px solid #ef5269!important;color:#fff!important;box-shadow:0 8px 25px #b52e4538!important}
@@ -257,7 +257,7 @@ border-radius:22px!important;
 #view-home .latest-entry{padding:3px 0;gap:3px}
 #view-home .latest-title{font-size:11px}
 #view-home .latest-time{font-size:8px}
-#view-home .home-break-shortcut{display:none}
+#view-home .home-break-shortcut,#view-home #homeBreakCard{display:none!important}
 #view-home .home-break-card{margin:6px 0;padding:8px 11px}
 }
 @media(max-height:740px) and (max-width:900px){
