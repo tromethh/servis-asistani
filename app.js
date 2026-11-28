@@ -759,6 +759,7 @@ function openQuestionCrop(file){state.crop.mode='question';state.crop.queue=[fil
 function renderFileChips(){
 const all=state.pendingFiles;
 $('recordFileList').innerHTML=all.map((f,i)=>`<span class="filechip"><b>${i+1}.</b> ${escapeHTML(f.name)}</span>`).join('');
+if(typeof updateBatchControls==='function')updateBatchControls();
 }
 
 
@@ -844,7 +845,7 @@ async function analyzeBatchFiles(){
  }finally{btn.disabled=false;updateBatchControls();}
 }
 async function saveBatchRecords(){
- const selected=state.batchDrafts.filter(d=>d.include);
+ const selected=state.batchDrafts.filter(d=>d.include&&!d.saved);
  if(!selected.length){toast('Kaydetmek için en az bir bilgi seç.');return;}
  const btn=$('saveBatchRecords');btn.disabled=true;
  let saved=0;
@@ -853,7 +854,7 @@ async function saveBatchRecords(){
    if(!d.title.trim()||!d.content.trim())throw new Error(d.fileName+' için başlık ve içerik boş bırakılamaz.');
    const rec={id:'nova_'+Date.now()+'_'+Math.random().toString(36).slice(2,9),category:d.category.trim()||'Genel',group:d.group.trim()||'Geneli',title:d.title.trim(),content:d.content.trim(),updated_at:new Date().toISOString()};
    await saveCloudRecord(rec);
-   state.records.unshift(normalize(rec));saved++;
+   state.records.unshift(normalize(rec));d.saved=true;saved++;
   }
   persistRecords();
   for(let i=0;i<saved;i++)bumpDaily('uploads');
