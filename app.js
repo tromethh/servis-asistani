@@ -1056,6 +1056,10 @@ toast('Sorunuzu yazın veya fotoğraf ekleyin.');
 return;
 }
 
+// Soru gönderildiğinde mobil klavyeyi otomatik kapat.
+$('question').blur();
+document.body.classList.remove('keyboard-open');
+
 bumpDaily('questions');
 const send=$('sendQuestion');
 send.disabled=true;
