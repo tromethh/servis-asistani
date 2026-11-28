@@ -803,3 +803,20 @@ outline:1px solid #36ed9d66!important;box-shadow:0 0 0 1px #36ed9d40,0 0 18px #3
  .trash-restore-one{font-size:10px;padding:8px 10px}
 }
 </style>
+
+<style>
+/* Soru Sor ekraninda sohbet cercevesini mobilde daha kompakt tut */
+@media(max-width:760px){
+  #view-ask.active{
+    height:calc(100dvh - 250px - env(safe-area-inset-bottom))!important;
+    min-height:300px!important;
+    max-height:calc(100dvh - 250px - env(safe-area-inset-bottom))!important;
+  }
+  #view-ask .chatlayout{
+    flex:1 1 auto!important;
+    min-height:0!important;
+    height:auto!important;
+    max-height:100%!important;
+  }
+}
+</style>
