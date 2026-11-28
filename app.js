@@ -78,8 +78,11 @@ if(view==='ask')$('question').focus({preventScroll:true});
 }
 
 document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{
-if(b.dataset.view==='home' && $('view-home')?.classList.contains('active')){
-window.location.reload();
+if(b.dataset.view==='home'){
+go('home');
+updateClock();
+renderHome();
+renderTimer();
 return;
 }
 go(b.dataset.view);
@@ -396,12 +399,14 @@ refreshGroupSuggestions(current);
 }
 
 function refreshGroupSuggestions(category){
-const list=$('groupSuggestions');
-if(!list)return;
+const sel=$('recordGroup');
+if(!sel)return;
+const current=sel.value;
 const saved=Array.isArray(state.categoryTree?.[category])?state.categoryTree[category]:[];
 const fromRecords=state.records.filter(r=>r.category===category&&r.group&&r.group!=='Geneli').map(r=>r.group);
 const items=[...new Set([...saved,...fromRecords])];
-list.innerHTML=items.map(x=>`<option value="${escapeHTML(x)}"></option>`).join('');
+sel.innerHTML='<option value="">Alt kategori seç</option>'+items.map(x=>`<option value="${escapeHTML(x)}">${escapeHTML(x)}</option>`).join('');
+if(items.includes(current))sel.value=current;
 }
 
 function addCategory(){
@@ -633,6 +638,7 @@ $('recordFileList').innerHTML=all.map((f,i)=>`<span class="filechip"><b>${i+1}.<
 $('recordFiles').addEventListener('change',()=>{const files=$('recordFiles').files;if(files.length)openCropQueue(files);$('recordFiles').value='';});
 $('recordCamera').addEventListener('change',()=>{const files=$('recordCamera').files;if(files.length)openCropQueue(files);$('recordCamera').value='';});
 $('takeRecordPhoto').addEventListener('click',()=>$('recordCamera').click());$('chooseRecordPhoto').addEventListener('click',()=>$('recordFiles').click());$('addMoreRecordFiles').addEventListener('click',()=>$('recordFiles').click());$('writeRecordText').addEventListener('click',()=>{const ws=$('view-add').querySelector('.workspace');ws.classList.add('text-entry-open');$('recordContent').focus({preventScroll:true});});
+$('toggleRecordDetails').addEventListener('click',()=>{const ws=$('view-add').querySelector('.workspace');const open=ws.classList.toggle('details-open');$('toggleRecordDetails').textContent=open?'− Bilgi başlığı alanlarını gizle':'＋ Bilgi başlığı ekle';$('toggleRecordDetails').setAttribute('aria-expanded',String(open));});
 
 $('saveRecord').addEventListener('click',async()=>{
 const title=$('recordTitle').value.trim();
